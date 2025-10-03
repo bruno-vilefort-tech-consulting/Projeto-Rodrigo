@@ -12,7 +12,7 @@ app.get("/*", function (req, res) {
 
 // === AJUSTE IMPORTANTE ===
 // Porta vem do .env ou usa 3001 como fallback
-const PORT = Number(process.env.PORT) || 3001;
+const PORT = Number(process.env.SERVER_PORT) || 3000;
 const HOST = process.env.HOST || "0.0.0.0";
 
 app.listen(PORT, HOST, () => {
