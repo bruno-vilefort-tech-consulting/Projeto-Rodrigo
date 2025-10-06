@@ -21,7 +21,16 @@
       "Read(//home/deploy/.local/share/pnpm/**)",
       "Bash(lsof:*)",
       "Bash(netstat:*)",
-      "Bash(head -1 echo \"\" echo \"2️⃣ ETAPA 19 (linha 1075) - JavaScript eval\" sed -n '1075p' /root/instalador.sh)"
+      "Bash(head -1 echo \"\" echo \"2️⃣ ETAPA 19 (linha 1075) - JavaScript eval\" sed -n '1075p' /root/instalador.sh)",
+      "Read(//etc/nginx/sites-enabled/**)",
+      "Bash(nginx:*)",
+      "Bash(systemctl restart:*)",
+      "Bash(chown:*)",
+      "Bash(curl:*)",
+      "Bash(empresa=\"atuar_pay\" backend_host=\"apiv6.tappy.id\" backend_port=\"8080\" frontend_host=\"v6.tappy.id\" frontend_port=\"3000\" bash -lc 'cat > /tmp/test-nginx-backend <<'\"''\"'NGINX_BACKEND'\"''\"'\nserver {\n    listen 80;\n    server_name ${backend_host};\n    location / {\n        proxy_pass http://127.0.0.1:${backend_port};\n        proxy_http_version 1.1;\n        proxy_set_header Upgrade $http_upgrade;\n        proxy_set_header Connection \"\"upgrade\"\";\n        proxy_set_header Host $host;\n        proxy_set_header X-Real-IP $remote_addr;\n        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;\n        proxy_set_header X-Forwarded-Proto $scheme;\n        proxy_cache_bypass $http_upgrade;\n        proxy_buffering off;\n        proxy_request_buffering off;\n    }\n}\nNGINX_BACKEND\n')",
+      "Bash(empresa=\"atuar_pay\" backend_host=\"apiv6.tappy.id\" backend_port=\"8080\" frontend_host=\"v6.tappy.id\" frontend_port=\"3000\" bash -lc 'cat > /tmp/test-nginx-backend2 << NGINX_BACKEND\nserver {\n    listen 80;\n    server_name ${backend_host};\n    location / {\n        proxy_pass http://127.0.0.1:${backend_port};\n        proxy_http_version 1.1;\n        proxy_set_header Upgrade \\\\\\$http_upgrade;\n        proxy_set_header Connection \"\"upgrade\"\";\n        proxy_set_header Host \\\\\\$host;\n        proxy_set_header X-Real-IP \\\\\\$remote_addr;\n        proxy_set_header X-Forwarded-For \\\\\\$proxy_add_x_forwarded_for;\n        proxy_set_header X-Forwarded-Proto \\\\\\$scheme;\n        proxy_cache_bypass \\\\\\$http_upgrade;\n        proxy_buffering off;\n        proxy_request_buffering off;\n    }\n}\nNGINX_BACKEND\n')",
+      "Bash(empresa=\"atuar_pay\" backend_host=\"apiv6.tappy.id\" backend_port=\"8080\" bash -lc 'cat > /tmp/test-nginx-backend3 << NGINX_BACKEND\nserver {\n    listen 80;\n    server_name ${backend_host};\n    location / {\n        proxy_pass http://127.0.0.1:${backend_port};\n        proxy_http_version 1.1;\n        proxy_set_header Upgrade \\\\\\\\$http_upgrade;\n        proxy_set_header Host \\\\\\\\$host;\n    }\n}\nNGINX_BACKEND\n')",
+      "Bash(backend_host=\"apiv6.tappy.id\" backend_port=\"8080\" bash -lc 'cat > /tmp/test-nginx-final <<'\"''\"'NGINX_BACKEND'\"''\"'\nserver {\n    listen 80;\n    server_name BACKEND_HOST_PLACEHOLDER;\n    location / {\n        proxy_pass http://127.0.0.1:BACKEND_PORT_PLACEHOLDER;\n        proxy_http_version 1.1;\n        proxy_set_header Upgrade $http_upgrade;\n        proxy_set_header Host $host;\n    }\n}\nNGINX_BACKEND\nsed -i \"\"s/BACKEND_HOST_PLACEHOLDER/${backend_host}/g; s/BACKEND_PORT_PLACEHOLDER/${backend_port}/g\"\" /tmp/test-nginx-final\n')"
     ],
     "deny": [],
     "ask": []

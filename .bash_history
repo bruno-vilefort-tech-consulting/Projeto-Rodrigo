@@ -21,3 +21,12 @@ ls
 git add .
 git commit -m "checkpoint - 90%"
 bash desinstalador.sh 
+bash desinstalador.sh 
+bash instalador.sh
+bash desinstalador.sh 
+bash instalador.sh
+bash desinstalador.sh 
+git add ..
+git add .
+git commit -m "checkpoint - 100%"
+bash desinstalador.sh 

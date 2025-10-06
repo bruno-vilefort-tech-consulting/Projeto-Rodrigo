@@ -1,0 +1,1177 @@
+#!/bin/bash
+#===============================================================================
+# CHATIA - Instalador Ultra Otimizado com Deploy Completo
+# Versão: 5.0 - Com todas otimizações e deploy automático
+# Data: 2025-10-04 (revisado)
+#===============================================================================
+
+set -e
+set -o pipefail
+
+#=========================== CONFIG INICIAIS ===================================
+
+export DEBIAN_FRONTEND=noninteractive
+export NEEDRESTART_MODE=a
+export APT_LISTCHANGES_FRONTEND=none
+
+# Forçar dpkg/apt a não perguntar sobre arquivos de configuração (sempre manter novos)
+install -d -m 0755 /etc/apt/apt.conf.d >/dev/null 2>&1 || true
+cat >/etc/apt/apt.conf.d/90noninteractive <<'APTCONF'
+Dpkg::Options {
+  "--force-confnew";
+  "--force-confdef";
+};
+APT::Color "0";
+APT::Get::Assume-Yes "true";
+# Nota: 'force-yes' é obsoleto e causa warnings; não utilize.
+APTCONF
+
+# Cores
+RED='\033[0;31m'; GREEN='\033[0;32m'; YELLOW='\033[1;33m'; BLUE='\033[0;34m'
+WHITE='\033[1;37m'; CYAN_LIGHT='\033[1;36m'; GRAY_LIGHT='\033[0;37m'
+NC='\033[0m'
+
+# Variáveis globais
+ARQUIVO_VARIAVEIS="VARIAVEIS_INSTALACAO"
+CHECKPOINT_FILE="/root/.chatia_install_checkpoint"
+LOG_FILE="/root/scripts/chatia-install.log"
+ip_atual=""
+LANG_UI="pt" # default até selecionar
+YES_CHARS="S|Y|SI"
+NO_CHARS="N|NO"
+
+#============================= I18N / TRADUÇÃO =================================
+t() {
+  local k="$1"
+  case "$LANG_UI" in
+    pt)
+      case "$k" in
+        choose_lang) echo "Selecione o idioma / Select language / Seleccionar idioma";;
+        lang_options) echo "[1] Português  [2] Español  [3] English";;
+        invalid_option) echo "Opção inválida. Tente novamente.";;
+
+        banner_title) echo "Instalador Completo • ChatIA";;
+        banner_sub) echo "Ultra Otimizado v5.0";;
+        banner_tag) echo "Powered by ChatIA Technology";;
+
+        wizard_hint) echo "Dicas: [B] Voltar  [R] Recomeçar  [Q] Sair  [Enter] mantém valor anterior";;
+        step) echo "Etapa";; of) echo "de";;
+
+        q_backend) echo "Informe a URL do Backend (ex.: api.exemplo.com ou https://api.exemplo.com)";;
+        q_frontend) echo "Informe a URL do Frontend (ex.: app.exemplo.com ou https://app.exemplo.com)";;
+        q_email) echo "Digite o seu melhor e-mail (para login)";;
+        q_company) echo "Digite o nome da sua empresa";;
+        q_deploy_pass) echo "Defina a senha de Deploy/Redis/Banco (sem caracteres especiais)";;
+        q_master_pass) echo "Defina a senha MASTER (login do painel)";;
+        q_phone) echo "Número de suporte (somente números, ex.: 5511987654321)";;
+        q_fb_id) echo "(Opcional) FACEBOOK_APP_ID";;
+        q_fb_secret) echo "(Opcional) FACEBOOK_APP_SECRET";;
+        q_github_token) echo "(Opcional) Token do GitHub para baixar o repositório";;
+        q_repo_url) echo "Informe a URL do repositório GitHub (https://...)" ;;
+        q_confirm) echo "Confirmar configuração? (S/N)";;
+
+        err_empty) echo "Este campo é obrigatório.";;
+
+        err_dns_ip) echo "Não foi possível determinar o IP público da VPS.";;
+
+        checking_dns) echo "Verificando DNS...";;
+        dns_backend_ok) echo "Domínio do backend OK e apontando para esta VPS.";;
+
+        dns_frontend_ok) echo "Domínio do frontend OK e apontando para esta VPS.";;
+
+        dns_backend_bad) echo "Domínio do backend não aponta para esta VPS. Ajuste o DNS e tente novamente.";;
+
+        dns_frontend_bad) echo "Domínio do frontend não aponta para esta VPS. Ajuste o DNS e tente novamente.";;
+
+        err_email) echo "Formato de e-mail inválido.";;
+
+        err_phone) echo "Telefone inválido. Use somente números (10 a 15 dígitos).";;
+
+        err_pass_chars) echo "Senha contém caracteres especiais não permitidos.";;
+
+        cancelled) echo "Instalação cancelada.";;
+
+        summary_title) echo "Resumo da Configuração";;
+        summary_backend) echo "URL do Backend";;
+        summary_frontend) echo "URL do Frontend";;
+        summary_email) echo "E-mail";;
+        summary_company) echo "Empresa";;
+        summary_system) echo "Sistema";;
+        summary_ports) echo "Portas";;
+
+        starting_install) echo "Iniciando instalação...";;
+        installing) echo "Instalando";;
+        configuring) echo "Configurando";;
+        updating_system) echo "Atualizando sistema";;
+        done_ok) echo "Concluído";;
+        see_logs) echo "Consulte os logs em";;
+
+        services_up) echo "Serviços iniciados!";;
+
+        nginx_valid) echo "Configuração do Nginx válida!";;
+        nginx_restarted) echo "Nginx reiniciado com sucesso!";;
+        nginx_invalid) echo "Configuração do Nginx inválida! Verifique os arquivos.";;
+
+        ssl_ok) echo "SSL configurado com sucesso!";;
+        ssl_warn) echo "Erro ao gerar SSL. Você pode executar manualmente o certbot depois.";;
+
+        testing_services) echo "Verificando serviços...";;
+        backend_up) echo "Backend respondendo";;
+        backend_warn) echo "Backend pode não estar respondendo corretamente";;
+        frontend_up) echo "Frontend respondendo";;
+        frontend_warn) echo "Frontend pode não estar respondendo corretamente";;
+
+        install_complete) echo "INSTALAÇÃO COMPLETA COM SUCESSO!";;
+        installed_stack) echo "Sistema Instalado";;
+        app_section) echo "Aplicação ChatIA";;
+        status_section) echo "Status dos Serviços";;
+        creds) echo "Credenciais de Acesso";;
+        url) echo "URL";; email) echo "E-mail";; password) echo "Senha";;
+      esac
+    ;;
+    es)
+      case "$k" in
+        choose_lang) echo "Seleccione el idioma / Select language / Selecionar idioma";;
+        lang_options) echo "[1] Español  [2] Português  [3] English";;
+        invalid_option) echo "Opción inválida. Intente nuevamente.";;
+
+        banner_title) echo "Instalador Completo • ChatIA";;
+        banner_sub) echo "Ultra Optimizado v5.0";;
+        banner_tag) echo "Powered by ChatIA Technology";;
+
+        wizard_hint) echo "Atajos: [B] Volver  [R] Reiniciar  [Q] Salir  [Enter] mantiene valor previo";;
+        step) echo "Paso";; of) echo "de";;
+
+        q_backend) echo "URL del Backend (ej.: api.ejemplo.com o https://api.ejemplo.com)";;
+        q_frontend) echo "URL del Frontend (ej.: app.ejemplo.com o https://app.ejemplo.com)";;
+        q_email) echo "Ingrese su mejor correo (para login)";;
+        q_company) echo "Nombre de su empresa";;
+        q_deploy_pass) echo "Contraseña de Deploy/Redis/DB (sin caracteres especiales)";;
+        q_master_pass) echo "Contraseña MASTER (panel)";;
+        q_phone) echo "Teléfono de soporte (solo números, ej.: 5491112345678)";;
+        q_fb_id) echo "(Opcional) FACEBOOK_APP_ID";;
+        q_fb_secret) echo "(Opcional) FACEBOOK_APP_SECRET";;
+        q_github_token) echo "(Opcional) Token de GitHub para clonar el repo";;
+        q_repo_url) echo "URL del repositorio GitHub (https://...)";;
+        q_confirm) echo "¿Confirmar configuración? (S/N)";;
+
+        err_empty) echo "Este campo es obligatorio.";;
+        err_dns_ip) echo "No fue posible determinar la IP pública del servidor.";;
+        checking_dns) echo "Verificando DNS...";;
+        dns_backend_ok) echo "Dominio del backend OK y apuntando a este servidor.";;
+        dns_frontend_ok) echo "Dominio del frontend OK y apuntando a este servidor.";;
+        dns_backend_bad) echo "El dominio del backend no apunta a este servidor. Ajuste el DNS e inténtelo otra vez.";;
+        dns_frontend_bad) echo "El dominio del frontend no apunta a este servidor. Ajuste el DNS e inténtelo otra vez.";;
+        err_email) echo "Formato de correo inválido.";;
+        err_phone) echo "Teléfono inválido. Use solo números (10 a 15 dígitos).";;
+        err_pass_chars) echo "La contraseña contiene caracteres especiales no permitidos.";;
+        cancelled) echo "Instalación cancelada.";;
+        summary_title) echo "Resumen de Configuración";;
+        summary_backend) echo "URL del Backend";;
+        summary_frontend) echo "URL del Frontend";;
+        summary_email) echo "Correo";;
+        summary_company) echo "Empresa";;
+        summary_system) echo "Sistema";;
+        summary_ports) echo "Puertos";;
+
+        starting_install) echo "Iniciando instalación...";;
+        installing) echo "Instalando";; configuring) echo "Configurando";;
+        updating_system) echo "Actualizando sistema";;
+        done_ok) echo "Completado";;
+        see_logs) echo "Revise los logs en";;
+
+        services_up) echo "¡Servicios iniciados!";;
+        nginx_valid) echo "¡Configuración de Nginx válida!";;
+        nginx_restarted) echo "¡Nginx reiniciado con éxito!";;
+        nginx_invalid) echo "¡Configuración de Nginx inválida! Revise los archivos.";;
+        ssl_ok) echo "¡SSL configurado con éxito!";;
+        ssl_warn) echo "Error generando SSL. Puede ejecutar certbot manualmente luego.";;
+        testing_services) echo "Verificando servicios...";;
+        backend_up) echo "Backend respondiendo";;
+        backend_warn) echo "El backend puede no estar respondiendo correctamente";;
+        frontend_up) echo "Frontend respondiendo";;
+        frontend_warn) echo "El frontend puede no estar respondiendo correctamente";;
+
+        install_complete) echo "¡INSTALACIÓN COMPLETA CON ÉXITO!";;
+        installed_stack) echo "Sistema Instalado";;
+        app_section) echo "Aplicación ChatIA";;
+        status_section) echo "Estado de los Servicios";;
+        creds) echo "Credenciales de Acceso";;
+        url) echo "URL";; email) echo "Correo";; password) echo "Contraseña";;
+      esac
+    ;;
+    *)
+      case "$k" in
+        choose_lang) echo "Select language / Seleccione el idioma / Selecione o idioma";;
+        lang_options) echo "[1] English  [2] Português  [3] Español";;
+        invalid_option) echo "Invalid option. Try again.";;
+
+        banner_title) echo "Full Installer • ChatIA";;
+        banner_sub) echo "Ultra Optimized v5.0";;
+        banner_tag) echo "Powered by ChatIA Technology";;
+
+        wizard_hint) echo "Tips: [B] Back  [R] Restart  [Q] Quit  [Enter] keeps previous value";;
+        step) echo "Step";; of) echo "of";;
+
+        q_backend) echo "Backend URL (e.g., api.example.com or https://api.example.com)";;
+        q_frontend) echo "Frontend URL (e.g., app.example.com or https://app.example.com)";;
+        q_email) echo "Enter your best email (login)";;
+        q_company) echo "Company name";;
+        q_deploy_pass) echo "Deploy/Redis/DB password (no special chars)";;
+        q_master_pass) echo "MASTER password (panel login)";;
+        q_phone) echo "Support phone (digits only, e.g., 15551234567)";;
+        q_fb_id) echo "(Optional) FACEBOOK_APP_ID";;
+        q_fb_secret) echo "(Optional) FACEBOOK_APP_SECRET";;
+        q_github_token) echo "(Optional) GitHub token to clone the repository";;
+        q_repo_url) echo "GitHub repository URL (https://...)";;
+        q_confirm) echo "Confirm configuration? (Y/N)";;
+
+        err_empty) echo "This field is required.";;
+        err_dns_ip) echo "Could not determine server public IP.";;
+        checking_dns) echo "Checking DNS...";;
+        dns_backend_ok) echo "Backend domain OK and pointing to this server.";;
+        dns_frontend_ok) echo "Frontend domain OK and pointing to this server.";;
+        dns_backend_bad) echo "Backend domain does not point to this server. Fix DNS and try again.";;
+        dns_frontend_bad) echo "Frontend domain does not point to this server. Fix DNS and try again.";;
+        err_email) echo "Invalid email format.";;
+        err_phone) echo "Invalid phone. Use only digits (10 to 15).";;
+        err_pass_chars) echo "Password contains disallowed special characters.";;
+        cancelled) echo "Installation cancelled.";;
+
+        summary_title) echo "Configuration Summary";;
+        summary_backend) echo "Backend URL";;
+        summary_frontend) echo "Frontend URL";;
+        summary_email) echo "Email";;
+        summary_company) echo "Company";;
+        summary_system) echo "System";;
+        summary_ports) echo "Ports";;
+
+        starting_install) echo "Starting installation...";;
+        installing) echo "Installing";; configuring) echo "Configuring";;
+        updating_system) echo "Updating system";; done_ok) echo "Done";;
+        see_logs) echo "See logs at";;
+
+        services_up) echo "Services started!";;
+        nginx_valid) echo "Valid Nginx configuration!";;
+        nginx_restarted) echo "Nginx restarted successfully!";;
+        nginx_invalid) echo "Invalid Nginx configuration! Check files.";;
+
+        ssl_ok) echo "SSL configured successfully!";;
+        ssl_warn) echo "Failed to issue SSL. You can run certbot manually later.";;
+
+        testing_services) echo "Checking services...";;
+        backend_up) echo "Backend responding";;
+        backend_warn) echo "Backend might not be responding properly";;
+        frontend_up) echo "Frontend responding";;
+        frontend_warn) echo "Frontend might not be responding properly";;
+
+        install_complete) echo "INSTALLATION COMPLETED SUCCESSFULLY!";;
+        installed_stack) echo "Installed Stack";;
+        app_section) echo "ChatIA Application";;
+        status_section) echo "Services Status";;
+        creds) echo "Access Credentials";;
+        url) echo "URL";; email) echo "Email";; password) echo "Password";;
+      esac
+    ;;
+  esac
+}
+
+#============================= UI / BANNER =====================================
+
+banner() {
+  clear
+  printf "\n"
+  printf "${CYAN_LIGHT}┌─────────────────────────────────────────────────────────┐${NC}\n"
+  printf "${CYAN_LIGHT}│${NC}  ${GREEN}█▀▀ █ █ ▄▀▄ ▀█▀ █ ▄▀▄${NC}  ${CYAN_LIGHT}│${NC}  ${WHITE}$(t banner_title)${NC}\n"
+  printf "${CYAN_LIGHT}│${NC}  ${GREEN}█   █▀█ █▀█  █  █ █▀█${NC}  ${CYAN_LIGHT}│${NC}  ${GRAY_LIGHT}$(t banner_sub)${NC}\n"
+  printf "${CYAN_LIGHT}│${NC}  ${GREEN}▀▀▀ ▀ ▀ ▀ ▀  ▀  ▀ ▀ ▀${NC}  ${CYAN_LIGHT}│${NC}  ${GRAY_LIGHT}$(t banner_tag)${NC}\n"
+  printf "${CYAN_LIGHT}│${NC}                      ${CYAN_LIGHT}│${NC}\n"
+  printf "${CYAN_LIGHT}│${NC}                      ${CYAN_LIGHT}│${NC}\n"
+  printf "${CYAN_LIGHT}└─────────────────────────────────────────────────────────┘${NC}\n"
+  printf "\n"
+}
+
+header_step() {
+  local n="$1"; local total="$2"; local title="$3"
+  banner
+  printf "${YELLOW}● $(t step) ${n}/${total}${NC}\n"
+  printf "${WHITE}${title}${NC}\n"
+  printf "${GRAY_LIGHT}$(t wizard_hint)${NC}\n\n"
+}
+
+#============================= LOG / PROGRESS ==================================
+
+log_info(){ echo -e "${BLUE}[INFO]${NC} $1"; }
+log_success(){ echo -e "${GREEN}[OK]${NC} $1"; }
+log_warning(){ echo -e "${YELLOW}[WARN]${NC} $1"; }
+log_error(){ echo -e "${RED}[ERROR]${NC} $1"; }
+
+SPINNER_FRAMES=( "⠋" "⠙" "⠹" "⠸" "⠼" "⠴" "⠦" "⠧" "⠇" "⠏" )
+spinner() {
+  local i=0
+  while kill -0 "$1" 2>/dev/null; do
+    printf "\r${CYAN_LIGHT}%s${NC} " "${SPINNER_FRAMES[$i]}"
+    i=$(( (i+1) % ${#SPINNER_FRAMES[@]} ))
+    sleep 0.12
+  done
+}
+
+PROG_TOTAL=32
+PROG_DONE=0
+
+progress_render() {
+  local width=40
+  local percent=0
+  if [ "$PROG_TOTAL" -gt 0 ]; then
+    percent=$(( PROG_DONE * 100 / PROG_TOTAL ))
+    [ "$percent" -gt 100 ] && percent=100
+  fi
+  local filled=$(( percent * width / 100 ))
+  local empty=$(( width - filled ))
+  printf "\r${WHITE}["
+  if [ "$filled" -gt 0 ]; then printf "%0.s█" $(seq 1 "$filled"); fi
+  if [ "$empty" -gt 0 ]; then printf "%0.s░" $(seq 1 "$empty"); fi
+  printf "] %3d%%${NC}" "$percent"
+}
+
+progress_inc() {
+  PROG_DONE=$(( PROG_DONE + 1 ))
+  progress_render
+  printf "\n"
+}
+
+run_quiet() {
+  local desc="$1"; shift
+  printf "\r\033[K${GRAY_LIGHT}• ${desc}${NC}\n" | tee -a "$LOG_FILE"
+  ( eval "$*" ) >> "$LOG_FILE" 2>&1 &
+  local pid=$!
+  spinner "$pid"
+  wait "$pid"
+  local ec=$?
+  if [ $ec -ne 0 ]; then
+    echo
+    log_error "$(t see_logs) $LOG_FILE"
+    tail -n 120 "$LOG_FILE" || true
+    exit $ec
+  fi
+  log_success "$(t done_ok)"
+  progress_inc
+}
+
+run_quiet_may_fail() {
+  local desc="$1"; shift
+  printf "\r\033[K${GRAY_LIGHT}• ${desc}${NC}\n" | tee -a "$LOG_FILE"
+  ( eval "$*" ) >> "$LOG_FILE" 2>&1 &
+  local pid=$!
+  spinner "$pid"
+  wait "$pid" || true
+  local ec=$?
+  if [ $ec -ne 0 ]; then
+    log_warning "$(t ssl_warn)"
+  else
+    log_success "$(t done_ok)"
+  fi
+  progress_inc
+}
+
+trap 'echo; log_error "Falha inesperada. '"$(t see_logs)"' '"$LOG_FILE"'" ; exit 1' ERR
+
+#============================= HELPERS =========================================
+
+rand_b64() { if command -v openssl >/dev/null 2>&1; then openssl rand -base64 32; else head -c 32 /dev/urandom | base64; fi; }
+
+get_vps_ip() {
+  local vps_ip=""
+  vps_ip=$(curl -s -4 https://ifconfig.me 2>/dev/null)
+  [ -z "$vps_ip" ] && vps_ip=$(curl -s -4 https://icanhazip.com 2>/dev/null)
+  [ -z "$vps_ip" ] && vps_ip=$(curl -s -4 https://api.ipify.org 2>/dev/null)
+  [ -z "$vps_ip" ] && vps_ip=$(curl -s http://checkip.amazonaws.com 2>/dev/null)
+  echo "$vps_ip"
+}
+
+resolve_ipv4() {
+  local domain="$1"
+  domain=$(echo "$domain" | sed -E 's~https?://~~; s~/.*~~')
+  local ip="$(getent ahostsv4 "$domain" 2>/dev/null | awk '/STREAM/ {print $1; exit}')"
+  if [ -n "$ip" ]; then echo "$ip"; return 0; fi
+  if command -v host >/dev/null 2>&1; then ip=$(host "$domain" 2>/dev/null | awk '/has address/ {print $4; exit}'); fi
+  echo "$ip"
+}
+
+check_domain_dns() { local domain="$1"; local vps_ip="$2"; local dip="$(resolve_ipv4 "$domain")"; [ -n "$dip" ] && [ "$dip" = "$vps_ip" ]; }
+
+normaliza_nome_empresa() {
+  local nome="$1"
+  nome=$(echo "${nome}" | tr '[:upper:]' '[:lower:]')
+  nome=$(echo "${nome}" | sed 's/[^a-z0-9]/_/g; s/__*/_/g; s/^_//; s/_$//')
+  case "$nome" in [0-9]*) nome="app_${nome}";; esac
+  [ -z "$nome" ] && nome="empresa_app"
+  echo "$nome"
+}
+
+salvar_variaveis() {
+  cat > "$ARQUIVO_VARIAVEIS" << EOF
+subdominio_backend=${subdominio_backend}
+subdominio_frontend=${subdominio_frontend}
+email_deploy=${email_deploy}
+empresa=${empresa}
+nome_empresa_original=${nome_empresa_original}
+senha_deploy=${senha_deploy}
+senha_master=${senha_master}
+nome_titulo=${nome_titulo}
+numero_suporte=${numero_suporte}
+max_whatsapps=${max_whatsapps}
+max_users=${max_users}
+facebook_app_id=${facebook_app_id}
+facebook_app_secret=${facebook_app_secret}
+github_token=${github_token}
+repo_url=${repo_url}
+backend_port=${backend_port}
+frontend_port=${frontend_port}
+EOF
+}
+
+yes_input() { local v="$(echo "$1" | tr '[:lower:]' '[:upper:]')"; [[ "$v" =~ ^(${YES_CHARS})$ ]]; }
+
+save_checkpoint() { echo "$1" > "$CHECKPOINT_FILE"; echo "$(date '+%F %T') - $1" >> "${CHECKPOINT_FILE}.log"; }
+
+wait_for_apt() {
+  local timeout=120; local waited=0
+  while fuser /var/lib/dpkg/lock-frontend >/dev/null 2>&1 || fuser /var/lib/apt/lists/lock >/dev/null 2>&1; do
+    [ $waited -ge $timeout ] && { log_error "apt lock timeout"; return 1; }
+    sleep 2; waited=$((waited+2))
+  done
+}
+
+#============================= SECRETS =========================================
+jwt_secret="$(rand_b64)"
+jwt_refresh_secret="$(rand_b64)"
+
+#============================= SELEÇÃO DE IDIOMA ===============================
+
+select_language() {
+  while true; do
+    banner
+    echo -e "${WHITE}$(t choose_lang)${NC}"
+    echo -e "${GRAY_LIGHT}$(t lang_options)${NC}"
+    echo
+    read -rp "> " opt
+    case "$opt" in
+      1) LANG_UI="pt"; break;;
+      2) LANG_UI="es"; break;;
+      3) LANG_UI="en"; break;;
+      *) echo -e "${YELLOW}$(t invalid_option)${NC}"; sleep 1;;
+    esac
+  done
+  case "$LANG_UI" in
+    pt) YES_CHARS="S|Y|SI"; NO_CHARS="N|NO";;
+    es) YES_CHARS="S|SI|Y"; NO_CHARS="N|NO";;
+    en) YES_CHARS="Y|S|SI"; NO_CHARS="N|NO";;
+  esac
+}
+
+#============================= WIZARD DE PERGUNTAS =============================
+
+coletar_dados_usuario() {
+  local total=12
+  ip_atual="$(get_vps_ip)"; if [ -z "$ip_atual" ]; then echo -e "${RED}$(t err_dns_ip)${NC}"; exit 1; fi
+  local step=1 inpt
+  while true; do
+    case "$step" in
+      1)
+        header_step "$step" "$total" "$(t q_backend)"
+        [ -n "${subdominio_backend:-}" ] && echo -e "${GRAY_LIGHT}(${subdominio_backend})${NC}"
+        read -rp "> " inpt || true
+        case "${inpt^^}" in B) [ $step -gt 1 ] && step=$((step-1)); continue;; R) unset subdominio_backend; step=1; continue;; Q) echo -e "${YELLOW}$(t cancelled)${NC}"; exit 1;; esac
+        [ -z "$inpt" ] && [ -n "${subdominio_backend:-}" ] && inpt="$subdominio_backend"
+        [ -z "$inpt" ] && { echo -e "${RED}$(t err_empty)${NC}"; sleep 1; continue; }
+        subdominio_backend="$inpt"; echo -e "${GRAY_LIGHT}$(t checking_dns)${NC}"
+        if check_domain_dns "$subdominio_backend" "$ip_atual"; then echo -e "${GREEN}$(t dns_backend_ok)${NC}"; step=$((step+1)); else echo -e "${RED}$(t dns_backend_bad)${NC}"; sleep 1; fi
+      ;;
+      2)
+        header_step "$step" "$total" "$(t q_frontend)"
+        [ -n "${subdominio_frontend:-}" ] && echo -e "${GRAY_LIGHT}(${subdominio_frontend})${NC}"
+        read -rp "> " inpt || true
+        case "${inpt^^}" in B) step=$((step-1)); continue;; R) unset subdominio_frontend; step=1; continue;; Q) echo -e "${YELLOW}$(t cancelled)${NC}"; exit 1;; esac
+        [ -z "$inpt" ] && [ -n "${subdominio_frontend:-}" ] && inpt="$subdominio_frontend"
+        [ -z "$inpt" ] && { echo -e "${RED}$(t err_empty)${NC}"; sleep 1; continue; }
+        subdominio_frontend="$inpt"; echo -e "${GRAY_LIGHT}$(t checking_dns)${NC}"
+        if check_domain_dns "$subdominio_frontend" "$ip_atual"; then echo -e "${GREEN}$(t dns_frontend_ok)${NC}"; step=$((step+1)); else echo -e "${RED}$(t dns_frontend_bad)${NC}"; sleep 1; fi
+      ;;
+      3)
+        header_step "$step" "$total" "$(t q_email)"
+        [ -n "${email_deploy:-}" ] && echo -e "${GRAY_LIGHT}(${email_deploy})${NC}"
+        read -rp "> " inpt || true
+        case "${inpt^^}" in B) step=$((step-1)); continue;; R) unset email_deploy; step=1; continue;; Q) echo -e "${YELLOW}$(t cancelled)${NC}"; exit 1;; esac
+        [ -z "$inpt" ] && [ -n "${email_deploy:-}" ] && inpt="$email_deploy"
+        [[ "$inpt" =~ ^[^@]+@[^@]+\.[^@]+$ ]] || { echo -e "${RED}$(t err_email)${NC}"; sleep 1; continue; }
+        email_deploy="$inpt"; step=$((step+1))
+      ;;
+      4)
+        header_step "$step" "$total" "$(t q_company)"
+        [ -n "${nome_empresa_original:-}" ] && echo -e "${GRAY_LIGHT}(${nome_empresa_original})${NC}"
+        read -rp "> " inpt || true
+        case "${inpt^^}" in B) step=$((step-1)); continue;; R) unset nome_empresa_original; step=1; continue;; Q) echo -e "${YELLOW}$(t cancelled)${NC}"; exit 1;; esac
+        [ -z "$inpt" ] && [ -n "${nome_empresa_original:-}" ] && inpt="$nome_empresa_original"
+        [ -z "$inpt" ] && { echo -e "${RED}$(t err_empty)${NC}"; sleep 1; continue; }
+        nome_empresa_original="$inpt"; empresa="$(normaliza_nome_empresa "$nome_empresa_original")"; nome_titulo="$nome_empresa_original"; step=$((step+1))
+      ;;
+      5)
+        header_step "$step" "$total" "$(t q_deploy_pass)"; read -rs -p "> " inpt || true; echo
+        case "${inpt^^}" in B) step=$((step-1)); continue;; R) unset senha_deploy; step=1; continue;; Q) echo -e "${YELLOW}$(t cancelled)${NC}"; exit 1;; esac
+        [ -z "$inpt" ] && [ -n "${senha_deploy:-}" ] && inpt="$senha_deploy"
+        [[ "$inpt" =~ [\'\"$\\|\;\&\<\>\(\)\{\}\[\]\*\?\#\!] ]] && { echo -e "${RED}$(t err_pass_chars)${NC}"; sleep 1; continue; }
+        [ -z "$inpt" ] && { echo -e "${RED}$(t err_empty)${NC}"; sleep 1; continue; }
+        senha_deploy="$inpt"; step=$((step+1))
+      ;;
+      6)
+        header_step "$step" "$total" "$(t q_master_pass)"; read -rs -p "> " inpt || true; echo
+        case "${inpt^^}" in B) step=$((step-1)); continue;; R) unset senha_master; step=1; continue;; Q) echo -e "${YELLOW}$(t cancelled)${NC}"; exit 1;; esac
+        [ -z "$inpt" ] && [ -n "${senha_master:-}" ] && inpt="$senha_master"
+        [ -z "$inpt" ] && { echo -e "${RED}$(t err_empty)${NC}"; sleep 1; continue; }
+        senha_master="$inpt"; step=$((step+1))
+      ;;
+      7)
+        header_step "$step" "$total" "$(t q_phone)"
+        [ -n "${numero_suporte:-}" ] && echo -e "${GRAY_LIGHT}(${numero_suporte})${NC}"
+        read -rp "> " inpt || true
+        case "${inpt^^}" in B) step=$((step-1)); continue;; R) unset numero_suporte; step=1; continue;; Q) echo -e "${YELLOW}$(t cancelled)${NC}"; exit 1;; esac
+        [ -z "$inpt" ] && [ -n "${numero_suporte:-}" ] && inpt="$numero_suporte"
+        [[ "$inpt" =~ ^[0-9]{10,15}$ ]] || { echo -e "${RED}$(t err_phone)${NC}"; sleep 1; continue; }
+        numero_suporte="$inpt"; step=$((step+1))
+      ;;
+      8) header_step "$step" "$total" "$(t q_fb_id)"; [ -n "${facebook_app_id:-}" ] && echo -e "${GRAY_LIGHT}(${facebook_app_id})${NC}"; read -rp "> " inpt || true
+         case "${inpt^^}" in B) step=$((step-1)); continue;; R) unset facebook_app_id; step=1; continue;; Q) echo -e "${YELLOW}$(t cancelled)${NC}"; exit 1;; esac
+         [ -z "$inpt" ] && inpt="${facebook_app_id:-}"; facebook_app_id="$inpt"; step=$((step+1));;
+      9) header_step "$step" "$total" "$(t q_fb_secret)"; [ -n "${facebook_app_secret:-}" ] && echo -e "${GRAY_LIGHT}(${facebook_app_secret})${NC}"; read -rp "> " inpt || true
+         case "${inpt^^}" in B) step=$((step-1)); continue;; R) unset facebook_app_secret; step=1; continue;; Q) echo -e "${YELLOW}$(t cancelled)${NC}"; exit 1;; esac
+         [ -z "$inpt" ] && inpt="${facebook_app_secret:-}"; facebook_app_secret="$inpt"; step=$((step+1));;
+      10) header_step "$step" "$total" "$(t q_github_token)"; [ -n "${github_token:-}" ] && echo -e "${GRAY_LIGHT}(${github_token})${NC}"; read -rp "> " inpt || true
+          case "${inpt^^}" in B) step=$((step-1)); continue;; R) unset github_token repo_url; step=1; continue;; Q) echo -e "${YELLOW}$(t cancelled)${NC}"; exit 1;; esac
+          [ -z "$inpt" ] && inpt="${github_token:-}"
+          if [ -z "$inpt" ]; then github_token="local_install"; repo_url="local_install"; step=$((step+2)); else github_token="$inpt"; step=$((step+1)); fi;;
+      11) header_step "$step" "$total" "$(t q_repo_url)"; [ -n "${repo_url:-}" ] && echo -e "${GRAY_LIGHT}(${repo_url})${NC}"; read -rp "> " inpt || true
+          case "${inpt^^}" in B) step=$((step-1)); continue;; R) unset repo_url github_token; step=1; continue;; Q) echo -e "${YELLOW}$(t cancelled)${NC}"; exit 1;; esac
+          [ -z "$inpt" ] && [ -n "${repo_url:-}" ] && inpt="$repo_url"
+          [[ "$inpt" =~ ^https?:// ]] || { echo -e "${RED}$(t err_empty)${NC}"; sleep 1; continue; }
+          repo_url="$inpt"; step=$((step+1));;
+      12)
+        banner
+        printf "${WHITE}$(t summary_title):${NC}\n\n"
+        printf "   $(t summary_backend): ${YELLOW}%s${NC}\n" "$subdominio_backend"
+        printf "   $(t summary_frontend): ${YELLOW}%s${NC}\n" "$subdominio_frontend"
+        printf "   $(t summary_email):    ${YELLOW}%s${NC}\n" "$email_deploy"
+        printf "   $(t summary_company):  ${YELLOW}%s${NC}\n" "$nome_empresa_original"
+        empresa="$(normaliza_nome_empresa "$nome_empresa_original")"
+        printf "   $(t summary_system):   ${YELLOW}%s${NC}\n" "$empresa"
+        backend_port=8080; frontend_port=3000
+        printf "   $(t summary_ports):    ${YELLOW}Backend %s, Frontend %s${NC}\n\n" "$backend_port" "$frontend_port"
+        read -rp "$(t q_confirm) " confirmacao
+        if yes_input "$confirmacao"; then max_whatsapps=9999; max_users=9999; salvar_variaveis; break; else echo -e "${YELLOW}$(t cancelled)${NC}"; exit 1; fi
+      ;;
+    esac
+  done
+}
+
+#============================= ROOT & LINGUAGEM ================================
+select_language
+if [ "$EUID" -ne 0 ]; then
+  log_error "This script must be run as root (sudo) / Este script precisa ser executado como root / Este script debe ejecutarse como root"
+  exit 1
+fi
+
+#============================= ETAPAS WIZARD ===================================
+coletar_dados_usuario
+
+#============================= INSTALAÇÃO ======================================
+
+mkdir -p "$(dirname "$LOG_FILE")"; : > "$LOG_FILE"
+
+banner
+echo -e "${WHITE}$(t starting_install)${NC}"
+echo -e "${GRAY_LIGHT}$(t see_logs): $LOG_FILE${NC}\n"
+
+backend_host=$(echo "${subdominio_backend}" | sed -E 's~https?://~~; s~/.*~~')
+frontend_host=$(echo "${subdominio_frontend}" | sed -E 's~https?://~~; s~/.*~~')
+subdominio_backend_formatted="https://${backend_host}"
+subdominio_frontend_formatted="https://${frontend_host}"
+
+# Sanear possíveis fontes APT quebradas de execuções anteriores (ex.: "deb no pgdg.list)
+if [ -f /etc/apt/sources.list.d/pgdg.list ]; then
+  FIRST_LINE="$(head -n1 /etc/apt/sources.list.d/pgdg.list 2>/dev/null || true)"
+  if echo "$FIRST_LINE" | grep -q '^"'; then
+    mv "/etc/apt/sources.list.d/pgdg.list" "/etc/apt/sources.list.d/pgdg.list.broken.$(date +%s)"
+  elif echo "$FIRST_LINE" | grep -qE '^[[:space:]]*deb[[:space:]].*-pgdg[[:space:]]'; then
+    # linha com -pgdg mas sem codinome (ex.: "deb ... -pgdg main"): mover para backup
+    mv "/etc/apt/sources.list.d/pgdg.list" "/etc/apt/sources.list.d/pgdg.list.broken.$(date +%s)"
+  fi
+fi
+
+#------------------- ETAPA 1: apt-cacher-ng ------------------------------------
+run_quiet "$(t installing) apt-cacher-ng..." "wait_for_apt; apt -y update -qq; apt install -y -qq --no-install-recommends apt-cacher-ng"
+run_quiet "$(t configuring) apt-cacher-ng..." "
+  echo '' >> /etc/apt-cacher-ng/acng.conf
+  echo 'PassThroughPattern: .*' >> /etc/apt-cacher-ng/acng.conf
+  echo 'ExThreshold: 4' >> /etc/apt-cacher-ng/acng.conf
+  /usr/bin/systemctl restart apt-cacher-ng
+  cat > /etc/apt/apt.conf.d/01proxy <<'EOFPROXY'
+Acquire::http::Proxy \"http://127.0.0.1:3142\";
+Acquire::http::Proxy::apt.postgresql.org \"DIRECT\";
+EOFPROXY
+  /usr/bin/systemctl enable apt-cacher-ng
+"
+
+#------------------- ETAPA 2: apt-fast -----------------------------------------
+USE_APT_FAST=true
+# Se falhar adicionar o PPA, criamos flag para fallback
+run_quiet "$(t installing) apt-fast..." "wait_for_apt; apt update -y -qq; apt install -y -qq --no-install-recommends software-properties-common aria2 debconf-utils || true; add-apt-repository -y ppa:apt-fast/stable >> $LOG_FILE 2>&1 || echo disabled >/tmp/aptfast.disabled"
+[ -f /tmp/aptfast.disabled ] && USE_APT_FAST=false
+if [ "$USE_APT_FAST" != false ]; then
+  run_quiet "$(t configuring) apt-fast..." "echo apt-fast apt-fast/maxdownloads string 8 | /usr/bin/debconf-set-selections; echo apt-fast apt-fast/dlflag boolean true | /usr/bin/debconf-set-selections; echo apt-fast apt-fast/aptmanager string apt-get | /usr/bin/debconf-set-selections; wait_for_apt; apt update -y -qq; apt install -y -qq apt-fast aria2 || true"
+fi
+if command -v apt-fast >/dev/null 2>&1; then
+  APT_CMD="apt-fast -o APT::Install-Recommends=false -y -qq"
+else
+  APT_CMD="apt -o APT::Install-Recommends=false -y -qq"
+fi
+
+#------------------- ETAPA 3: Atualizar sistema --------------------------------
+run_quiet "$(t updating_system)..." "wait_for_apt; apt update -y -qq; apt upgrade -y -qq"
+
+#------------------- ETAPA 4: Usuário deploy -----------------------------------
+run_quiet "$(t configuring) user 'deploy'..." "if ! id deploy >/dev/null 2>&1; then /usr/sbin/useradd -m -s /bin/bash -G sudo deploy; echo \"deploy:${senha_deploy}\" | /usr/sbin/chpasswd; fi; /usr/sbin/usermod -aG sudo deploy"
+
+#------------------- ETAPA 5: Pacotes essenciais --------------------------------
+PUPPETEER_DEPS=(libaom-dev libass-dev libfreetype6-dev libfribidi-dev libharfbuzz-dev libgme-dev libgsm1-dev libmp3lame-dev libopencore-amrnb-dev libopencore-amrwb-dev libopenmpt-dev libopus-dev libfdk-aac-dev librubberband-dev libspeex-dev libssh-dev libtheora-dev libvidstab-dev libvo-amrwbenc-dev libvorbis-dev libvpx-dev libwebp-dev libx264-dev libx265-dev libxvidcore-dev libzmq3-dev libsdl2-dev build-essential yasm cmake libtool libc6 libc6-dev unzip wget pkg-config texinfo zlib1g-dev libxshmfence-dev libgcc1 libgbm-dev fontconfig locales libasound2t64 libatk1.0-0 libcairo2 libcups2 libdbus-1-3 libexpat1 libfontconfig1 libgcc-s1 libgdk-pixbuf2.0-0 libglib2.0-0 libgtk-3-0 libnspr4 libpango-1.0-0 libpangocairo-1.0-0 libstdc++6 libx11-6 libx11-xcb1 libxcb1 libxcomposite1 libxcursor1 libxdamage1 libxext6 libxfixes3 libxi6 libxrandr2 libxrender1 libxss1 libxtst6 ca-certificates fonts-liberation libayatana-appindicator3-1 libnss3 lsb-release xdg-utils)
+BASE_PKGS=(git cron redis-server build-essential apparmor-utils gnupg curl ffmpeg lsof psmisc)
+ALL_PKGS=("${BASE_PKGS[@]}" "${PUPPETEER_DEPS[@]}")
+PKG_STR="$(printf '%s ' "${ALL_PKGS[@]}")"
+
+[ -f /etc/apt/apt.conf.d/01proxy ] && mv /etc/apt/apt.conf.d/01proxy /etc/apt/apt.conf.d/01proxy.bak || true
+# Instala base (deve sempre existir); deps pesadas toleram falha para não interromper
+run_quiet "$(t installing) essentials (base)..." "wait_for_apt; $APT_CMD install ${BASE_PKGS[*]} || (apt update -y -qq; apt install -y -qq --fix-missing ${BASE_PKGS[*]})"
+run_quiet "$(t installing) essentials (extras)..." "wait_for_apt; $APT_CMD install $PKG_STR || true"
+[ -f /etc/apt/apt.conf.d/01proxy.bak ] && mv /etc/apt/apt.conf.d/01proxy.bak /etc/apt/apt.conf.d/01proxy || true
+
+
+#------------------- ETAPA 6: PostgreSQL 17 (repo NÃO interativo) ---------------
+# Desativa proxy do apt-cacher-ng nesta etapa (se existir)
+[ -f /etc/apt/apt.conf.d/01proxy ] && mv /etc/apt/apt.conf.d/01proxy /etc/apt/apt.conf.d/01proxy.bak || true
+
+run_quiet "$(t installing) PostgreSQL 17 (repo)..." "bash -lc '
+  set -Eeuo pipefail
+  export PATH=/usr/sbin:/usr/bin:/sbin:/bin
+
+  # Pré-requisitos
+  if ! command -v curl >/dev/null 2>&1 || ! command -v gpg >/dev/null 2>&1; then
+    apt-get update -qq
+    apt-get install -y -qq --no-install-recommends curl gnupg ca-certificates
+  fi
+
+  install -d -m 0755 /usr/share/keyrings
+  rm -f /usr/share/keyrings/postgresql.gpg
+  curl -fsSL https://www.postgresql.org/media/keys/ACCC4CF8.asc \
+    | gpg --dearmor --batch --yes -o /usr/share/keyrings/postgresql.gpg
+
+  #---------------- CODENAME ROBUSTO (sem awk/expansões perigosas) ---------------
+  CODENAME=\"\${PGDG_CODENAME:-}\"
+
+  # 1) /etc/os-release
+  if [ -z \"\$CODENAME\" ] && [ -r /etc/os-release ]; then
+    . /etc/os-release || true
+    CODENAME=\"\${VERSION_CODENAME:-\${UBUNTU_CODENAME:-}}\"
+  fi
+
+  # 2) /etc/lsb-release
+  if [ -z \"\$CODENAME\" ] && [ -r /etc/lsb-release ]; then
+    . /etc/lsb-release || true
+    CODENAME=\"\${DISTRIB_CODENAME:-}\"
+  fi
+
+  # 3) lsb_release
+  if [ -z \"\$CODENAME\" ] && command -v lsb_release >/dev/null 2>&1; then
+    CODENAME=\$(lsb_release -sc 2>/dev/null || true)
+  fi
+
+  # 4) Primeira linha útil de sources.list (campo da *suite* = 3º token considerando opções)
+  if [ -z \"\$CODENAME\" ]; then
+    line=\$(grep -hE \"^[[:space:]]*deb[[:space:]]\" /etc/apt/sources.list /etc/apt/sources.list.d/*.list 2>/dev/null | head -n1 || true)
+    if [ -n \"\$line\" ]; then
+      # Normaliza espaços
+      set -- \$line
+      # Pula \"deb\" e possíveis blocos [opções] até achar a URI; o próximo token é a suite (codename)
+      suite=\"\"
+      seen_uri=0
+      for tok in \"\$@\"; do
+        case \"\$tok\" in
+          deb) continue ;;
+          \\[*\\]) continue ;;
+          http://*|https://*|ftp://*|file:*)
+            seen_uri=1; continue ;;
+          *)
+            if [ \"\$seen_uri\" = 1 ]; then suite=\"\$tok\"; break; fi
+          ;;
+        esac
+      done
+      if [ -n \"\$suite\" ]; then CODENAME=\"\$suite\"; fi
+    fi
+  fi
+
+  # 5) Mapas conhecidos se ainda vazio
+  if [ -z \"\$CODENAME\" ] && [ -r /etc/os-release ]; then
+    . /etc/os-release || true
+    case \"\${ID:-}:${VERSION_ID:-}\" in
+      ubuntu:24.04) CODENAME=noble ;;
+      ubuntu:22.04) CODENAME=jammy ;;
+      ubuntu:20.04) CODENAME=focal ;;
+      debian:13)    CODENAME=trixie ;;
+      debian:12)    CODENAME=bookworm ;;
+      debian:11)    CODENAME=bullseye ;;
+    esac
+  fi
+
+  # Fallback final
+  if [ -z \"\$CODENAME\" ]; then
+    if grep -qi ubuntu /etc/os-release 2>/dev/null; then CODENAME=noble; else CODENAME=bookworm; fi
+  fi
+
+  # Validação: precisa existir a suite no PGDG
+  if ! curl -fsI \"https://apt.postgresql.org/pub/repos/apt/dists/\${CODENAME}-pgdg/Release\" >/dev/null; then
+    echo \"Erro: suite \\\\"\${CODENAME}-pgdg\\\\" não encontrada no repositório PGDG. Defina PGDG_CODENAME=noble|jammy|bookworm...\" >&2
+    exit 1
+  fi
+
+  #---------------- Escreve fonte em Deb822 (.sources) ----------------
+  rm -f /etc/apt/sources.list.d/pgdg.list /etc/apt/sources.list.d/pgdg.sources
+  printf \"%s\\n\" \
+    \"Types: deb\" \
+    \"URIs: https://apt.postgresql.org/pub/repos/apt\" \
+    \"Suites: \${CODENAME}-pgdg\" \
+    \"Components: main\" \
+    \"Signed-By: /usr/share/keyrings/postgresql.gpg\" \
+    > /etc/apt/sources.list.d/pgdg.sources
+  chmod 0644 /etc/apt/sources.list.d/pgdg.sources
+
+  apt-get update -qq
+'"
+
+run_quiet "$(t installing) PostgreSQL 17..." "bash -lc '
+  set -Eeuo pipefail
+  apt-get install -y -qq --no-install-recommends postgresql-17
+  systemctl enable --now postgresql
+'"
+
+# Restaura proxy (se existia)
+[ -f /etc/apt/apt.conf.d/01proxy.bak ] && mv /etc/apt/apt.conf.d/01proxy.bak /etc/apt/apt.conf.d/01proxy || true
+
+
+
+
+#------------------- ETAPA 7: Node.js 20 ---------------------------------------
+[ -f /etc/apt/apt.conf.d/01proxy ] && mv /etc/apt/apt.conf.d/01proxy /etc/apt/apt.conf.d/01proxy.bak || true
+run_quiet "$(t installing) Node.js 20 (repo)..." "bash -lc 'curl -fsSL https://deb.nodesource.com/setup_20.x | bash -'"
+[ -f /etc/apt/apt.conf.d/01proxy.bak ] && mv /etc/apt/apt.conf.d/01proxy.bak /etc/apt/apt.conf.d/01proxy || true
+run_quiet "$(t installing) Node.js 20..." "wait_for_apt; apt install -y -qq nodejs || apt install -y -qq nodejs npm || true"
+
+#------------------- ETAPA 8: pnpm ---------------------------------------------
+run_quiet "$(t installing) pnpm..." "bash -lc '
+  set -e
+  npm install -g pnpm
+  # preparar PNPM_HOME (root) para evitar warnings, embora não instalemos globais como root
+  install -d -m 0755 /root/.local/share/pnpm
+  export PNPM_HOME=\"/root/.local/share/pnpm\"
+  export PATH=\"\$PNPM_HOME:\$PATH\"
+  pnpm config set strict-peer-dependencies false
+  pnpm config set auto-install-peers true
+  pnpm config set network-concurrency 50
+  # PATH persistente para todos usuários
+  cat >/etc/profile.d/pnpm.sh <<'EOP'
+export PNPM_HOME=\"\$HOME/.local/share/pnpm\"
+export PATH=\"\$PNPM_HOME:\$PATH\"
+EOP
+  chmod 0644 /etc/profile.d/pnpm.sh
+'"
+
+#------------------- ETAPA 9: PM2 (instalar apenas para 'deploy') --------------
+run_quiet "$(t installing) PM2..." "bash -lc '
+  set -e
+  # preparar ambiente pnpm/npm do deploy (evita EACCES)
+  /usr/bin/sudo -H -u deploy bash -lc \"set -e
+    cd ~
+    install -d -m 0755 \\\"\\\$HOME/.local/share/pnpm\\\"
+    export PNPM_HOME=\\\"\\\$HOME/.local/share/pnpm\\\"
+    export PATH=\\\"\\\$PNPM_HOME:\\\\\$PATH\\\"
+    pnpm setup >/dev/null 2>&1 || true
+    # npm global no HOME do deploy
+    npm config set prefix \\\"\\\$HOME/.npm-global\\\"
+    if ! grep -q \\\".npm-global/bin\\\" \\\"\\\$HOME/.profile\\\" 2>/dev/null; then
+      echo \\\"export PATH=\\\\\\\"\\\$HOME/.npm-global/bin:\\\\\\$PATH\\\\\\\"\\\" >> \\\"\\\$HOME/.profile\\\"
+    fi
+    # instalar PM2 global (preferir pnpm, cair para npm se necessário)
+    pnpm add -g pm2 || npm i -g pm2
+    pm2 -v
+  \"
+
+  # criar symlink do pm2 do deploy para ficar visível no PATH do root
+  PM2_BIN=\$(/usr/bin/sudo -H -u deploy bash -lc \"
+    export PNPM_HOME=\\\$HOME/.local/share/pnpm
+    export PATH=\\\$HOME/.npm-global/bin:\\\$PNPM_HOME:\\\$PATH
+    command -v pm2 2>/dev/null || find \\\$HOME/.npm-global/bin \\\$HOME/.local/share/pnpm -name pm2 -type f 2>/dev/null | head -1
+  \")
+  if [ -n \"\$PM2_BIN\" ] && [ -f \"\$PM2_BIN\" ]; then
+    ln -sf \"\$PM2_BIN\" /usr/local/bin/pm2
+  else
+    echo \"WARNING: PM2 binary not found, trying fallback paths...\" >&2
+    for pm2_path in /home/deploy/.npm-global/bin/pm2 /home/deploy/.local/share/pnpm/pm2; do
+      if [ -f \"\$pm2_path\" ]; then
+        ln -sf \"\$pm2_path\" /usr/local/bin/pm2
+        PM2_BIN=\"\$pm2_path\"
+        break
+      fi
+    done
+  fi
+
+  # configurar o serviço systemd do PM2 para o usuário deploy
+  if [ -x /usr/local/bin/pm2 ]; then
+    /usr/local/bin/pm2 startup systemd -u deploy --hp /home/deploy >/dev/null 2>&1 || true
+  fi
+'"
+
+#------------------- ETAPA 10: Nginx/Certbot -----------------------------------
+run_quiet "$(t installing) Nginx/Certbot..." "wait_for_apt; apt install -y -qq --no-install-recommends nginx snapd; systemctl enable snapd; systemctl start snapd; snap install core; snap refresh core; snap install --classic certbot; ln -sf /snap/bin/certbot /usr/bin/certbot; systemctl enable nginx; systemctl start nginx"
+
+#------------------- ETAPA 11: Redis -------------------------------------------
+run_quiet "$(t configuring) Redis..." "systemctl enable redis-server; sed -i \"s/# requirepass foobared/requirepass ${senha_deploy}/g\" /etc/redis/redis.conf; sed -i 's/^appendonly no/appendonly yes/g' /etc/redis/redis.conf; systemctl restart redis-server"
+
+#------------------- ETAPA 12: Banco PostgreSQL --------------------------------
+run_quiet "$(t configuring) PostgreSQL..." "sudo -u postgres bash -lc \"ROLE_EXISTS=\\\$(psql -Atqc \\\"SELECT 1 FROM pg_roles WHERE rolname='${empresa}'\\\" || true); [ \\\"\\\$ROLE_EXISTS\\\" = \\\"1\\\" ] || psql -c \\\"CREATE ROLE ${empresa} LOGIN PASSWORD '${senha_deploy}';\\\"; DB_EXISTS=\\\$(psql -Atqc \\\"SELECT 1 FROM pg_database WHERE datname='${empresa}'\\\" || true); [ \\\"\\\$DB_EXISTS\\\" = \\\"1\\\" ] || psql -c \\\"CREATE DATABASE ${empresa} OWNER ${empresa};\\\"; psql -d \\\"${empresa}\\\" -c \\\"CREATE EXTENSION IF NOT EXISTS \\\\\\\"uuid-ossp\\\\\\\";\\\"; psql -d \\\"${empresa}\\\" -c \\\"CREATE EXTENSION IF NOT EXISTS unaccent;\\\"\""
+
+#------------------- ETAPA 13: Código ------------------------------------------
+SOURCE_DIR="$(pwd)/chatia"; DEST_DIR="/home/deploy/${empresa}"
+run_quiet "$(t installing) ChatIA code..." "GITHUB_TOKEN='${github_token}' REPO_URL='${repo_url}' bash -lc '
+  set -e
+  urlenc() { local s=\"\$1\" out=\"\" i c; for ((i=0;i<\${#s};i++)); do c=\"\${s:i:1}\"; case \"\$c\" in [a-zA-Z0-9._~-]) out+=\"\$c\" ;; *) printf -v hex \"%%%02X\" \"'\''\$c\"; out+=\"\$hex\" ;; esac; done; echo \"\$out\"; }
+  tmpd=\"/tmp/chatia_clone_\$\$\"
+  if [ \"\$GITHUB_TOKEN\" != \"local_install\" ] && [ -n \"\$GITHUB_TOKEN\" ] && [ -n \"\$REPO_URL\" ]; then
+    mkdir -p \"\$tmpd\"
+    tok=\$(urlenc \"\$GITHUB_TOKEN\")
+    clean=\${REPO_URL#http://}; clean=\${clean#https://}
+    github_url=\"https://\$tok@\${clean}\"
+    git clone \"\$github_url\" \"\$tmpd\"
+    mkdir -p \"$DEST_DIR\"
+    if [ -d \"\$tmpd/chatia\" ]; then
+      cp -r \"\$tmpd/chatia/backend\" \"$DEST_DIR/\"; cp -r \"\$tmpd/chatia/frontend\" \"$DEST_DIR/\"
+      [ -f \"\$tmpd/chatia/ecosystem.config.js\" ] && cp \"\$tmpd/chatia/ecosystem.config.js\" \"$DEST_DIR/\"
+    elif [ -d \"\$tmpd/backend\" ] && [ -d \"\$tmpd/frontend\" ]; then
+      cp -r \"\$tmpd/backend\" \"$DEST_DIR/\"; cp -r \"\$tmpd/frontend\" \"$DEST_DIR/\"
+      [ -f \"\$tmpd/ecosystem.config.js\" ] && cp \"\$tmpd/ecosystem.config.js\" \"$DEST_DIR/\"
+    else
+      exit 9
+    fi
+    rm -rf \"\$tmpd\"
+  elif [ -d \"$SOURCE_DIR\" ]; then
+    mkdir -p \"$DEST_DIR\"
+    cp -r \"$SOURCE_DIR/backend\" \"$DEST_DIR/\"; cp -r \"$SOURCE_DIR/frontend\" \"$DEST_DIR/\"
+    [ -f \"$SOURCE_DIR/ecosystem.config.js\" ] && cp \"$SOURCE_DIR/ecosystem.config.js\" \"$DEST_DIR/\"
+  elif [ -f \"$(pwd)/ChatIA.zip\" ]; then
+    command -v unzip >/dev/null 2>&1 || apt -y -qq install unzip
+    mkdir -p \"$DEST_DIR\"; unzip -q \"$(pwd)/ChatIA.zip\" -d \"$DEST_DIR\"
+    [ -d \"$DEST_DIR/chatia\" ] && mv \"$DEST_DIR/chatia\"/* \"$DEST_DIR/\" 2>/dev/null || true
+  elif [ -d \"$(pwd)/codigo fonte/\" ]; then
+    mkdir -p \"$DEST_DIR\"; cp -r \"$(pwd)/codigo fonte/backend\" \"$DEST_DIR/\"; cp -r \"$(pwd)/codigo fonte/frontend\" \"$DEST_DIR/\"
+  else
+    exit 10
+  fi
+  mkdir -p \"$DEST_DIR/backend/public\"; chown -R deploy:deploy \"$DEST_DIR\"; chmod -R 775 \"$DEST_DIR/backend/public\" '"
+
+#------------------- ETAPA 14: Backend .env ------------------------------------
+run_quiet "$(t configuring) backend (.env)..." "sudo -u deploy bash -lc 'cat > /home/deploy/${empresa}/backend/.env << ENVFILE
+NODE_ENV=production
+BACKEND_URL=${subdominio_backend_formatted}
+FRONTEND_URL=${subdominio_frontend_formatted}
+PROXY_PORT=443
+PORT=${backend_port}
+
+DB_HOST=localhost
+DB_DIALECT=postgres
+DB_PORT=5432
+DB_USER=${empresa}
+DB_PASS=${senha_deploy}
+DB_NAME=${empresa}
+
+REDIS_URI=redis://:${senha_deploy}@127.0.0.1:6379
+REDIS_OPT_LIMITER_MAX=1
+REDIS_OPT_LIMITER_DURATION=3000
+
+TIMEOUT_TO_IMPORT_MESSAGE=1000
+
+JWT_SECRET=${jwt_secret}
+JWT_REFRESH_SECRET=${jwt_refresh_secret}
+MASTER_KEY=${senha_master}
+
+VERIFY_TOKEN=whaticket
+FACEBOOK_APP_ID=${facebook_app_id}
+FACEBOOK_APP_SECRET=${facebook_app_secret}
+
+USE_WHATSAPP_OFICIAL=true
+TOKEN_API_OFICIAL=adminpro
+
+TRANSCRIBE_URL=http://localhost:4002
+ENVFILE'"
+
+#------------------- PREPARAÇÃO: Cache pnpm (requer root) ----------------------
+run_quiet "Preparando diretório cache pnpm..." "mkdir -p /mnt/pnpm-cache && chown deploy:deploy /mnt/pnpm-cache && chmod 775 /mnt/pnpm-cache"
+
+#------------------- ETAPA 15: Backend deps/build ------------------------------
+run_quiet "$(t installing) backend deps..." "sudo -u deploy bash -lc 'set -e; export PNPM_HOME=\$HOME/.local/share/pnpm; export PATH=\$PNPM_HOME:\$PATH; export PUPPETEER_SKIP_DOWNLOAD=true; export PNPM_STORE_DIR=/mnt/pnpm-cache; cd /home/deploy/${empresa}/backend; rm -rf node_modules package-lock.json pnpm-lock.yaml; pnpm install; pnpm add puppeteer-core glob jimp@^1.6.0 lodash moment zod@^3.23.8 mime@2.6.0 form-data qs bluebird; pnpm add -D @types/lodash @types/qs @types/express-serve-static-core; if [ -f tsconfig.json ]; then cp tsconfig.json tsconfig.json.bak; printf \"%s\\n\" \"{\" \"  \\\"compilerOptions\\\": { \\\"target\\\": \\\"es2020\\\", \\\"module\\\": \\\"commonjs\\\", \\\"outDir\\\": \\\"./dist\\\", \\\"strict\\\": false, \\\"strictPropertyInitialization\\\": false, \\\"esModuleInterop\\\": true, \\\"experimentalDecorators\\\": true, \\\"emitDecoratorMetadata\\\": true, \\\"skipLibCheck\\\": true, \\\"forceConsistentCasingInFileNames\\\": true, \\\"moduleResolution\\\": \\\"node\\\", \\\"typeRoots\\\": [\\\"./src/@types\\\"] },\" \"  \\\"include\\\": [\\\"src/**/*.ts\\\", \\\"src/**/*.d.ts\\\"],\" \"  \\\"exclude\\\": [\\\"node_modules\\\", \\\"public\\\", \\\"dist\\\", \\\"src/**/*.spec.ts\\\", \\\"src/**/__tests__\\\"]\" \"}\" > tsconfig.json; fi'"
+run_quiet "$(t configuring) mime imports..." "sudo -u deploy bash -lc 'cd /home/deploy/${empresa}/backend && find src -name \"*.ts\" -type f -exec sed -i \"s/import mime from \\\"mime-types\\\"/import mime from \\\"mime\\\"/g; s/import mime from '\\''mime-types'\\''/import mime from '\\''mime'\\''/g\" {} \\; 2>/dev/null || true'"
+run_quiet "$(t configuring) mime fallback..." "sudo -u deploy bash -lc 'cd /home/deploy/${empresa}/backend && [ -f src/services/WbotServices/SendWhatsAppMediaFlow.ts ] && sed -i \"s/const mimetype = mime\\.lookup(media)\$/const mimetype = mime.lookup(media) || '\\''application\\/octet-stream'\\''/g\" src/services/WbotServices/SendWhatsAppMediaFlow.ts || true'"
+
+run_quiet "$(t installing) backend build..." "sudo -u deploy bash -lc 'export PNPM_HOME=\"\$HOME/.local/share/pnpm\"; export PATH=\"\$PNPM_HOME:\$PATH\"; cd /home/deploy/${empresa}/backend; pnpm run build; if [ -f node_modules/@ffmpeg-installer/ffmpeg/index.js ]; then sed -i \"s|npm3Binary = .*|npm3Binary = \\\"/usr/bin/ffmpeg\\\";|\" node_modules/@ffmpeg-installer/ffmpeg/index.js; fi; mkdir -p node_modules/@ffmpeg-installer/linux-x64/; echo \"{ \\\"version\\\": \\\"1.1.0\\\", \\\"name\\\": \\\"@ffmpeg-installer/linux-x64\\\" }\" > node_modules/@ffmpeg-installer/linux-x64/package.json'"
+
+save_checkpoint "ETAPA_15_BACKEND_INSTALADO"
+
+#------------------- ETAPA 16: Migrações ---------------------------------------
+run_quiet "$(t configuring) database (migrations/seeds)..." "sudo -u deploy bash -lc 'cd /home/deploy/${empresa}/backend; export SEQUELIZE_POOL_MAX=10; export SEQUELIZE_POOL_MIN=5; ./node_modules/.bin/sequelize db:migrate; ./node_modules/.bin/sequelize db:seed:all'"
+run_quiet "$(t configuring) company name..." "sudo -u postgres bash -lc 'PGPASSWORD=\"${senha_deploy}\" psql -h 127.0.0.1 -U ${empresa} -d ${empresa} -c \"UPDATE \\\"Companies\\\" SET name = '\''${nome_titulo}'\'' WHERE id = 1;\"'"
+
+#------------------- ETAPA 17: Frontend .env -----------------------------------
+run_quiet "$(t configuring) frontend (.env)..." "sudo -u deploy bash -lc 'mkdir -p \"/home/deploy/${empresa}/frontend\" && cat > \"/home/deploy/${empresa}/frontend/.env\" << ENVFILE
+REACT_APP_BACKEND_URL=${subdominio_backend_formatted}
+REACT_APP_FACEBOOK_APP_ID=${facebook_app_id}
+REACT_APP_REQUIRE_BUSINESS_MANAGEMENT=TRUE
+REACT_APP_NAME_SYSTEM=${nome_titulo}
+REACT_APP_NUMBER_SUPPORT=${numero_suporte}
+SERVER_PORT=${frontend_port}
+ENVFILE
+cp -f \"/home/deploy/${empresa}/frontend/.env\" \"/home/deploy/${empresa}/frontend/.env.production\"; chown deploy:deploy \"/home/deploy/${empresa}/frontend/.env\" \"/home/deploy/${empresa}/frontend/.env.production\"; chmod 640 \"/home/deploy/${empresa}/frontend/.env\" \"/home/deploy/${empresa}/frontend/.env.production\"'"
+
+#------------------- ETAPA 18: Frontend deps + config/env ----------------------
+run_quiet "$(t installing) frontend deps..." "sudo -u deploy bash -lc '
+  set -e
+  export PNPM_HOME=\"\$HOME/.local/share/pnpm\"; export PATH=\"\$PNPM_HOME:\$PATH\"; export PNPM_STORE_DIR=/mnt/pnpm-cache
+  cd /home/deploy/${empresa}/frontend
+  rm -rf node_modules package-lock.json pnpm-lock.yaml
+  pnpm install
+  pnpm add axios@latest clsx lodash moment moment-timezone
+  shopt -s globstar nullglob
+  ts_files=(src/**/*.ts src/**/*.tsx)
+  if [ \${#ts_files[@]} -eq 0 ] && [ -f tsconfig.json ]; then mv tsconfig.json tsconfig.json.bak; fi
+  shopt -u globstar nullglob
+  pnpm add -D @craco/craco@^7.1.0 @babel/plugin-proposal-class-properties @babel/plugin-proposal-private-methods @babel/plugin-proposal-private-property-in-object
+  pnpm add crypto-browserify stream-browserify buffer@5.7.1 util assert stream-http https-browserify os-browserify url path-browserify process
+  sed -i \"s/\\\"start\\\": \\\"react-scripts start\\\"/\\\"start\\\": \\\"craco start\\\"/\" package.json || true
+  sed -i \"s/\\\"build\\\": \\\"react-scripts build\\\"/\\\"build\\\": \\\"craco build\\\"/\" package.json || true
+  sed -i \"s/\\\"test\\\": \\\"react-scripts test\\\"/\\\"test\\\": \\\"craco test\\\"/\" package.json || true
+  cat > craco.config.js << '\''ENDCRACO'\''
+module.exports = {
+  webpack: {
+    configure: (webpackConfig) => {
+      webpackConfig.plugins = (webpackConfig.plugins || []).filter(p => p.constructor?.name !== \"ESLintWebpackPlugin\");
+      webpackConfig.resolve = webpackConfig.resolve || {};
+      webpackConfig.resolve.plugins = (webpackConfig.resolve.plugins || []).filter(p => p.constructor?.name !== \"ModuleScopePlugin\");
+      webpackConfig.resolve.fallback = {
+        ...(webpackConfig.resolve.fallback || {}),
+        crypto: require.resolve(\"crypto-browserify\"),
+        stream: require.resolve(\"stream-browserify\"),
+        buffer: require.resolve(\"buffer/\"),
+        util: require.resolve(\"util/\"),
+        assert: require.resolve(\"assert/\"),
+        http: require.resolve(\"stream-http\"),
+        https: require.resolve(\"https-browserify\"),
+        os: require.resolve(\"os-browserify/browser\"),
+        url: require.resolve(\"url/\"),
+        path: require.resolve(\"path-browserify\")
+      };
+      webpackConfig.module = webpackConfig.module || {};
+      webpackConfig.module.rules = webpackConfig.module.rules || [];
+      webpackConfig.module.rules.push({ test: /\.m?js$/, resolve: { fullySpecified: false }});
+      return webpackConfig;
+    }
+  },
+  typescript: { enableTypeChecking: false }
+};
+ENDCRACO
+  cat > server.js <<'SERVER'
+const express = require("express");
+const path = require("path");
+const app = express();
+const dotenv = require("dotenv");
+dotenv.config();
+app.use(express.static(path.join(__dirname, "build")));
+app.use((req, res) => {
+  res.sendFile(path.join(__dirname, "build", "index.html"));
+});
+const PORT = process.env.SERVER_PORT || 3000;
+app.listen(PORT, () => {
+  console.log("Frontend running on port " + PORT);
+});
+SERVER
+  pnpm add express dotenv
+  mkdir -p src/config
+  for f in env.js Env.js; do
+    cat > \"src/config/\$f\" << '\''ENDENVJS'\''
+const env = {
+  REACT_APP_BACKEND_URL: process.env.REACT_APP_BACKEND_URL || '\'''\'',
+  REACT_APP_FACEBOOK_APP_ID: process.env.REACT_APP_FACEBOOK_APP_ID || '\'''\'',
+  REACT_APP_REQUIRE_BUSINESS_MANAGEMENT: (process.env.REACT_APP_REQUIRE_BUSINESS_MANAGEMENT || '\''FALSE'\'').toUpperCase() === '\''TRUE'\'',
+  REACT_APP_NAME_SYSTEM: process.env.REACT_APP_NAME_SYSTEM || '\''ChatIA'\'',
+  REACT_APP_NUMBER_SUPPORT: process.env.REACT_APP_NUMBER_SUPPORT || '\'''\'',
+  REACT_APP_HOURS_CLOSE_TICKETS_AUTO: process.env.REACT_APP_HOURS_CLOSE_TICKETS_AUTO || '\''9999'\'',
+  REACT_APP_PRIMARY_COLOR: process.env.REACT_APP_PRIMARY_COLOR || '\''#6B46C1'\'',
+  REACT_APP_PRIMARY_DARK: process.env.REACT_APP_PRIMARY_DARK || '\''#4C1D95'\''
+};
+export default env;
+export const BACKEND_URL = env.REACT_APP_BACKEND_URL;
+export const FACEBOOK_APP_ID = env.REACT_APP_FACEBOOK_APP_ID;
+export const REQUIRE_BUSINESS_MANAGEMENT = env.REACT_APP_REQUIRE_BUSINESS_MANAGEMENT;
+export const NAME_SYSTEM = env.REACT_APP_NAME_SYSTEM;
+export const NUMBER_SUPPORT = env.REACT_APP_NUMBER_SUPPORT;
+export const HOURS_CLOSE_TICKETS_AUTO = env.REACT_APP_HOURS_CLOSE_TICKETS_AUTO;
+export const PRIMARY_COLOR = env.REACT_APP_PRIMARY_COLOR;
+export const PRIMARY_DARK = env.REACT_APP_PRIMARY_DARK;
+ENDENVJS
+  done
+  for f in env.ts Env.ts; do
+    cat > \"src/config/\$f\" << '\''ENDENVTS'\''
+type AppEnv = {
+  REACT_APP_BACKEND_URL: string;
+  REACT_APP_FACEBOOK_APP_ID: string;
+  REACT_APP_REQUIRE_BUSINESS_MANAGEMENT: boolean;
+  REACT_APP_NAME_SYSTEM: string;
+  REACT_APP_NUMBER_SUPPORT: string;
+  REACT_APP_HOURS_CLOSE_TICKETS_AUTO: string;
+  REACT_APP_PRIMARY_COLOR: string;
+  REACT_APP_PRIMARY_DARK: string;
+};
+const env: AppEnv = {
+  REACT_APP_BACKEND_URL: (process.env.REACT_APP_BACKEND_URL as string) || '\'''\'',
+  REACT_APP_FACEBOOK_APP_ID: (process.env.REACT_APP_FACEBOOK_APP_ID as string) || '\'''\'',
+  REACT_APP_REQUIRE_BUSINESS_MANAGEMENT: (((process.env.REACT_APP_REQUIRE_BUSINESS_MANAGEMENT as string) || '\''FALSE'\'').toUpperCase() === '\''TRUE'\''),
+  REACT_APP_NAME_SYSTEM: (process.env.REACT_APP_NAME_SYSTEM as string) || '\''ChatIA'\'',
+  REACT_APP_NUMBER_SUPPORT: (process.env.REACT_APP_NUMBER_SUPPORT as string) || '\'''\'',
+  REACT_APP_HOURS_CLOSE_TICKETS_AUTO: (process.env.REACT_APP_HOURS_CLOSE_TICKETS_AUTO as string) || '\''9999'\'',
+  REACT_APP_PRIMARY_COLOR: (process.env.REACT_APP_PRIMARY_COLOR as string) || '\''#6B46C1'\'',
+  REACT_APP_PRIMARY_DARK: (process.env.REACT_APP_PRIMARY_DARK as string) || '\''#4C1D95'\''
+};
+export default env;
+export const BACKEND_URL: string = env.REACT_APP_BACKEND_URL;
+export const FACEBOOK_APP_ID: string = env.REACT_APP_FACEBOOK_APP_ID;
+export const REQUIRE_BUSINESS_MANAGEMENT: boolean = env.REACT_APP_REQUIRE_BUSINESS_MANAGEMENT;
+export const NAME_SYSTEM: string = env.REACT_APP_NAME_SYSTEM;
+export const NUMBER_SUPPORT: string = env.REACT_APP_NUMBER_SUPPORT;
+export const HOURS_CLOSE_TICKETS_AUTO: string = env.REACT_APP_HOURS_CLOSE_TICKETS_AUTO;
+export const PRIMARY_COLOR: string = env.REACT_APP_PRIMARY_COLOR;
+export const PRIMARY_DARK: string = env.REACT_APP_PRIMARY_DARK;
+ENDENVTS
+  done
+'"
+
+#------------------- ETAPA 19: Builds ------------------------------------------
+run_quiet "$(t installing) backend build (final)..." "sudo -u deploy bash -lc 'export PNPM_HOME=\"\$HOME/.local/share/pnpm\"; export PATH=\"\$PNPM_HOME:\$PATH\"; cd /home/deploy/${empresa}/backend && pnpm run build'"
+run_quiet "$(t installing) frontend build..." "sudo -u deploy bash -lc '
+  export PNPM_HOME=\"\$HOME/.local/share/pnpm\"; export PATH=\"\$PNPM_HOME:\$PATH\";
+  cd /home/deploy/${empresa}/frontend
+  RS_MAJOR=\$(node -e \"try{const p=require(\\\"./package.json\\\");const v=((p.devDependencies&&p.devDependencies[\\\"react-scripts\\\"])||(p.dependencies&&p.dependencies[\\\"react-scripts\\\"])||0);const m=String(v).match(/\\\\d+/);console.log(m?m[0]:0)}catch(e){console.log(0)}\")
+  BUILD_NODE_OPTIONS=\"--max-old-space-size=4096\"
+  if [ \"\$RS_MAJOR\" -le 4 ] && [ \"\$RS_MAJOR\" -gt 0 ]; then BUILD_NODE_OPTIONS=\"\$BUILD_NODE_OPTIONS --openssl-legacy-provider\"; fi
+  NODE_OPTIONS=\"\$BUILD_NODE_OPTIONS\" pnpm run build
+'"
+run_quiet "Cleanup pnpm tmpfs..." "umount -f /mnt/pnpm-cache 2>/dev/null || true; rmdir /mnt/pnpm-cache 2>/dev/null || true"
+save_checkpoint "ETAPA_19_BUILD_COMPLETO"
+
+#------------------- ETAPA 20: PM2 ---------------------------------------------
+run_quiet "$(t configuring) PM2 apps..." "bash -lc '
+  lsof -ti:${backend_port} | xargs -r kill -9 2>/dev/null || true
+  lsof -ti:${frontend_port} | xargs -r kill -9 2>/dev/null || true
+  /usr/bin/sudo -u deploy bash -lc \"export PNPM_HOME=\\\$HOME/.local/share/pnpm; export PATH=\\\$PNPM_HOME:\\\$PATH; cd /home/deploy/${empresa}/backend; pm2 delete ${empresa}-backend 2>/dev/null || true; pm2 start dist/server.js --name ${empresa}-backend -i 2; cd /home/deploy/${empresa}/frontend; pm2 delete ${empresa}-frontend 2>/dev/null || true; pm2 start server.js --name ${empresa}-frontend; pm2 save\"
+'"
+
+#------------------- ETAPA 21: Nginx/SSL ---------------------------------------
+run_quiet "$(t configuring) Nginx..." "bash -lc 'rm -f /etc/nginx/sites-enabled/default; echo \"client_max_body_size 100M;\" > /etc/nginx/conf.d/${empresa}.conf; cat > /etc/nginx/sites-available/${empresa}-backend << NGINX_BACKEND
+server {
+    listen 80;
+    server_name ${backend_host};
+    location / {
+        proxy_pass http://127.0.0.1:${backend_port};
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade \\$http_upgrade;
+        proxy_set_header Connection \"upgrade\";
+        proxy_set_header Host \\$host;
+        proxy_set_header X-Real-IP \\$remote_addr;
+        proxy_set_header X-Forwarded-For \\$proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto \\$scheme;
+        proxy_cache_bypass \\$http_upgrade;
+        proxy_buffering off;
+        proxy_request_buffering off;
+    }
+}
+NGINX_BACKEND
+cat > /etc/nginx/sites-available/${empresa}-frontend << NGINX_FRONTEND
+server {
+    listen 80;
+    server_name ${frontend_host};
+    location / {
+        proxy_pass http://127.0.0.1:${frontend_port};
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade \\$http_upgrade;
+        proxy_set_header Connection \"upgrade\";
+        proxy_set_header Host \\$host;
+        proxy_set_header X-Real-IP \\$remote_addr;
+        proxy_set_header X-Forwarded-For \\$proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto \\$scheme;
+        proxy_cache_bypass \\$http_upgrade;
+    }
+}
+NGINX_FRONTEND
+ln -sf /etc/nginx/sites-available/${empresa}-backend /etc/nginx/sites-enabled/
+ln -sf /etc/nginx/sites-available/${empresa}-frontend /etc/nginx/sites-enabled/
+nginx -t'"
+log_success "$(t nginx_valid)"
+run_quiet "$(t nginx_restarted)" "systemctl restart nginx || true"
+run_quiet_may_fail "Certbot (SSL)..." "bash -lc 'certbot --nginx -d ${backend_host} -d ${frontend_host} --non-interactive --agree-tos --email ${email_deploy}'"
+save_checkpoint "ETAPA_21_NGINX_SSL_CONFIGURADO"
+
+#------------------- ETAPA 22: Crons -------------------------------------------
+run_quiet "$(t configuring) crons..." "bash -lc 'cat > /home/deploy/reinicia_instancia.sh << CRON_SCRIPT
+#!/bin/bash
+pm2 restart all
+CRON_SCRIPT
+chmod +x /home/deploy/reinicia_instancia.sh
+chown deploy:deploy /home/deploy/reinicia_instancia.sh
+/usr/bin/sudo -u deploy bash -lc '\''CRON_JOB=\"0 1 * * * /bin/bash /home/deploy/reinicia_instancia.sh >> /home/deploy/cron.log 2>&1\"; (crontab -l 2>/dev/null | grep -F \"\$CRON_JOB\") || (crontab -l 2>/dev/null; echo \"\$CRON_JOB\") | crontab -'\'' '"
+save_checkpoint "ETAPA_22_INSTALACAO_COMPLETA"
+
+#============================= RESUMO FINAL ====================================
+banner
+echo ""
+echo "==============================================================================="
+log_success "🎉 $(t install_complete)"
+echo "==============================================================================="
+echo ""
+echo "📦 $(t installed_stack):"
+echo "  ✓ PostgreSQL 17 (DB: ${empresa})"
+echo "  ✓ Node.js $(node -v)"
+echo "  ✓ pnpm $(pnpm -v)"
+echo "  ✓ PM2 (Cluster Mode)"
+echo "  ✓ Redis"
+echo "  ✓ Nginx (SSL)"
+echo ""
+echo "🚀 $(t app_section):"
+echo "  ✓ Backend: ${subdominio_backend_formatted}"
+echo "  ✓ Frontend: ${subdominio_frontend_formatted}"
+echo ""
+echo "📊 $(t status_section):"
+/usr/bin/sudo -u deploy bash -lc "export PNPM_HOME=\$HOME/.local/share/pnpm; export PATH=\$PNPM_HOME:\$PATH; pm2 list" >> "$LOG_FILE" 2>&1
+/usr/bin/sudo -u deploy bash -lc "export PNPM_HOME=\$HOME/.local/share/pnpm; export PATH=\$PNPM_HOME:\$PATH; pm2 list"
+echo ""
+echo "🔐 $(t creds):"
+echo "  $(t url): ${subdominio_frontend_formatted}"
+echo "  $(t email): admin@multi100.com.br"
+echo "  $(t password): adminpro"
+echo ""
+echo "==============================================================================="
+echo ""
+echo "✅ $(t services_up)"
+echo "ℹ️  $(t see_logs): $LOG_FILE"
+echo ""

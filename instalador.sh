@@ -992,7 +992,7 @@ module.exports = {
   typescript: { enableTypeChecking: false }
 };
 ENDCRACO
-  cat > server.js <<'SERVER'
+  cat > server.js <<SERVERCODE
 const express = require("express");
 const path = require("path");
 const app = express();
@@ -1006,7 +1006,7 @@ const PORT = process.env.SERVER_PORT || 3000;
 app.listen(PORT, () => {
   console.log("Frontend running on port " + PORT);
 });
-SERVER
+SERVERCODE
   pnpm add express dotenv
   mkdir -p src/config
   for f in env.js Env.js; do
@@ -1072,7 +1072,7 @@ run_quiet "$(t installing) backend build (final)..." "sudo -u deploy bash -lc 'e
 run_quiet "$(t installing) frontend build..." "sudo -u deploy bash -lc '
   export PNPM_HOME=\"\$HOME/.local/share/pnpm\"; export PATH=\"\$PNPM_HOME:\$PATH\";
   cd /home/deploy/${empresa}/frontend
-  RS_MAJOR=\$(node -e \"try{const p=require(\\\"./package.json\\\");const v=((p.devDependencies&&p.devDependencies[\\\"react-scripts\\\"])||(p.dependencies&&p.dependencies[\\\"react-scripts\\\"])||'');const m=String(v).match(/\\\\d+/);console.log(m?m[0]:0)}catch(e){console.log(0)}\")
+  RS_MAJOR=\$(node -e \"try{const p=require(\\\"./package.json\\\");const v=((p.devDependencies&&p.devDependencies[\\\"react-scripts\\\"])||(p.dependencies&&p.dependencies[\\\"react-scripts\\\"])||0);const m=String(v).match(/\\\\d+/);console.log(m?m[0]:0)}catch(e){console.log(0)}\")
   BUILD_NODE_OPTIONS=\"--max-old-space-size=4096\"
   if [ \"\$RS_MAJOR\" -le 4 ] && [ \"\$RS_MAJOR\" -gt 0 ]; then BUILD_NODE_OPTIONS=\"\$BUILD_NODE_OPTIONS --openssl-legacy-provider\"; fi
   NODE_OPTIONS=\"\$BUILD_NODE_OPTIONS\" pnpm run build
@@ -1088,12 +1088,12 @@ run_quiet "$(t configuring) PM2 apps..." "bash -lc '
 '"
 
 #------------------- ETAPA 21: Nginx/SSL ---------------------------------------
-run_quiet "$(t configuring) Nginx..." "bash -lc 'rm -f /etc/nginx/sites-enabled/default; echo \"client_max_body_size 100M;\" > /etc/nginx/conf.d/${empresa}.conf; cat > /etc/nginx/sites-available/${empresa}-backend << NGINX_BACKEND
+run_quiet "$(t configuring) Nginx..." "bash -lc 'rm -f /etc/nginx/sites-enabled/default; echo \"client_max_body_size 100M;\" > /etc/nginx/conf.d/${empresa}.conf; cat > /etc/nginx/sites-available/${empresa}-backend <<'\''NGINX_BACKEND'\''
 server {
     listen 80;
-    server_name ${backend_host};
+    server_name BACKEND_HOST_PLACEHOLDER;
     location / {
-        proxy_pass http://127.0.0.1:${backend_port};
+        proxy_pass http://127.0.0.1:BACKEND_PORT_PLACEHOLDER;
         proxy_http_version 1.1;
         proxy_set_header Upgrade \$http_upgrade;
         proxy_set_header Connection \"upgrade\";
@@ -1107,12 +1107,13 @@ server {
     }
 }
 NGINX_BACKEND
-cat > /etc/nginx/sites-available/${empresa}-frontend << NGINX_FRONTEND
+sed -i \"s/BACKEND_HOST_PLACEHOLDER/${backend_host}/g; s/BACKEND_PORT_PLACEHOLDER/${backend_port}/g\" /etc/nginx/sites-available/${empresa}-backend
+cat > /etc/nginx/sites-available/${empresa}-frontend <<'\''NGINX_FRONTEND'\''
 server {
     listen 80;
-    server_name ${frontend_host};
+    server_name FRONTEND_HOST_PLACEHOLDER;
     location / {
-        proxy_pass http://127.0.0.1:${frontend_port};
+        proxy_pass http://127.0.0.1:FRONTEND_PORT_PLACEHOLDER;
         proxy_http_version 1.1;
         proxy_set_header Upgrade \$http_upgrade;
         proxy_set_header Connection \"upgrade\";
@@ -1124,6 +1125,7 @@ server {
     }
 }
 NGINX_FRONTEND
+sed -i \"s/FRONTEND_HOST_PLACEHOLDER/${frontend_host}/g; s/FRONTEND_PORT_PLACEHOLDER/${frontend_port}/g\" /etc/nginx/sites-available/${empresa}-frontend
 ln -sf /etc/nginx/sites-available/${empresa}-backend /etc/nginx/sites-enabled/
 ln -sf /etc/nginx/sites-available/${empresa}-frontend /etc/nginx/sites-enabled/
 nginx -t'"
