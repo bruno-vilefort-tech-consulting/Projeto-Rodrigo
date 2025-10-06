@@ -1,0 +1,17 @@
+subdominio_backend=apiv6.tappy.id
+subdominio_frontend=v6.tappy.id
+email_deploy=bruno.clara@yahoo.com
+empresa=atuar_pay
+nome_empresa_original=Atuar Pay
+senha_deploy=123456
+senha_master=123456
+nome_titulo=Atuar Pay
+numero_suporte=5531991505564
+max_whatsapps=9999
+max_users=9999
+facebook_app_id=
+facebook_app_secret=
+github_token=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
+repo_url=https://github.com/bruno-vilefort-tech-consulting/Projeto-Rodrigo.git
+backend_port=8080
+frontend_port=3000

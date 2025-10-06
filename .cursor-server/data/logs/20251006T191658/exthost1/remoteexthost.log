@@ -1,0 +1,206 @@
+2025-10-06 19:17:01.229 [info] Extension host with pid 2612 started
+2025-10-06 19:17:01.236 [info] ExtensionService#_doActivateExtension cursor.cursor-browser-automation, startup: false, activationEvent: 'onCommand:cursor.browserAutomation.stop'
+2025-10-06 19:17:01.237 [info] ExtensionService#_doActivateExtension vscode.git-base, startup: false, activationEvent: '*', root cause: vscode.git
+2025-10-06 19:17:01.238 [info] ExtensionService#_doActivateExtension anysphere.cursor-browser-connect, startup: false, activationEvent: 'onStartupFinished'
+2025-10-06 19:17:01.238 [info] ExtensionService#_doActivateExtension anysphere.cursor-mcp, startup: false, activationEvent: 'onStartupFinished'
+2025-10-06 19:17:01.238 [info] ExtensionService#_doActivateExtension anysphere.cursor-shadow-workspace, startup: false, activationEvent: 'onStartupFinished'
+2025-10-06 19:17:01.252 [info] ExtensionService#_doActivateExtension vscode.debug-auto-launch, startup: false, activationEvent: 'onStartupFinished'
+2025-10-06 19:17:01.253 [info] ExtensionService#_doActivateExtension vscode.merge-conflict, startup: false, activationEvent: 'onStartupFinished'
+2025-10-06 19:17:01.713 [info] ExtensionService#_doActivateExtension vscode.git, startup: false, activationEvent: '*'
+2025-10-06 19:17:01.713 [info] ExtensionService#_doActivateExtension vscode.github, startup: false, activationEvent: '*'
+2025-10-06 19:17:02.070 [info] ExtensionService#_doActivateExtension anysphere.cursor-retrieval, startup: false, activationEvent: 'onStartupFinished'
+2025-10-06 19:17:02.439 [info] Eager extensions activated
+2025-10-06 19:17:02.445 [info] Extension host terminating: received terminate message from renderer
+2025-10-06 19:17:02.478 [error] Canceled: Canceled
+	at Hd (file:///root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/out/vs/workbench/api/node/extensionHostProcess.js:7:1379)
+	at file:///root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/out/vs/workbench/api/node/extensionHostProcess.js:44:165908
+	at Array.forEach (<anonymous>)
+	at ewe.dispose (file:///root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/out/vs/workbench/api/node/extensionHostProcess.js:44:165814)
+	at yqt.terminate (file:///root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/out/vs/workbench/api/node/extensionHostProcess.js:138:12688)
+	at hqe.terminate (file:///root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/out/vs/workbench/api/node/extensionHostProcess.js:139:1617)
+	at cr (file:///root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/out/vs/workbench/api/node/extensionHostProcess.js:671:15436)
+	at Use.value (file:///root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/out/vs/workbench/api/node/extensionHostProcess.js:671:13561)
+	at J._deliver (file:///root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/out/vs/workbench/api/node/extensionHostProcess.js:27:2961)
+	at J.fire (file:///root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/out/vs/workbench/api/node/extensionHostProcess.js:27:3282)
+	at xo.fire (file:///root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/out/vs/workbench/api/node/extensionHostProcess.js:44:10988)
+	at Rue._receiveMessage (file:///root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/out/vs/workbench/api/node/extensionHostProcess.js:44:15941)
+	at Use.value (file:///root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/out/vs/workbench/api/node/extensionHostProcess.js:44:13302)
+	at J._deliver (file:///root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/out/vs/workbench/api/node/extensionHostProcess.js:27:2961)
+	at J.fire (file:///root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/out/vs/workbench/api/node/extensionHostProcess.js:27:3282)
+	at oTe.acceptChunk (file:///root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/out/vs/workbench/api/node/extensionHostProcess.js:44:8782)
+	at file:///root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/out/vs/workbench/api/node/extensionHostProcess.js:44:7910
+	at Socket.e (file:///root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/out/vs/workbench/api/node/extensionHostProcess.js:44:19505)
+	at Socket.emit (node:events:518:28)
+	at addChunk (node:internal/streams/readable:561:12)
+	at readableAddChunkPushByteMode (node:internal/streams/readable:512:3)
+	at Readable.push (node:internal/streams/readable:392:5)
+	at Pipe.onStreamRead (node:internal/stream_base_commons:191:23) setContext undefined
+2025-10-06 19:17:02.479 [error] Canceled: Canceled
+	at Hd (file:///root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/out/vs/workbench/api/node/extensionHostProcess.js:7:1379)
+	at file:///root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/out/vs/workbench/api/node/extensionHostProcess.js:44:165908
+	at Array.forEach (<anonymous>)
+	at ewe.dispose (file:///root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/out/vs/workbench/api/node/extensionHostProcess.js:44:165814)
+	at yqt.terminate (file:///root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/out/vs/workbench/api/node/extensionHostProcess.js:138:12688)
+	at hqe.terminate (file:///root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/out/vs/workbench/api/node/extensionHostProcess.js:139:1617)
+	at cr (file:///root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/out/vs/workbench/api/node/extensionHostProcess.js:671:15436)
+	at Use.value (file:///root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/out/vs/workbench/api/node/extensionHostProcess.js:671:13561)
+	at J._deliver (file:///root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/out/vs/workbench/api/node/extensionHostProcess.js:27:2961)
+	at J.fire (file:///root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/out/vs/workbench/api/node/extensionHostProcess.js:27:3282)
+	at xo.fire (file:///root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/out/vs/workbench/api/node/extensionHostProcess.js:44:10988)
+	at Rue._receiveMessage (file:///root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/out/vs/workbench/api/node/extensionHostProcess.js:44:15941)
+	at Use.value (file:///root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/out/vs/workbench/api/node/extensionHostProcess.js:44:13302)
+	at J._deliver (file:///root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/out/vs/workbench/api/node/extensionHostProcess.js:27:2961)
+	at J.fire (file:///root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/out/vs/workbench/api/node/extensionHostProcess.js:27:3282)
+	at oTe.acceptChunk (file:///root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/out/vs/workbench/api/node/extensionHostProcess.js:44:8782)
+	at file:///root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/out/vs/workbench/api/node/extensionHostProcess.js:44:7910
+	at Socket.e (file:///root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/out/vs/workbench/api/node/extensionHostProcess.js:44:19505)
+	at Socket.emit (node:events:518:28)
+	at addChunk (node:internal/streams/readable:561:12)
+	at readableAddChunkPushByteMode (node:internal/streams/readable:512:3)
+	at Readable.push (node:internal/streams/readable:392:5)
+	at Pipe.onStreamRead (node:internal/stream_base_commons:191:23) setContext undefined
+2025-10-06 19:17:02.479 [error] Canceled: Canceled
+	at Hd (file:///root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/out/vs/workbench/api/node/extensionHostProcess.js:7:1379)
+	at file:///root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/out/vs/workbench/api/node/extensionHostProcess.js:44:165908
+	at Array.forEach (<anonymous>)
+	at ewe.dispose (file:///root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/out/vs/workbench/api/node/extensionHostProcess.js:44:165814)
+	at yqt.terminate (file:///root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/out/vs/workbench/api/node/extensionHostProcess.js:138:12688)
+	at hqe.terminate (file:///root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/out/vs/workbench/api/node/extensionHostProcess.js:139:1617)
+	at cr (file:///root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/out/vs/workbench/api/node/extensionHostProcess.js:671:15436)
+	at Use.value (file:///root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/out/vs/workbench/api/node/extensionHostProcess.js:671:13561)
+	at J._deliver (file:///root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/out/vs/workbench/api/node/extensionHostProcess.js:27:2961)
+	at J.fire (file:///root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/out/vs/workbench/api/node/extensionHostProcess.js:27:3282)
+	at xo.fire (file:///root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/out/vs/workbench/api/node/extensionHostProcess.js:44:10988)
+	at Rue._receiveMessage (file:///root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/out/vs/workbench/api/node/extensionHostProcess.js:44:15941)
+	at Use.value (file:///root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/out/vs/workbench/api/node/extensionHostProcess.js:44:13302)
+	at J._deliver (file:///root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/out/vs/workbench/api/node/extensionHostProcess.js:27:2961)
+	at J.fire (file:///root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/out/vs/workbench/api/node/extensionHostProcess.js:27:3282)
+	at oTe.acceptChunk (file:///root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/out/vs/workbench/api/node/extensionHostProcess.js:44:8782)
+	at file:///root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/out/vs/workbench/api/node/extensionHostProcess.js:44:7910
+	at Socket.e (file:///root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/out/vs/workbench/api/node/extensionHostProcess.js:44:19505)
+	at Socket.emit (node:events:518:28)
+	at addChunk (node:internal/streams/readable:561:12)
+	at readableAddChunkPushByteMode (node:internal/streams/readable:512:3)
+	at Readable.push (node:internal/streams/readable:392:5)
+	at Pipe.onStreamRead (node:internal/stream_base_commons:191:23) setContext undefined
+2025-10-06 19:17:02.479 [error] Canceled: Canceled
+	at Hd (file:///root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/out/vs/workbench/api/node/extensionHostProcess.js:7:1379)
+	at file:///root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/out/vs/workbench/api/node/extensionHostProcess.js:44:165908
+	at Array.forEach (<anonymous>)
+	at ewe.dispose (file:///root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/out/vs/workbench/api/node/extensionHostProcess.js:44:165814)
+	at yqt.terminate (file:///root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/out/vs/workbench/api/node/extensionHostProcess.js:138:12688)
+	at hqe.terminate (file:///root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/out/vs/workbench/api/node/extensionHostProcess.js:139:1617)
+	at cr (file:///root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/out/vs/workbench/api/node/extensionHostProcess.js:671:15436)
+	at Use.value (file:///root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/out/vs/workbench/api/node/extensionHostProcess.js:671:13561)
+	at J._deliver (file:///root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/out/vs/workbench/api/node/extensionHostProcess.js:27:2961)
+	at J.fire (file:///root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/out/vs/workbench/api/node/extensionHostProcess.js:27:3282)
+	at xo.fire (file:///root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/out/vs/workbench/api/node/extensionHostProcess.js:44:10988)
+	at Rue._receiveMessage (file:///root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/out/vs/workbench/api/node/extensionHostProcess.js:44:15941)
+	at Use.value (file:///root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/out/vs/workbench/api/node/extensionHostProcess.js:44:13302)
+	at J._deliver (file:///root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/out/vs/workbench/api/node/extensionHostProcess.js:27:2961)
+	at J.fire (file:///root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/out/vs/workbench/api/node/extensionHostProcess.js:27:3282)
+	at oTe.acceptChunk (file:///root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/out/vs/workbench/api/node/extensionHostProcess.js:44:8782)
+	at file:///root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/out/vs/workbench/api/node/extensionHostProcess.js:44:7910
+	at Socket.e (file:///root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/out/vs/workbench/api/node/extensionHostProcess.js:44:19505)
+	at Socket.emit (node:events:518:28)
+	at addChunk (node:internal/streams/readable:561:12)
+	at readableAddChunkPushByteMode (node:internal/streams/readable:512:3)
+	at Readable.push (node:internal/streams/readable:392:5)
+	at Pipe.onStreamRead (node:internal/stream_base_commons:191:23) setContext undefined
+2025-10-06 19:17:02.479 [error] Canceled: Canceled
+	at Hd (file:///root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/out/vs/workbench/api/node/extensionHostProcess.js:7:1379)
+	at file:///root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/out/vs/workbench/api/node/extensionHostProcess.js:44:165908
+	at Array.forEach (<anonymous>)
+	at ewe.dispose (file:///root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/out/vs/workbench/api/node/extensionHostProcess.js:44:165814)
+	at yqt.terminate (file:///root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/out/vs/workbench/api/node/extensionHostProcess.js:138:12688)
+	at hqe.terminate (file:///root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/out/vs/workbench/api/node/extensionHostProcess.js:139:1617)
+	at cr (file:///root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/out/vs/workbench/api/node/extensionHostProcess.js:671:15436)
+	at Use.value (file:///root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/out/vs/workbench/api/node/extensionHostProcess.js:671:13561)
+	at J._deliver (file:///root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/out/vs/workbench/api/node/extensionHostProcess.js:27:2961)
+	at J.fire (file:///root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/out/vs/workbench/api/node/extensionHostProcess.js:27:3282)
+	at xo.fire (file:///root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/out/vs/workbench/api/node/extensionHostProcess.js:44:10988)
+	at Rue._receiveMessage (file:///root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/out/vs/workbench/api/node/extensionHostProcess.js:44:15941)
+	at Use.value (file:///root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/out/vs/workbench/api/node/extensionHostProcess.js:44:13302)
+	at J._deliver (file:///root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/out/vs/workbench/api/node/extensionHostProcess.js:27:2961)
+	at J.fire (file:///root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/out/vs/workbench/api/node/extensionHostProcess.js:27:3282)
+	at oTe.acceptChunk (file:///root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/out/vs/workbench/api/node/extensionHostProcess.js:44:8782)
+	at file:///root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/out/vs/workbench/api/node/extensionHostProcess.js:44:7910
+	at Socket.e (file:///root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/out/vs/workbench/api/node/extensionHostProcess.js:44:19505)
+	at Socket.emit (node:events:518:28)
+	at addChunk (node:internal/streams/readable:561:12)
+	at readableAddChunkPushByteMode (node:internal/streams/readable:512:3)
+	at Readable.push (node:internal/streams/readable:392:5)
+	at Pipe.onStreamRead (node:internal/stream_base_commons:191:23) setContext undefined
+2025-10-06 19:17:02.479 [error] Canceled: Canceled
+	at Hd (file:///root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/out/vs/workbench/api/node/extensionHostProcess.js:7:1379)
+	at file:///root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/out/vs/workbench/api/node/extensionHostProcess.js:44:165908
+	at Array.forEach (<anonymous>)
+	at ewe.dispose (file:///root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/out/vs/workbench/api/node/extensionHostProcess.js:44:165814)
+	at yqt.terminate (file:///root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/out/vs/workbench/api/node/extensionHostProcess.js:138:12688)
+	at hqe.terminate (file:///root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/out/vs/workbench/api/node/extensionHostProcess.js:139:1617)
+	at cr (file:///root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/out/vs/workbench/api/node/extensionHostProcess.js:671:15436)
+	at Use.value (file:///root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/out/vs/workbench/api/node/extensionHostProcess.js:671:13561)
+	at J._deliver (file:///root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/out/vs/workbench/api/node/extensionHostProcess.js:27:2961)
+	at J.fire (file:///root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/out/vs/workbench/api/node/extensionHostProcess.js:27:3282)
+	at xo.fire (file:///root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/out/vs/workbench/api/node/extensionHostProcess.js:44:10988)
+	at Rue._receiveMessage (file:///root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/out/vs/workbench/api/node/extensionHostProcess.js:44:15941)
+	at Use.value (file:///root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/out/vs/workbench/api/node/extensionHostProcess.js:44:13302)
+	at J._deliver (file:///root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/out/vs/workbench/api/node/extensionHostProcess.js:27:2961)
+	at J.fire (file:///root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/out/vs/workbench/api/node/extensionHostProcess.js:27:3282)
+	at oTe.acceptChunk (file:///root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/out/vs/workbench/api/node/extensionHostProcess.js:44:8782)
+	at file:///root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/out/vs/workbench/api/node/extensionHostProcess.js:44:7910
+	at Socket.e (file:///root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/out/vs/workbench/api/node/extensionHostProcess.js:44:19505)
+	at Socket.emit (node:events:518:28)
+	at addChunk (node:internal/streams/readable:561:12)
+	at readableAddChunkPushByteMode (node:internal/streams/readable:512:3)
+	at Readable.push (node:internal/streams/readable:392:5)
+	at Pipe.onStreamRead (node:internal/stream_base_commons:191:23) setContext undefined
+2025-10-06 19:17:02.480 [error] Canceled: Canceled
+	at Hd (file:///root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/out/vs/workbench/api/node/extensionHostProcess.js:7:1379)
+	at file:///root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/out/vs/workbench/api/node/extensionHostProcess.js:44:165908
+	at Array.forEach (<anonymous>)
+	at ewe.dispose (file:///root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/out/vs/workbench/api/node/extensionHostProcess.js:44:165814)
+	at yqt.terminate (file:///root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/out/vs/workbench/api/node/extensionHostProcess.js:138:12688)
+	at hqe.terminate (file:///root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/out/vs/workbench/api/node/extensionHostProcess.js:139:1617)
+	at cr (file:///root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/out/vs/workbench/api/node/extensionHostProcess.js:671:15436)
+	at Use.value (file:///root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/out/vs/workbench/api/node/extensionHostProcess.js:671:13561)
+	at J._deliver (file:///root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/out/vs/workbench/api/node/extensionHostProcess.js:27:2961)
+	at J.fire (file:///root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/out/vs/workbench/api/node/extensionHostProcess.js:27:3282)
+	at xo.fire (file:///root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/out/vs/workbench/api/node/extensionHostProcess.js:44:10988)
+	at Rue._receiveMessage (file:///root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/out/vs/workbench/api/node/extensionHostProcess.js:44:15941)
+	at Use.value (file:///root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/out/vs/workbench/api/node/extensionHostProcess.js:44:13302)
+	at J._deliver (file:///root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/out/vs/workbench/api/node/extensionHostProcess.js:27:2961)
+	at J.fire (file:///root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/out/vs/workbench/api/node/extensionHostProcess.js:27:3282)
+	at oTe.acceptChunk (file:///root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/out/vs/workbench/api/node/extensionHostProcess.js:44:8782)
+	at file:///root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/out/vs/workbench/api/node/extensionHostProcess.js:44:7910
+	at Socket.e (file:///root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/out/vs/workbench/api/node/extensionHostProcess.js:44:19505)
+	at Socket.emit (node:events:518:28)
+	at addChunk (node:internal/streams/readable:561:12)
+	at readableAddChunkPushByteMode (node:internal/streams/readable:512:3)
+	at Readable.push (node:internal/streams/readable:392:5)
+	at Pipe.onStreamRead (node:internal/stream_base_commons:191:23) setContext undefined
+2025-10-06 19:17:02.480 [error] Canceled: Canceled
+	at Hd (file:///root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/out/vs/workbench/api/node/extensionHostProcess.js:7:1379)
+	at file:///root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/out/vs/workbench/api/node/extensionHostProcess.js:44:165908
+	at Array.forEach (<anonymous>)
+	at ewe.dispose (file:///root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/out/vs/workbench/api/node/extensionHostProcess.js:44:165814)
+	at yqt.terminate (file:///root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/out/vs/workbench/api/node/extensionHostProcess.js:138:12688)
+	at hqe.terminate (file:///root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/out/vs/workbench/api/node/extensionHostProcess.js:139:1617)
+	at cr (file:///root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/out/vs/workbench/api/node/extensionHostProcess.js:671:15436)
+	at Use.value (file:///root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/out/vs/workbench/api/node/extensionHostProcess.js:671:13561)
+	at J._deliver (file:///root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/out/vs/workbench/api/node/extensionHostProcess.js:27:2961)
+	at J.fire (file:///root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/out/vs/workbench/api/node/extensionHostProcess.js:27:3282)
+	at xo.fire (file:///root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/out/vs/workbench/api/node/extensionHostProcess.js:44:10988)
+	at Rue._receiveMessage (file:///root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/out/vs/workbench/api/node/extensionHostProcess.js:44:15941)
+	at Use.value (file:///root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/out/vs/workbench/api/node/extensionHostProcess.js:44:13302)
+	at J._deliver (file:///root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/out/vs/workbench/api/node/extensionHostProcess.js:27:2961)
+	at J.fire (file:///root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/out/vs/workbench/api/node/extensionHostProcess.js:27:3282)
+	at oTe.acceptChunk (file:///root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/out/vs/workbench/api/node/extensionHostProcess.js:44:8782)
+	at file:///root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/out/vs/workbench/api/node/extensionHostProcess.js:44:7910
+	at Socket.e (file:///root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/out/vs/workbench/api/node/extensionHostProcess.js:44:19505)
+	at Socket.emit (node:events:518:28)
+	at addChunk (node:internal/streams/readable:561:12)
+	at readableAddChunkPushByteMode (node:internal/streams/readable:512:3)
+	at Readable.push (node:internal/streams/readable:392:5)
+	at Pipe.onStreamRead (node:internal/stream_base_commons:191:23) setContext undefined
+2025-10-06 19:17:02.480 [info] Extension host with pid 2612 exiting with code 0

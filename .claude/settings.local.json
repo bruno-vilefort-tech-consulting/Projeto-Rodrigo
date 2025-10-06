@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(sed:*)",
+      "Bash(systemctl status:*)",
+      "Read(//usr/local/bin/**)",
+      "Bash(sudo:*)",
+      "Bash(systemctl list-units:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

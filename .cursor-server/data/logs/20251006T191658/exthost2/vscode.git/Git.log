@@ -1,0 +1,102 @@
+2025-10-06 19:17:06.558 [info] [main] Log level: Info
+2025-10-06 19:17:06.558 [info] [main] Validating found git in: "git"
+2025-10-06 19:17:06.558 [info] [main] Using git "2.34.1" from "git"
+2025-10-06 19:17:06.558 [info] [Model][doInitialScan] Initial repository scan started
+2025-10-06 19:17:06.558 [info] > git rev-parse --show-toplevel [3ms]
+2025-10-06 19:17:06.558 [info] fatal: not a git repository (or any of the parent directories): .git
+2025-10-06 19:17:06.558 [info] [Model][doInitialScan] Initial repository scan completed - repositories (0), closed repositories (0), parent repositories (0), unsafe repositories (0)
+2025-10-06 19:17:06.573 [info] > git config --get remote.origin.url [2ms]
+2025-10-06 19:17:06.852 [info] > git rev-parse --show-toplevel [3ms]
+2025-10-06 19:17:06.852 [info] fatal: not a git repository (or any of the parent directories): .git
+2025-10-06 19:17:06.935 [info] > git symbolic-ref --short refs/remotes/origin/HEAD [2ms]
+2025-10-06 19:17:06.935 [info] fatal: not a git repository (or any of the parent directories): .git
+2025-10-06 19:17:06.940 [info] > git rev-parse --verify origin/main [2ms]
+2025-10-06 19:17:06.940 [info] fatal: not a git repository (or any of the parent directories): .git
+2025-10-06 19:17:06.943 [info] > git rev-parse --verify origin/master [1ms]
+2025-10-06 19:17:06.943 [info] fatal: not a git repository (or any of the parent directories): .git
+2025-10-06 19:17:06.948 [info] > git rev-parse --verify origin/develop [1ms]
+2025-10-06 19:17:06.948 [info] fatal: not a git repository (or any of the parent directories): .git
+2025-10-06 19:17:06.953 [info] > git branch -r [1ms]
+2025-10-06 19:17:06.953 [info] fatal: not a git repository (or any of the parent directories): .git
+2025-10-06 19:17:06.956 [info] > git config --get init.defaultBranch [1ms]
+2025-10-06 19:17:16.299 [info] > git config --global user.name [1ms]
+2025-10-06 19:17:16.302 [info] > git config --global user.email [1ms]
+2025-10-06 19:17:16.302 [info] [main] Stored git author name in global state:  <>
+2025-10-06 19:17:17.478 [info] > git rev-parse --show-toplevel [1ms]
+2025-10-06 19:17:17.478 [info] fatal: not a git repository (or any of the parent directories): .git
+2025-10-06 19:19:15.169 [info] > git rev-parse --show-toplevel [1ms]
+2025-10-06 19:19:15.169 [info] fatal: not a git repository (or any of the parent directories): .git
+2025-10-06 19:22:30.725 [info] > git rev-parse --show-toplevel [1ms]
+2025-10-06 19:22:30.725 [info] fatal: not a git repository (or any of the parent directories): .git
+2025-10-06 19:26:27.052 [info] > git rev-parse --show-toplevel [1ms]
+2025-10-06 19:26:27.053 [info] fatal: not a git repository (or any of the parent directories): .git
+2025-10-06 19:27:03.312 [info] > git rev-parse --show-toplevel [1ms]
+2025-10-06 19:27:03.312 [info] fatal: not a git repository (or any of the parent directories): .git
+2025-10-06 19:27:03.583 [info] > git config user.email [1ms]
+2025-10-06 19:27:03.589 [info] > git config user.name [1ms]
+2025-10-06 19:27:03.595 [info] > git log --pretty=format:%H<|ENT|><|RY|>%s<|COM|><|MIT|> -n 10 --author root [1ms]
+2025-10-06 19:27:03.595 [info] fatal: not a git repository (or any of the parent directories): .git
+2025-10-06 19:27:38.669 [info] > git rev-parse --show-toplevel [5ms]
+2025-10-06 19:27:38.669 [info] fatal: not a git repository (or any of the parent directories): .git
+2025-10-06 19:29:18.062 [info] > git rev-parse --show-toplevel [3ms]
+2025-10-06 19:29:18.062 [info] fatal: not a git repository (or any of the parent directories): .git
+2025-10-06 19:32:03.317 [info] > git rev-parse --show-toplevel [1ms]
+2025-10-06 19:32:03.317 [info] fatal: not a git repository (or any of the parent directories): .git
+2025-10-06 19:32:19.639 [info] > git rev-parse --show-toplevel [1ms]
+2025-10-06 19:32:19.639 [info] fatal: not a git repository (or any of the parent directories): .git
+2025-10-06 19:32:19.644 [info] > git rev-parse --show-toplevel [1ms]
+2025-10-06 19:32:19.644 [info] fatal: not a git repository (or any of the parent directories): .git
+2025-10-06 19:32:55.732 [info] > git rev-parse --show-toplevel [3ms]
+2025-10-06 19:32:55.732 [info] fatal: not a git repository (or any of the parent directories): .git
+2025-10-06 19:37:03.327 [info] > git rev-parse --show-toplevel [2ms]
+2025-10-06 19:37:03.327 [info] fatal: not a git repository (or any of the parent directories): .git
+2025-10-06 19:37:03.589 [info] > git config user.email [1ms]
+2025-10-06 19:37:03.593 [info] > git config user.name [1ms]
+2025-10-06 19:37:03.598 [info] > git log --pretty=format:%H<|ENT|><|RY|>%s<|COM|><|MIT|> -n 10 --author root [1ms]
+2025-10-06 19:37:03.598 [info] fatal: not a git repository (or any of the parent directories): .git
+2025-10-06 19:38:26.355 [info] > git rev-parse --show-toplevel [2ms]
+2025-10-06 19:38:26.355 [info] fatal: not a git repository (or any of the parent directories): .git
+2025-10-06 19:38:37.931 [info] > git rev-parse --show-toplevel [1ms]
+2025-10-06 19:38:37.931 [info] fatal: not a git repository (or any of the parent directories): .git
+2025-10-06 19:39:08.258 [info] > git rev-parse --show-toplevel [1ms]
+2025-10-06 19:39:08.258 [info] fatal: not a git repository (or any of the parent directories): .git
+2025-10-06 19:40:35.190 [info] > git rev-parse --show-toplevel [1ms]
+2025-10-06 19:40:35.197 [info] > git rev-parse --git-dir --git-common-dir [1ms]
+2025-10-06 19:40:35.220 [info] [Model][openRepository] Opened repository: /root
+2025-10-06 19:40:35.229 [info] > git config --get commit.template [2ms]
+2025-10-06 19:40:35.229 [info] > git fetch [9ms]
+2025-10-06 19:40:35.235 [info] [Git][getRemotes] No remotes found in the git config file
+2025-10-06 19:40:35.241 [info] [Git][getRemotes] No remotes found in the git config file
+2025-10-06 19:40:35.242 [info] > git config --get commit.template [8ms]
+2025-10-06 19:40:35.247 [info] [Git][getRemotes] No remotes found in the git config file
+2025-10-06 19:40:35.247 [info] > git for-each-ref --format=%(refname)%00%(upstream:short)%00%(objectname)%00%(upstream:track)%00%(upstream:remotename)%00%(upstream:remoteref) refs/heads/master refs/remotes/master [6ms]
+2025-10-06 19:40:35.247 [warning] [Git][getBranch] No such branch: master
+2025-10-06 19:40:35.257 [info] > git for-each-ref --format=%(refname)%00%(upstream:short)%00%(objectname)%00%(upstream:track)%00%(upstream:remotename)%00%(upstream:remoteref) refs/heads/master refs/remotes/master [5ms]
+2025-10-06 19:40:35.257 [warning] [Git][getBranch] No such branch: master
+2025-10-06 19:40:35.257 [error] [GitHistoryProvider][resolveHEADMergeBase] Failed to resolve merge base for master: Error: No such branch: master.
+2025-10-06 19:40:35.258 [info] > git for-each-ref --format=%(refname)%00%(upstream:short)%00%(objectname)%00%(upstream:track)%00%(upstream:remotename)%00%(upstream:remoteref) refs/heads/master refs/remotes/master [12ms]
+2025-10-06 19:40:35.258 [warning] [Git][getBranch] No such branch: master
+2025-10-06 19:40:35.261 [info] > git config --get commit.template [4ms]
+2025-10-06 19:40:35.264 [info] [Git][getRemotes] No remotes found in the git config file
+2025-10-06 19:40:35.265 [info] > git for-each-ref --format=%(refname)%00%(upstream:short)%00%(objectname)%00%(upstream:track)%00%(upstream:remotename)%00%(upstream:remoteref) refs/heads/master refs/remotes/master [1ms]
+2025-10-06 19:40:35.265 [warning] [Git][getBranch] No such branch: master
+2025-10-06 19:40:35.274 [info] > git for-each-ref --sort -committerdate --format %(refname)%00%(objectname)%00%(*objectname) [2ms]
+2025-10-06 19:40:35.334 [info] > git status -z -uall [64ms]
+2025-10-06 19:40:36.161 [info] > git check-ignore -v -z --stdin [4ms]
+2025-10-06 19:40:36.162 [info] > git rev-parse --show-toplevel [17ms]
+2025-10-06 19:40:36.162 [info] > git rev-parse --abbrev-ref HEAD [2ms]
+2025-10-06 19:40:36.162 [info] fatal: ambiguous argument 'HEAD': unknown revision or path not in the working tree.
+Use '--' to separate paths from revisions, like this:
+'git <command> [<revision>...] -- [<file>...]'
+2025-10-06 19:40:38.265 [info] > git config --get commit.template [5ms]
+2025-10-06 19:40:38.265 [info] [Git][getRemotes] No remotes found in the git config file
+2025-10-06 19:40:38.265 [info] > git for-each-ref --format=%(refname)%00%(upstream:short)%00%(objectname)%00%(upstream:track)%00%(upstream:remotename)%00%(upstream:remoteref) refs/heads/master refs/remotes/master [1ms]
+2025-10-06 19:40:38.266 [warning] [Git][getBranch] No such branch: master
+2025-10-06 19:40:38.274 [info] > git for-each-ref --sort -committerdate --format %(refname)%00%(objectname)%00%(*objectname) [1ms]
+2025-10-06 19:40:38.304 [info] > git status -z -uall [35ms]
+2025-10-06 19:40:43.347 [info] [Git][getRemotes] No remotes found in the git config file
+2025-10-06 19:40:43.348 [info] > git config --get commit.template [4ms]
+2025-10-06 19:40:43.349 [info] > git for-each-ref --format=%(refname)%00%(upstream:short)%00%(objectname)%00%(upstream:track)%00%(upstream:remotename)%00%(upstream:remoteref) refs/heads/master refs/remotes/master [1ms]
+2025-10-06 19:40:43.349 [warning] [Git][getBranch] No such branch: master
+2025-10-06 19:40:43.356 [info] > git for-each-ref --sort -committerdate --format %(refname)%00%(objectname)%00%(*objectname) [1ms]
+2025-10-06 19:40:43.386 [info] > git status -z -uall [33ms]

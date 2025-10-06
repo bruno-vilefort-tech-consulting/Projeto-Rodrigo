@@ -1,0 +1,22 @@
+status: 200
+date: Mon, 06 Oct 2025 19:36:53 GMT
+server: gunicorn
+x-powered-by: Zope (www.zope.org), Python (www.python.org)
+content-security-policy: frame-ancestors 'self';
+content-type: application/json
+strict-transport-security: max-age=15552000
+vary: Accept,Accept-Encoding
+x-content-type-options: nosniff
+x-frame-options: SAMEORIGIN
+x-launchpad-revision: 8f35df7956d277b113de8d286a4ca280c7b8ebdf
+x-lazr-notifications: []
+x-xss-protection: 1; mode=block
+x-vcs-revision: 8f35df7956d277b113de8d286a4ca280c7b8ebdf
+x-request-id: 0e629e45-05d6-4c54-ac43-0ca15107fc0b
+content-length: 1503
+-content-encoding: gzip
+content-location: https://api.launchpad.net/devel/~apt-fast?name=%22stable%22&ws.op=getPPAByName
+-varied-accept: application/json
+-varied-accept-encoding: gzip, deflate
+
+{"self_link": "https://api.launchpad.net/devel/~apt-fast/+archive/ubuntu/stable", "web_link": "https://launchpad.net/~apt-fast/+archive/ubuntu/stable", "resource_type_link": "https://api.launchpad.net/devel/#archive", "owner_link": "https://api.launchpad.net/devel/~apt-fast", "name": "stable", "displayname": "apt-fast stable PPA", "reference": "~apt-fast/ubuntu/stable", "distribution_link": "https://api.launchpad.net/devel/ubuntu", "private": false, "suppress_subscription_notifications": false, "dependencies_collection_link": "https://api.launchpad.net/devel/~apt-fast/+archive/ubuntu/stable/dependencies", "description": "This PPA contains tested (stable) builds of apt-fast.\n\nProject: https://github.com/ilikenwf/apt-fast", "signing_key_fingerprint": "BC5934FD3DEBD4DAEA544F791E2824A7F22B44BD", "require_virtualized": true, "build_debug_symbols": false, "publish_debug_symbols": false, "permit_obsolete_series_uploads": false, "authorized_size": 2048, "status": "Active", "external_dependencies": null, "metadata_overrides": null, "processors_collection_link": "https://api.launchpad.net/devel/~apt-fast/+archive/ubuntu/stable/processors", "enabled_restricted_processors_collection_link": "https://api.launchpad.net/devel/~apt-fast/+archive/ubuntu/stable/enabled_restricted_processors", "publishing_method": "Local", "repository_format": "Debian", "publish": true, "relative_build_score": 0, "http_etag": "\"5f6c9a6bf634c6fac3f10ac397a8d887d86ac695-b9fda8aca42e7354508f127662f918a75ceb7018\""}

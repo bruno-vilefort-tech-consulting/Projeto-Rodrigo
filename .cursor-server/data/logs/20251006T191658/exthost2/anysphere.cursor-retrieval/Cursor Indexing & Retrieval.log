@@ -1,0 +1,41 @@
+2025-10-06 19:17:06.606 [error] Error getting repo info: Failed to execute git
+2025-10-06 19:17:06.606 [error] Error: Failed to execute git
+	at t.Git._exec (/root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/extensions/git/dist/main.js:2:34408)
+	at async t.Git.exec (/root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/extensions/git/dist/main.js:2:33531)
+	at async t.GitProvider.executeGitCommandStable (/root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/extensions/cursor-retrieval/dist/main.js:2:1287404)
+	at async t.GitProvider.getRepoInfo (/root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/extensions/cursor-retrieval/dist/main.js:2:1263356)
+2025-10-06 19:17:06.606 [info] Creating Indexing Repo client:  https://repo42.cursor.sh
+2025-10-06 19:17:06.606 [info] Creating repo client with backend url: https://repo42.cursor.sh
+2025-10-06 19:17:06.680 [info] Making keys for a new index
+2025-10-06 19:17:06.699 [info] Using the default key from the server for a new index
+2025-10-06 19:17:06.699 [info] InternalRepoInfo constructor with preferredEmbeddingModel 0
+2025-10-06 19:17:06.851 [info] Using existing keys for an index
+2025-10-06 19:17:06.851 [info] InternalRepoInfo constructor with preferredEmbeddingModel 0
+2025-10-06 19:17:06.871 [error] We currently do not allow indexing the home directory.
+2025-10-06 19:17:06.871 [info] Indexing job successfully done or aborted.
+2025-10-06 19:17:06.936 [warning] Failed to get symbolic ref: Failed to execute git
+2025-10-06 19:17:06.939 [warning] Failed to read .git/HEAD: A system error occurred (ENOENT: no such file or directory, open '/root/.git/HEAD')
+2025-10-06 19:17:06.956 [warning] Failed to get branches from remote: Failed to execute git
+2025-10-06 19:17:06.957 [warning] Failed to get default branch from git config: Failed to execute git
+2025-10-06 19:21:40.871 [info] multiCodebaseIndexingJob dispose
+2025-10-06 19:21:40.871 [info] Aborting indexing job.
+2025-10-06 19:21:40.871 [error] We currently do not allow indexing the home directory.
+2025-10-06 19:21:40.871 [info] Indexing job successfully done or aborted.
+2025-10-06 19:26:14.872 [info] multiCodebaseIndexingJob dispose
+2025-10-06 19:26:14.872 [info] Aborting indexing job.
+2025-10-06 19:26:14.872 [error] We currently do not allow indexing the home directory.
+2025-10-06 19:26:14.872 [info] Indexing job successfully done or aborted.
+2025-10-06 19:27:03.595 [error] Error getting user commits: Failed to execute git
+2025-10-06 19:30:48.871 [info] multiCodebaseIndexingJob dispose
+2025-10-06 19:30:48.871 [info] Aborting indexing job.
+2025-10-06 19:30:48.871 [error] We currently do not allow indexing the home directory.
+2025-10-06 19:30:48.871 [info] Indexing job successfully done or aborted.
+2025-10-06 19:35:22.872 [info] multiCodebaseIndexingJob dispose
+2025-10-06 19:35:22.872 [info] Aborting indexing job.
+2025-10-06 19:35:22.872 [error] We currently do not allow indexing the home directory.
+2025-10-06 19:35:22.872 [info] Indexing job successfully done or aborted.
+2025-10-06 19:37:03.598 [error] Error getting user commits: Failed to execute git
+2025-10-06 19:39:56.872 [info] multiCodebaseIndexingJob dispose
+2025-10-06 19:39:56.872 [info] Aborting indexing job.
+2025-10-06 19:39:56.872 [error] We currently do not allow indexing the home directory.
+2025-10-06 19:39:56.872 [info] Indexing job successfully done or aborted.

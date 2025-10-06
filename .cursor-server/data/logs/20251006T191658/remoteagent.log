@@ -1,0 +1,27 @@
+2025-10-06 19:16:58.609 [info] 
+
+
+
+
+2025-10-06 19:16:58.615 [info] Extension host agent started.
+2025-10-06 19:16:58.626 [info] Started initializing default profile extensions in extensions installation folder. file:///root/.cursor-server/extensions
+2025-10-06 19:16:58.636 [info] Completed initializing default profile extensions in extensions installation folder. file:///root/.cursor-server/extensions
+2025-10-06 19:16:58.663 [info] [<unknown>][ea2344d9][ManagementConnection] New connection established.
+2025-10-06 19:16:58.682 [info] [<unknown>][28dd535b][ExtensionHostConnection] New connection established.
+2025-10-06 19:16:58.738 [info] [<unknown>][28dd535b][ExtensionHostConnection] <2612> Launched Extension Host Process.
+2025-10-06 19:16:58.765 [info] Getting extensions control
+2025-10-06 19:17:02.328 [info] [<unknown>][ea2344d9][ManagementConnection] The client has disconnected gracefully, so the connection will be disposed.
+2025-10-06 19:17:02.497 [info] [<unknown>][28dd535b][ExtensionHostConnection] <2612> Extension Host Process exited with code: 0, signal: null.
+2025-10-06 19:17:02.497 [info] Cancelling previous shutdown timeout
+2025-10-06 19:17:02.498 [info] Last EH closed, waiting before shutting down
+2025-10-06 19:17:04.511 [info] [<unknown>][d466b325][ManagementConnection] New connection established.
+2025-10-06 19:17:04.529 [info] [<unknown>][79adede6][ExtensionHostConnection] New connection established.
+2025-10-06 19:17:04.531 [info] [<unknown>][79adede6][ExtensionHostConnection] <2804> Launched Extension Host Process.
+2025-10-06 19:22:02.499 [info] New EH opened, aborting shutdown
+2025-10-06 19:27:34.442 [info] Getting extensions control
+2025-10-06 19:27:34.797 [info] Getting Manifest... anthropic.claude-code
+2025-10-06 19:27:36.200 [info] Installing extension: anthropic.claude-code {"isMachineScoped":true,"isBuiltin":false,"installGivenVersion":false,"installOnlyNewlyAddedFromExtensionPack":true,"isApplicationScoped":false,"profileLocation":{"$mid":1,"fsPath":"/root/.cursor-server/extensions/extensions.json","external":"file:///root/.cursor-server/extensions/extensions.json","path":"/root/.cursor-server/extensions/extensions.json","scheme":"file"},"productVersion":{"version":"1.7.33","date":"2025-10-03T03:28:06.574Z","vscodeVersion":"1.99.3"}}
+2025-10-06 19:27:36.266 [info] Started downloading extension: anthropic.claude-code 2.0.1 file:///root/.cursor-server/data/CachedExtensionVSIXs/anthropic.claude-code-2.0.1-universal
+2025-10-06 19:27:38.502 [info] Extracted extension to file:///root/.cursor-server/extensions/anthropic.claude-code-2.0.1-universal: anthropic.claude-code
+2025-10-06 19:27:38.507 [info] Renamed to /root/.cursor-server/extensions/anthropic.claude-code-2.0.1-universal
+2025-10-06 19:27:38.515 [info] Extension installed successfully: anthropic.claude-code file:///root/.cursor-server/extensions/extensions.json
