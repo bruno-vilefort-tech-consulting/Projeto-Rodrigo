@@ -12,7 +12,16 @@
       "Read(//home/deploy/atuar_pay/**)",
       "Bash(awk:*)",
       "Bash(readlink:*)",
-      "Bash(cat:*)"
+      "Bash(cat:*)",
+      "Bash(node:*)",
+      "Read(//tmp/**)",
+      "Bash(pkill:*)",
+      "Bash(tee:*)",
+      "Bash(bash:*)",
+      "Read(//home/deploy/.local/share/pnpm/**)",
+      "Bash(lsof:*)",
+      "Bash(netstat:*)",
+      "Bash(head -1 echo \"\" echo \"2️⃣ ETAPA 19 (linha 1075) - JavaScript eval\" sed -n '1075p' /root/instalador.sh)"
     ],
     "deny": [],
     "ask": []

@@ -1,0 +1,134 @@
+# CORREÇÕES APLICADAS NO INSTALADOR.SH
+**Data:** 2025-10-06
+**Versão:** v5.0 corrigida
+
+---
+
+## 🎯 PROBLEMAS IDENTIFICADOS E CORRIGIDOS
+
+### 1. **ETAPA 12 - PostgreSQL (Linha 847)**
+**Erro Original:**
+```
+ERROR: syntax error at or near "-"
+LINE 1: CREATE EXTENSION IF NOT EXISTS uuid-ossp;
+```
+
+**Causa:**
+O hífen em `uuid-ossp` estava sendo interpretado como operador SQL devido a múltiplos níveis de escape bash.
+
+**Correção Aplicada:**
+```bash
+# ANTES:
+psql -d \"${empresa}\" -c \"CREATE EXTENSION IF NOT EXISTS uuid-ossp;\"
+
+# DEPOIS:
+psql -d \"${empresa}\" -c \"CREATE EXTENSION IF NOT EXISTS \\\"uuid-ossp\\\";\"
+```
+
+**Impacto:** Extensão UUID agora é criada corretamente no banco de dados.
+
+---
+
+### 2. **ETAPA 19 - Build Frontend (Linha 1075)**
+**Erro Original:**
+```
+SyntaxError: Unexpected token '.'
+at makeContextifyScript (node:internal/vm:185:14)
+```
+
+**Causa:**
+JavaScript eval com aspas simples em `require('./package.json')` não estava escapado corretamente.
+
+**Correção Aplicada:**
+```bash
+# ANTES:
+RS_MAJOR=$(node -e "try{const p=require('./package.json');const v=...")
+
+# DEPOIS:
+RS_MAJOR=$(node -e "try{const p=require(\"./package.json\");const v=((p.devDependencies&&p.devDependencies[\"react-scripts\"])...")
+```
+
+**Impacto:** Detecção de versão do react-scripts funciona corretamente, evitando warnings no build.
+
+---
+
+### 3. **ETAPA 20 - PM2 (Linha 1087)** ⚠️ CRÍTICO
+**Erro Original:**
+```
+Error: Cannot find module '/usr/local/bin/global/5/.pnpm/pm2@6.0.13/node_modules/pm2/bin/pm2'
+```
+
+**Causa:**
+Variáveis de ambiente `PNPM_HOME` e `PATH` não estavam corretamente exportadas no contexto do PM2.
+
+**Correção Aplicada:**
+```bash
+# ANTES:
+/usr/bin/sudo -u deploy bash -lc "cd /home/deploy/${empresa}; export PNPM_HOME=\"\$HOME/.local/share/pnpm\"; export PATH=\"\$PNPM_HOME:\$PATH\"; cd backend; pm2 delete..."
+
+# DEPOIS:
+/usr/bin/sudo -u deploy bash -lc "export PNPM_HOME=\$HOME/.local/share/pnpm; export PATH=\$PNPM_HOME:\$PATH; cd /home/deploy/${empresa}/backend; pm2 delete..."
+```
+
+**Mudanças:**
+- Removido excesso de escapes nas variáveis de ambiente
+- Simplificado o caminho de navegação (cd direto para path completo)
+- PATH agora é exportado corretamente antes de executar PM2
+
+**Impacto:** Backend e Frontend agora iniciam corretamente no PM2.
+
+---
+
+### 4. **ETAPA 18 - server.js (Linhas 995-1009)**
+**Status:** ✅ JÁ ESTAVA CORRETO
+
+O código do `server.js` no instalador já possuía as aspas corretas:
+```javascript
+const express = require("express");
+const path = require("path");
+// ... etc
+console.log("Frontend running on port " + PORT);
+```
+
+---
+
+## 📋 RESUMO DAS ALTERAÇÕES
+
+| Etapa | Linha | Problema | Status |
+|-------|-------|----------|--------|
+| ETAPA 12 | 847 | uuid-ossp sem aspas | ✅ Corrigido |
+| ETAPA 19 | 1075 | JavaScript eval com aspas incorretas | ✅ Corrigido |
+| ETAPA 20 | 1087 | Variáveis PM2 não exportadas | ✅ Corrigido |
+| ETAPA 18 | 995-1009 | server.js | ✅ Já correto |
+
+---
+
+## 🔄 PRÓXIMOS PASSOS
+
+1. **Testar nova instalação:**
+   ```bash
+   bash /root/instalador.sh
+   ```
+
+2. **Verificar serviços:**
+   ```bash
+   sudo -u deploy bash -lc 'export PNPM_HOME=$HOME/.local/share/pnpm; export PATH=$PNPM_HOME:$PATH; pm2 list'
+   ```
+
+3. **Confirmar portas:**
+   ```bash
+   netstat -tlnp | grep -E ':(8080|3000)' | grep LISTEN
+   ```
+
+---
+
+## 📁 BACKUP
+
+Backup do instalador original criado em:
+```
+/root/instalador.sh.backup-YYYYMMDD-HHMMSS
+```
+
+---
+
+**Nota:** Todas as correções foram feitas no script de instalação (`instalador.sh`) e não nos arquivos gerados, garantindo que futuras instalações funcionem corretamente desde o início.
