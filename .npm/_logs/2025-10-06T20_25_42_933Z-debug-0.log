@@ -1,0 +1,32 @@
+0 verbose cli /usr/bin/node /usr/bin/npm
+1 info using npm@10.8.2
+2 info using node@v20.19.5
+3 silly config load:file:/usr/lib/node_modules/npm/npmrc
+4 silly config load:file:/root/.npmrc
+5 silly config load:file:/usr/etc/npmrc
+6 verbose title npm install pnpm
+7 verbose argv "install" "--global" "pnpm"
+8 verbose logfile logs-max:10 dir:/root/.npm/_logs/2025-10-06T20_25_42_933Z-
+9 verbose logfile /root/.npm/_logs/2025-10-06T20_25_42_933Z-debug-0.log
+10 silly packumentCache heap:4345298944 maxSize:1086324736 maxEntrySize:543162368
+11 silly logfile start cleaning logs, removing 1 files
+12 silly logfile done cleaning log files
+13 silly idealTree buildDeps
+14 silly fetch manifest pnpm@*
+15 silly packumentCache full:https://registry.npmjs.org/pnpm cache-miss
+16 http fetch GET 200 https://registry.npmjs.org/pnpm 113ms (cache revalidated)
+17 silly packumentCache full:https://registry.npmjs.org/pnpm set size:5134020 disposed:false
+18 silly placeDep ROOT pnpm@10.18.1 OK for:  want: *
+19 silly reify mark retired [ '/usr/lib/node_modules/pnpm', '/usr/bin/pnpm', '/usr/bin/pnpx' ]
+20 silly reify moves {
+20 silly reify   '/usr/lib/node_modules/pnpm': '/usr/lib/node_modules/.pnpm-H0EZVZtB',
+20 silly reify   '/usr/bin/pnpm': '/usr/bin/.pnpm-JTllyBcj',
+20 silly reify   '/usr/bin/pnpx': '/usr/bin/.pnpx-MALdymCV'
+20 silly reify }
+21 silly CHANGE node_modules/pnpm
+22 verbose cwd /root
+23 verbose os Linux 5.15.0-157-generic
+24 verbose node v20.19.5
+25 verbose npm  v10.8.2
+26 verbose exit 0
+27 info ok

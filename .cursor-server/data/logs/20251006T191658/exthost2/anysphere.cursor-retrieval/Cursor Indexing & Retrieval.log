@@ -72,3 +72,19 @@
 2025-10-06 20:11:54.871 [info] Aborting indexing job.
 2025-10-06 20:11:54.872 [error] We currently do not allow indexing the home directory.
 2025-10-06 20:11:54.872 [info] Indexing job successfully done or aborted.
+2025-10-06 20:16:28.873 [info] multiCodebaseIndexingJob dispose
+2025-10-06 20:16:28.873 [info] Aborting indexing job.
+2025-10-06 20:16:28.873 [error] We currently do not allow indexing the home directory.
+2025-10-06 20:16:28.873 [info] Indexing job successfully done or aborted.
+2025-10-06 20:17:03.634 [info] Get user commits took 20.102669999934733ms for 10 commits
+2025-10-06 20:17:04.188 [warning] Failed to get symbolic ref: Failed to execute git
+2025-10-06 20:17:04.217 [warning] Failed to get default branch from git config: Failed to execute git
+2025-10-06 20:21:02.872 [info] multiCodebaseIndexingJob dispose
+2025-10-06 20:21:02.872 [info] Aborting indexing job.
+2025-10-06 20:21:02.872 [error] We currently do not allow indexing the home directory.
+2025-10-06 20:21:02.872 [info] Indexing job successfully done or aborted.
+2025-10-06 20:25:36.876 [info] multiCodebaseIndexingJob dispose
+2025-10-06 20:25:36.877 [info] Aborting indexing job.
+2025-10-06 20:25:36.877 [error] We currently do not allow indexing the home directory.
+2025-10-06 20:25:36.877 [info] Indexing job successfully done or aborted.
+2025-10-06 20:27:03.617 [info] Get user commits took 22.299978000111878ms for 10 commits

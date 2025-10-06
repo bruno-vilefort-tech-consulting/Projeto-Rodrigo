@@ -4,3 +4,11 @@ bash instalador.sh
 bash desinstalador.sh
 bash instalador.sh
 bash desinstalador.sh 
+git init
+git add .
+git commit -m "checkpoint - 59%"
+git add .
+git commit -m "checkpoint - 81%"
+git add .
+git commit -m "checkpoint - 84%"
+bash desinstalador.sh 
