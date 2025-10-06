@@ -11,7 +11,17 @@
     "theme-command": 1,
     "status-line": 1,
     "prompt-queue": 1,
-    "enter-to-steer-in-relatime": 1
+    "enter-to-steer-in-relatime": 1,
+    "todo-list": 1,
+    "# for memory": 1,
+    "install-github-app": 1,
+    "drag-and-drop-images": 1,
+    "double-esc": 1,
+    "continue": 1,
+    "shift-tab": 1,
+    "image-paste": 1,
+    "tab-toggle-thinking": 1,
+    "ultrathink-keyword": 1
   },
   "cachedStatsigGates": {
     "tengu_disable_bypass_permissions_mode": false,
@@ -42,6 +52,30 @@
     "/root": {
       "allowedTools": [],
       "history": [
+        {
+          "display": "ultrathink eu preciso que a correção que você fez, seja feita via script de instalação e de forma cirurgica, com muito cuidado para não atrapalhar nenhuma etapa anterior, não deve consertar esse erro e voltar atras com outro erro em etapas anteriores.",
+          "pastedContents": {}
+        },
+        {
+          "display": "ultrathink seria uma opção separar o build do backend e frontend, porque o erro ocorre por a lib mime ser do backend mas o typescript do frontend que está reclamando, ainda não faça nada no código",
+          "pastedContents": {}
+        },
+        {
+          "display": "ultrathink implemente a Opção 1: Mais Simples ⭐ RECOMENDADA\n\n  - Instalar o pacote mime original no backend\n  - Remover a tentativa de substituição no instalador.sh\\\n\\\nSeja extremamente preciso e cirurgico, não altere em nada que possa afetar etapas anteriores, seu objetivo é consertar o erro da etapa atual sem prejudicar outras etapas, então seja extremamente cauteloso",
+          "pastedContents": {}
+        },
+        {
+          "display": "ultrathink seria uma opção separar o build do backend e frontend, porque o erro ocorre por a lib mime ser do backend mas o typescript do frontend que está reclamando, ainda não faça nada no código",
+          "pastedContents": {}
+        },
+        {
+          "display": "ultrathink análise o arquivo @scripts/chatia-install.log e depois leia o arquivo @instalador.sh e descubra o que deu errado, em qual etapa foi e qual o primeiro diagnostico para resolver o erro, mas sem código ainda",
+          "pastedContents": {}
+        },
+        {
+          "display": "/clear ",
+          "pastedContents": {}
+        },
         {
           "display": "ultrathink com muito cuidado para não quebrar nada no código, faça a correção sugerida:\\\n\\\n  O diretório /mnt/pnpm-cache precisa ser:\n  1. Criado previamente com permissões de root\n  2. Ter ownership correto para o usuário deploy\n  3. Ou usar um caminho diferente que o usuário deploy possa criar (ex: /home/deploy/.pnpm-cache ou /tmp/pnpm-cache)\n  A solução ideal é criar o diretório antes das etapas 15 e 18, em uma etapa separada com privilégios de root.\\\n\\\nIMPORTANTE: tenha muito cuidado com qualquer alteração em etapas anteriores, seu objetivo é consertar o erro sem gerar outro erro que atrapalhe o funcionamento do instalador. Seja cirurgico.",
           "pastedContents": {}
@@ -78,5 +112,8 @@
   "hasIdeOnboardingBeenShown": {
     "cursor": true
   },
-  "fallbackAvailableWarningThreshold": 0.5
+  "fallbackAvailableWarningThreshold": 0.5,
+  "feedbackSurveyState": {
+    "lastShownTime": 1759780360013
+  }
 }

@@ -5,7 +5,14 @@
       "Bash(systemctl status:*)",
       "Read(//usr/local/bin/**)",
       "Bash(sudo:*)",
-      "Bash(systemctl list-units:*)"
+      "Bash(systemctl list-units:*)",
+      "Read(//home/deploy/atuar_pay/backend/src/services/FacebookServices/WebhookFacebookServices/**)",
+      "Read(//home/deploy/atuar_pay/backend/**)",
+      "Read(//home/deploy/atuar_pay/frontend/**)",
+      "Read(//home/deploy/atuar_pay/**)",
+      "Bash(awk:*)",
+      "Bash(readlink:*)",
+      "Bash(cat:*)"
     ],
     "deny": [],
     "ask": []
