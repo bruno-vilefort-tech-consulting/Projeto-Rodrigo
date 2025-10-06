@@ -21,6 +21,7 @@ import { i18n } from "../../translate/i18n";
 
 import api from "../../services/api";
 import toastError from "../../errors/toastError";
+import { BACKEND_URL } from "../../config/env";
 import {
   Checkbox,
   Stack,
@@ -344,7 +345,7 @@ const FlowBuilderSingleBlockModal = ({
     <Stack sx={{ border: "1px solid #0000FF", borderRadius: "7px", padding: "6px", position: "relative" }} className={`stackImg${number}`} key={`stackImg${number}`}>
       <Stack sx={{ position: "absolute", right: 6 }}><Delete onClick={() => deleteElementsTypeOne(number, "img")} /></Stack>
       <Typography textAlign={"center"}>{i18n.t("flowBuilderModals.singleBlockModal.elements.image")}</Typography>
-      <Stack direction={"row"} justifyContent={"center"}><img src={valueDefault.length > 0 ? process.env.REACT_APP_BACKEND_URL + "/public/" + valueDefault : ""} className={`img${number}`} style={{ width: "200px" }} /></Stack>
+      <Stack direction={"row"} justifyContent={"center"}><img src={valueDefault.length > 0 ? BACKEND_URL + "/public/" + valueDefault : ""} className={`img${number}`} style={{ width: "200px" }} /></Stack>
       <Button variant="contained" component="label" className={`btnImg${number}`}>{i18n.t("flowBuilderModals.singleBlockModal.buttons.sendImage")}<input type="file" accept="image/png, image/jpg, image/jpeg" hidden onChange={(e) => handleChangeMediasImg(e, number)} /></Button>
     </Stack>
   );
@@ -353,7 +354,7 @@ const FlowBuilderSingleBlockModal = ({
     <Stack sx={{ border: "1px solid #0000FF", borderRadius: "7px", padding: "6px", position: "relative" }} className={`stackAudio${number}`} key={`stackAudio${number}`}>
       <Stack sx={{ position: "absolute", right: 6 }} direction={"row"} gap={1}><Delete sx={{ cursor: "pointer" }} onClick={() => deleteElementsTypeOne(number, "audio")} /></Stack>
       <Typography textAlign={"center"}>{i18n.t("flowBuilderModals.singleBlockModal.elements.audio")}</Typography>
-      <div className={`audio${number}`} style={{ display: "flex", justifyContent: "center" }}>{valueDefault.length > 0 && (<audio controls><source src={process.env.REACT_APP_BACKEND_URL + "/public/" + valueDefault} type="audio/mp3" />{i18n.t("flowBuilderModals.singleBlockModal.validation.browserNotSupported")}</audio>)}</div>
+      <div className={`audio${number}`} style={{ display: "flex", justifyContent: "center" }}>{valueDefault.length > 0 && (<audio controls><source src={BACKEND_URL + "/public/" + valueDefault} type="audio/mp3" />{i18n.t("flowBuilderModals.singleBlockModal.validation.browserNotSupported")}</audio>)}</div>
       <Button variant="contained" component="label" className={`btnAudio${number}`}>{i18n.t("flowBuilderModals.singleBlockModal.buttons.sendAudio")}<input type="file" accept="audio/ogg, audio/mp3, audio/opus" hidden onChange={(e) => handleChangeAudios(e, number)} /></Button>
       <Stack direction={"row"} justifyContent={"center"}><Checkbox className={`checkaudio${number}`} defaultChecked={valueRecordDefault === "ok" ? false : true} /><Stack justifyContent={"center"}><Typography>{i18n.t("flowBuilderModals.singleBlockModal.fields.sendAsRecordedAudio")}</Typography></Stack></Stack>
     </Stack>
@@ -363,7 +364,7 @@ const FlowBuilderSingleBlockModal = ({
     <Stack sx={{ border: "1px solid #0000FF", borderRadius: "7px", padding: "6px", position: "relative" }} className={`stackVideo${number}`} key={`stackVideo${number}`}>
       <Stack sx={{ position: "absolute", right: 6 }}><Delete onClick={() => deleteElementsTypeOne(number, "video")} /></Stack>
       <Typography textAlign={"center"}>{i18n.t("flowBuilderModals.singleBlockModal.elements.video")}</Typography>
-      <div className={`video${number}`} style={{ display: "flex", justifyContent: "center" }}>{valueDefault.length > 0 && (<video controls style={{ width: "200px" }}><source src={process.env.REACT_APP_BACKEND_URL + "/public/" + valueDefault} type="video/mp4" />{i18n.t("flowBuilderModals.singleBlockModal.validation.browserNotSupported")}</video>)}</div>
+      <div className={`video${number}`} style={{ display: "flex", justifyContent: "center" }}>{valueDefault.length > 0 && (<video controls style={{ width: "200px" }}><source src={BACKEND_URL + "/public/" + valueDefault} type="video/mp4" />{i18n.t("flowBuilderModals.singleBlockModal.validation.browserNotSupported")}</video>)}</div>
       <Button variant="contained" component="label" className={`btnVideo${number}`}>{i18n.t("flowBuilderModals.singleBlockModal.buttons.sendVideo")}<input type="file" accept="video/mp4" hidden onChange={(e) => handleChangeVideos(e, number)} /></Button>
     </Stack>
   );

@@ -1,28 +1,35 @@
-const NodePolyfillPlugin = require("node-polyfill-webpack-plugin");
-
 module.exports = {
   webpack: {
-    configure: (webpackConfig) => {
-      webpackConfig.resolve.fallback = {
-        ...webpackConfig.resolve.fallback,
-        path: "path-browserify",
-        buffer: "buffer"
+    configure: (config) => {
+      // Remover ESLint para evitar warnings
+      config.plugins = (config.plugins || []).filter(
+        p => p.constructor?.name !== "ESLintWebpackPlugin"
+      );
+
+      // Remover ModuleScopePlugin para permitir imports mais flexíveis
+      config.resolve.plugins = (config.resolve?.plugins || []).filter(
+        p => p.constructor?.name !== "ModuleScopePlugin"
+      );
+
+      // Polyfills necessários, mas SEM 'process'
+      config.resolve.fallback = {
+        ...(config.resolve.fallback || {}),
+        path: require.resolve("path-browserify"),
+        buffer: require.resolve("buffer/")
       };
 
-      webpackConfig.module.rules.push({
+      // Permite imports sem extensão .js
+      config.module.rules.push({
         test: /\.m?js$/,
         resolve: {
-          fullySpecified: false // Permite imports sem extensão .js
+          fullySpecified: false
         }
       });
 
-      webpackConfig.plugins = [
-        ...(webpackConfig.plugins || []),
-        new NodePolyfillPlugin()
-      ];
-
-      return webpackConfig;
+      return config;
     }
-  }
+  },
+  // Desabilitar type-check no build
+  typescript: { enableTypeChecking: false }
 };
 

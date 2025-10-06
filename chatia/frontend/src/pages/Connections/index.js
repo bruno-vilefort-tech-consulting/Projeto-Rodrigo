@@ -48,6 +48,7 @@ import TableRowSkeleton from "../../components/TableRowSkeleton";
 
 import api from "../../services/api";
 import WhatsAppModal from "../../components/WhatsAppModal";
+import { FACEBOOK_APP_ID, REQUIRE_BUSINESS_MANAGEMENT, NUMBER_SUPPORT } from "../../config/env";
 import ConfirmationModal from "../../components/ConfirmationModal";
 import QrcodeModal from "../../components/QrcodeModal";
 import { i18n } from "../../translate/i18n";
@@ -562,7 +563,7 @@ const Connections = () => {
               <Button
                 variant="contained"
                 color="primary"
-                onClick={() => openInNewTab(`https://wa.me/${process.env.REACT_APP_NUMBER_SUPPORT}`)}
+                onClick={() => openInNewTab(`https://wa.me/${NUMBER_SUPPORT}`)}
               >
                 {i18n.t("connections.callSupport")}
               </Button>
@@ -601,11 +602,11 @@ const Connections = () => {
                             </MenuItem>
                             {/* FACEBOOK */}
                             <FacebookLogin
-                              appId={process.env.REACT_APP_FACEBOOK_APP_ID}
+                              appId={FACEBOOK_APP_ID}
                               autoLoad={false}
                               fields="name,email,picture"
                               version="9.0"
-                              scope={process.env.REACT_APP_REQUIRE_BUSINESS_MANAGEMENT?.toUpperCase() === "TRUE" ?
+                              scope={REQUIRE_BUSINESS_MANAGEMENT ?
                                 "public_profile,pages_messaging,pages_show_list,pages_manage_metadata,pages_read_engagement,business_management"
                                 : "public_profile,pages_messaging,pages_show_list,pages_manage_metadata,pages_read_engagement"}
                               callback={responseFacebook}
@@ -627,11 +628,11 @@ const Connections = () => {
                             />
                             {/* INSTAGRAM */}
                             <FacebookLogin
-                              appId={process.env.REACT_APP_FACEBOOK_APP_ID}
+                              appId={FACEBOOK_APP_ID}
                               autoLoad={false}
                               fields="name,email,picture"
                               version="9.0"
-                              scope={process.env.REACT_APP_REQUIRE_BUSINESS_MANAGEMENT?.toUpperCase() === "TRUE" ?
+                              scope={REQUIRE_BUSINESS_MANAGEMENT ?
                                 "public_profile,instagram_basic,instagram_manage_messages,pages_messaging,pages_show_list,pages_manage_metadata,pages_read_engagement,business_management"
                                 : "public_profile,instagram_basic,instagram_manage_messages,pages_messaging,pages_show_list,pages_manage_metadata,pages_read_engagement"}
                               callback={responseInstagram}

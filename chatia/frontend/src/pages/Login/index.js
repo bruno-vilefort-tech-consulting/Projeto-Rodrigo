@@ -11,6 +11,7 @@ import { Helmet } from "react-helmet";
 
 import { AuthContext } from "../../context/Auth/AuthContext";
 import ColorModeContext from "../../layout/themeContext";
+import { BACKEND_URL } from "../../config/env";
 
 // Ícones SVG customizados para evitar problemas de fundo branco
 const EmailSvgIcon = ({ color = "#666666", size = 24 }) => (
@@ -363,9 +364,9 @@ const Login = () => {
   const selectedLanguage = languageOptions.find(lang => lang.code === currentLanguage) || languageOptions[0];
 
   const backendUrl =
-    process.env.REACT_APP_BACKEND_URL === "https://localhost:8090"
+    BACKEND_URL === "https://localhost:8090"
       ? "https://localhost:8090"
-      : process.env.REACT_APP_BACKEND_URL;
+      : BACKEND_URL;
 
   // Determinar qual logo usar baseado no tema (usando contexto dinâmico)
   const getLogoPath = () => {

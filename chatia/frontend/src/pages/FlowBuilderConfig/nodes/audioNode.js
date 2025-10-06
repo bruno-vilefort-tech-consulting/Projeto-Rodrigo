@@ -4,13 +4,14 @@ import { useTranslation } from "react-i18next";
 
 import { Handle } from "react-flow-renderer";
 import { useNodeStorage } from "../../../stores/useNodeStorage";
+import { BACKEND_URL } from "../../../config/env";
 
 export default memo(({ data, isConnectable, id }) => {
   const { t } = useTranslation();
   const link =
-    process.env.REACT_APP_BACKEND_URL === "https://localhost:8090"
+    BACKEND_URL === "https://localhost:8090"
       ? "https://localhost:8090"
-      : process.env.REACT_APP_BACKEND_URL;
+      : BACKEND_URL;
 
   const storageItems = useNodeStorage();
   return (

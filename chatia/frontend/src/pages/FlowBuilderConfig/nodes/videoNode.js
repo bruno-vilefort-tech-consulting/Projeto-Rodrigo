@@ -7,15 +7,16 @@ import {
 } from "@mui/icons-material";
 import React, { memo } from "react";
 import { i18n } from "../../../translate/i18n";
+import { BACKEND_URL } from "../../../config/env";
 
 import { Handle } from "react-flow-renderer";
 import { useNodeStorage } from "../../../stores/useNodeStorage";
 
 export default memo(({ data, isConnectable, id }) => {
   const link =
-    process.env.REACT_APP_BACKEND_URL === "https://localhost:8090"
+    BACKEND_URL === "https://localhost:8090"
       ? "https://localhost:8090"
-      : process.env.REACT_APP_BACKEND_URL;
+      : BACKEND_URL;
 
   const storageItems = useNodeStorage();
 

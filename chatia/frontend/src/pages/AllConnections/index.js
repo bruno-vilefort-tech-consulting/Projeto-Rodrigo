@@ -48,6 +48,7 @@ import useCompanies from "../../hooks/useCompanies";
 import api from "../../services/api";
 import WhatsAppModal from "../../components/WhatsAppModal";
 import WhatsAppModalCompany from "../../components/CompanyWhatsapps";
+import { FACEBOOK_APP_ID } from "../../config/env";
 import ConfirmationModal from "../../components/ConfirmationModal";
 import QrcodeModal from "../../components/QrcodeModal";
 import { i18n } from "../../translate/i18n";
@@ -465,7 +466,7 @@ const AllConnections = () => {
                           {i18n.t("allConnections.channels.whatsapp")}
                         </MenuItem>
                         <FacebookLogin
-                          appId={process.env.REACT_APP_FACEBOOK_APP_ID}
+                          appId={FACEBOOK_APP_ID}
                           autoLoad={false}
                           fields="name,email,picture"
                           version="13.0"
@@ -485,7 +486,7 @@ const AllConnections = () => {
                         />
 
                         <FacebookLogin
-                          appId={process.env.REACT_APP_FACEBOOK_APP_ID}
+                          appId={FACEBOOK_APP_ID}
                           autoLoad={false}
                           fields="name,email,picture"
                           version="13.0"

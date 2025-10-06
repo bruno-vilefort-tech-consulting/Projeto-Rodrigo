@@ -22,6 +22,7 @@ import { i18n } from "../../translate/i18n";
 
 import api from "../../services/api";
 import toastError from "../../errors/toastError";
+import { BACKEND_URL } from "../../config/env";
 import { Stack } from "@mui/material";
 
 const useStyles = makeStyles(theme => ({
@@ -70,7 +71,7 @@ const FlowBuilderAddImgModal = ({ open, onSave, onUpdate, data, close }) => {
       setLabels({ title: i18n.t("flowBuilderModals.singleBlockModal.titleEdit"), btn: i18n.t("flowBuilderModals.singleBlockModal.buttonSave") });
       setOldImage(data.data.url);
       setPreview(
-        process.env.REACT_APP_BACKEND_URL + "/public/" + data.data.url
+        BACKEND_URL + "/public/" + data.data.url
       );
       setActiveModal(true);
     } else if (open === "create") {

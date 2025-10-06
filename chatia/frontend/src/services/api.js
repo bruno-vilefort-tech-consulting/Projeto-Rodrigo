@@ -1,10 +1,11 @@
 import axios from "axios";
+import { BACKEND_URL } from "../config/env";
 
 const CancelToken = axios.CancelToken;
 let cancelTokenSource = null;
 
 const api = axios.create({
-	baseURL: process.env.REACT_APP_BACKEND_URL,
+	baseURL: BACKEND_URL,
 	withCredentials: true,
 });
 
@@ -52,7 +53,7 @@ api.interceptors.response.use(
 );
 
 export const openApi = axios.create({
-	baseURL: process.env.REACT_APP_BACKEND_URL
+	baseURL: BACKEND_URL
 });
 
 export default api;

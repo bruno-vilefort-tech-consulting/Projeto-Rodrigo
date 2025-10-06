@@ -1,4 +1,5 @@
 import io from "socket.io-client";
+import { BACKEND_URL } from "../config/env";
 
 class SocketWorker {
   constructor(companyId , userId) {
@@ -10,13 +11,13 @@ class SocketWorker {
       this.eventListeners = {}; // Armazena os ouvintes de eventos registrados
       SocketWorker.instance = this;
 
-    } 
+    }
 
     return SocketWorker.instance;
   }
 
   configureSocket() {
-    this.socket = io(`${process.env.REACT_APP_BACKEND_URL}/${this?.companyId}` , {
+    this.socket = io(`${BACKEND_URL}/${this?.companyId}` , {
       autoConnect: true,
       reconnection: true,
       reconnectionDelay: 1000,

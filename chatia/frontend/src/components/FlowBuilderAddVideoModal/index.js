@@ -22,6 +22,7 @@ import { i18n } from "../../translate/i18n";
 
 import api from "../../services/api";
 import toastError from "../../errors/toastError";
+import { BACKEND_URL } from "../../config/env";
 import { Checkbox, Stack } from "@mui/material";
 
 const useStyles = makeStyles(theme => ({
@@ -69,7 +70,7 @@ const FlowBuilderAddVideoModal = ({ open, onSave, onUpdate, data, close }) => {
     if (open === "edit") {
       setLabels({ title: i18n.t("flowBuilderModals.singleBlockModal.titleEdit"), btn: i18n.t("flowBuilderModals.singleBlockModal.buttonSave") });
       setPreview(
-        process.env.REACT_APP_BACKEND_URL + "/public/" + data.data.url
+        BACKEND_URL + "/public/" + data.data.url
       );
       setRecord(data.data.record);
       setActiveModal(true);

@@ -4,6 +4,7 @@ import openSocket from "socket.io-client";
 import { useState, useEffect } from "react";
 import { toast } from "react-toastify";
 import { i18n } from "../../translate/i18n";
+import { BACKEND_URL } from "../../config/env";
 
 const useUser = () => {
   const [users, setUsers] = useState([]);
@@ -28,7 +29,7 @@ const useUser = () => {
   });
 
   useEffect(() => {
-    const socket = openSocket(process.env.REACT_APP_BACKEND_URL);
+    const socket = openSocket(BACKEND_URL);
 
     socket.on("users", (data) => {
       setUpdate(true);

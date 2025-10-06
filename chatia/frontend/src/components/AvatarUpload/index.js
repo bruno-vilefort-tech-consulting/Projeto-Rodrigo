@@ -6,6 +6,7 @@ import CloudUploadIcon from '@material-ui/icons/CloudUpload';
 import Box from '@material-ui/core/Box';
 import { AuthContext } from '../../context/Auth/AuthContext';
 import { i18n } from "../../translate/i18n";
+import { BACKEND_URL } from "../../config/env";
 
 const useStyles = makeStyles((theme) => ({
   avatar: {
@@ -49,14 +50,14 @@ const AvatarUploader = ({ setAvatar, avatar }) => {
       {!previewImage && avatar ? (
         <Avatar
           key={avatar || 'default'}
-          src={`${process.env.REACT_APP_BACKEND_URL}/public/avatar/${avatar}?v=${new Date().getTime()}`}
+          src={`${BACKEND_URL}/public/avatar/${avatar}?v=${new Date().getTime()}`}
           style={{ width: 120, height: 120 }}
           className={classes.avatar}
         />
       ) : !avatar && !previewImage ? (
         <Avatar
           key="noimage"
-          src={`${process.env.REACT_APP_BACKEND_URL}/public/app/noimage.png`}
+          src={`${BACKEND_URL}/public/app/noimage.png`}
           style={{ width: 120, height: 120 }}
           className={classes.avatar}
         />

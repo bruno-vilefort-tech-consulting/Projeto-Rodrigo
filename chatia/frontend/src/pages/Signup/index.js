@@ -18,6 +18,7 @@ import Menu from "@material-ui/core/Menu";
 import MenuItem from "@material-ui/core/MenuItem";
 import { IconButton } from "@mui/material";
 import ColorModeContext from "../../layout/themeContext";
+import { BACKEND_URL } from "../../config/env";
 import usePlans from "../../hooks/usePlans";
 import { i18n } from "../../translate/i18n";
 import { openApi } from "../../services/api";
@@ -202,9 +203,9 @@ const SignUp = () => {
   const [user] = useState(initialState);
 
   const backendUrl =
-    process.env.REACT_APP_BACKEND_URL === "https://localhost:8090"
+    BACKEND_URL === "https://localhost:8090"
       ? "https://localhost:8090"
-      : process.env.REACT_APP_BACKEND_URL;
+      : BACKEND_URL;
 
   // Determinar qual logo usar baseado no tema (usando contexto dinâmico)
   const getLogoPath = () => {
