@@ -9,7 +9,9 @@
     "shift-enter": 1,
     "memory-command": 1,
     "theme-command": 1,
-    "status-line": 1
+    "status-line": 1,
+    "prompt-queue": 1,
+    "enter-to-steer-in-relatime": 1
   },
   "cachedStatsigGates": {
     "tengu_disable_bypass_permissions_mode": false,
@@ -40,6 +42,10 @@
     "/root": {
       "allowedTools": [],
       "history": [
+        {
+          "display": "ultrathink com muito cuidado para não quebrar nada no código, faça a correção sugerida:\\\n\\\n  O diretório /mnt/pnpm-cache precisa ser:\n  1. Criado previamente com permissões de root\n  2. Ter ownership correto para o usuário deploy\n  3. Ou usar um caminho diferente que o usuário deploy possa criar (ex: /home/deploy/.pnpm-cache ou /tmp/pnpm-cache)\n  A solução ideal é criar o diretório antes das etapas 15 e 18, em uma etapa separada com privilégios de root.\\\n\\\nIMPORTANTE: tenha muito cuidado com qualquer alteração em etapas anteriores, seu objetivo é consertar o erro sem gerar outro erro que atrapalhe o funcionamento do instalador. Seja cirurgico.",
+          "pastedContents": {}
+        },
         {
           "display": "ultrathink análise o arquivo @scripts/chatia-install.log e depois leia o arquivo @instalador.sh e descubra o que deu errado, em qual etapa foi e qual o primeiro diagnostico para resolver o erro, mas sem código ainda",
           "pastedContents": {}

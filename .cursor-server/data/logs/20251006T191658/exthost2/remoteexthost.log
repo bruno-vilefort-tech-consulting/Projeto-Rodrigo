@@ -20,3 +20,9 @@
 2025-10-06 19:40:35.461 [warning] [Decorations] CAPPING events from decorations provider vscode.git 3928
 2025-10-06 19:40:38.332 [warning] [Decorations] CAPPING events from decorations provider vscode.git 3928
 2025-10-06 19:40:43.418 [warning] [Decorations] CAPPING events from decorations provider vscode.git 3928
+2025-10-06 19:40:48.287 [warning] [Decorations] CAPPING events from decorations provider vscode.git 3928
+2025-10-06 19:40:48.771 [warning] [Decorations] CAPPING events from decorations provider vscode.git 3928
+2025-10-06 19:40:53.865 [warning] [Decorations] CAPPING events from decorations provider vscode.git 3928
+2025-10-06 19:40:58.968 [warning] [Decorations] CAPPING events from decorations provider vscode.git 3928
+2025-10-06 19:41:04.026 [warning] [Decorations] CAPPING events from decorations provider vscode.git 3928
+2025-10-06 19:44:30.062 [info] ExtensionService#_doActivateExtension vscode.tunnel-forwarding, startup: false, activationEvent: 'onTunnel'
