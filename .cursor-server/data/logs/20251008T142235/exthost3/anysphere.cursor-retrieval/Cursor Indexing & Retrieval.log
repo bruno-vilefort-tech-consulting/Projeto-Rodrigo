@@ -166,3 +166,56 @@
 2025-10-08 20:26:57.169 [info] Aborting indexing job.
 2025-10-08 20:26:57.169 [error] We currently do not allow indexing the home directory.
 2025-10-08 20:26:57.169 [info] Indexing job successfully done or aborted.
+2025-10-08 20:30:16.103 [info] Get user commits took 21.13033999875188ms for 10 commits
+2025-10-08 20:31:31.171 [info] multiCodebaseIndexingJob dispose
+2025-10-08 20:31:31.171 [info] Aborting indexing job.
+2025-10-08 20:31:31.171 [error] We currently do not allow indexing the home directory.
+2025-10-08 20:31:31.172 [info] Indexing job successfully done or aborted.
+2025-10-08 20:36:05.171 [info] multiCodebaseIndexingJob dispose
+2025-10-08 20:36:05.171 [info] Aborting indexing job.
+2025-10-08 20:36:05.171 [error] We currently do not allow indexing the home directory.
+2025-10-08 20:36:05.171 [info] Indexing job successfully done or aborted.
+2025-10-08 20:40:16.108 [info] Get user commits took 22.52955799922347ms for 10 commits
+2025-10-08 20:40:39.171 [info] multiCodebaseIndexingJob dispose
+2025-10-08 20:40:39.171 [info] Aborting indexing job.
+2025-10-08 20:40:39.171 [error] We currently do not allow indexing the home directory.
+2025-10-08 20:40:39.171 [info] Indexing job successfully done or aborted.
+2025-10-08 20:45:13.172 [info] multiCodebaseIndexingJob dispose
+2025-10-08 20:45:13.172 [info] Aborting indexing job.
+2025-10-08 20:45:13.172 [error] We currently do not allow indexing the home directory.
+2025-10-08 20:45:13.172 [info] Indexing job successfully done or aborted.
+2025-10-08 20:49:47.171 [info] multiCodebaseIndexingJob dispose
+2025-10-08 20:49:47.171 [info] Aborting indexing job.
+2025-10-08 20:49:47.171 [error] We currently do not allow indexing the home directory.
+2025-10-08 20:49:47.171 [info] Indexing job successfully done or aborted.
+2025-10-08 20:50:16.113 [info] Get user commits took 26.33465199917555ms for 10 commits
+2025-10-08 20:54:21.171 [info] multiCodebaseIndexingJob dispose
+2025-10-08 20:54:21.171 [info] Aborting indexing job.
+2025-10-08 20:54:21.171 [error] We currently do not allow indexing the home directory.
+2025-10-08 20:54:21.171 [info] Indexing job successfully done or aborted.
+2025-10-08 20:58:55.171 [info] multiCodebaseIndexingJob dispose
+2025-10-08 20:58:55.171 [info] Aborting indexing job.
+2025-10-08 20:58:55.171 [error] We currently do not allow indexing the home directory.
+2025-10-08 20:58:55.171 [info] Indexing job successfully done or aborted.
+2025-10-08 21:00:16.106 [info] Get user commits took 21.00133000127971ms for 10 commits
+2025-10-08 21:00:16.409 [warning] Failed to get symbolic ref: Failed to execute git
+2025-10-08 21:00:16.436 [warning] Failed to get default branch from git config: Failed to execute git
+2025-10-08 21:03:29.171 [info] multiCodebaseIndexingJob dispose
+2025-10-08 21:03:29.171 [info] Aborting indexing job.
+2025-10-08 21:03:29.171 [error] We currently do not allow indexing the home directory.
+2025-10-08 21:03:29.171 [info] Indexing job successfully done or aborted.
+2025-10-08 21:08:03.172 [info] multiCodebaseIndexingJob dispose
+2025-10-08 21:08:03.172 [info] Aborting indexing job.
+2025-10-08 21:08:03.172 [error] We currently do not allow indexing the home directory.
+2025-10-08 21:08:03.172 [info] Indexing job successfully done or aborted.
+2025-10-08 21:10:16.099 [info] Get user commits took 20.618805000558496ms for 10 commits
+2025-10-08 21:10:16.359 [warning] Failed to get symbolic ref: Failed to execute git
+2025-10-08 21:12:37.171 [info] multiCodebaseIndexingJob dispose
+2025-10-08 21:12:37.171 [info] Aborting indexing job.
+2025-10-08 21:12:37.171 [error] We currently do not allow indexing the home directory.
+2025-10-08 21:12:37.171 [info] Indexing job successfully done or aborted.
+2025-10-08 21:17:11.171 [info] multiCodebaseIndexingJob dispose
+2025-10-08 21:17:11.171 [info] Aborting indexing job.
+2025-10-08 21:17:11.171 [error] We currently do not allow indexing the home directory.
+2025-10-08 21:17:11.171 [info] Indexing job successfully done or aborted.
+2025-10-08 21:20:16.103 [info] Get user commits took 25.623697999864817ms for 10 commits

@@ -52,16 +52,17 @@ The following packages were automatically installed and are no longer required:
 Use 'apt autoremove' to remove them.
 0 upgraded, 0 newly installed, 0 to remove and 0 not upgraded.
 Hit:1 http://archive.ubuntu.com/ubuntu jammy InRelease
-Hit:2 http://archive.ubuntu.com/ubuntu jammy-updates InRelease
-Hit:3 http://archive.ubuntu.com/ubuntu jammy-backports InRelease
-Hit:4 http://sft.if.usp.br/ubuntu jammy-backports InRelease
-Hit:5 http://archive.ubuntu.com/ubuntu jammy-security InRelease
-Hit:6 http://sft.if.usp.br/ubuntu jammy InRelease
+Ign:2 http://sft.if.usp.br/ubuntu jammy-backports InRelease
+Hit:3 http://archive.ubuntu.com/ubuntu jammy-updates InRelease
+Hit:4 http://archive.ubuntu.com/ubuntu jammy-backports InRelease
+Hit:5 http://sft.if.usp.br/ubuntu jammy InRelease
+Hit:6 http://archive.ubuntu.com/ubuntu jammy-security InRelease
 Hit:7 http://sft.if.usp.br/ubuntu jammy-security InRelease
-Hit:8 http://sft.if.usp.br/ubuntu jammy-updates InRelease
-Hit:9 https://apt.postgresql.org/pub/repos/apt jammy-pgdg InRelease
+Hit:8 https://apt.postgresql.org/pub/repos/apt jammy-pgdg InRelease
+Hit:9 http://sft.if.usp.br/ubuntu jammy-updates InRelease
 Hit:10 https://deb.nodesource.com/node_20.x nodistro InRelease
 Hit:11 https://ppa.launchpadcontent.net/apt-fast/stable/ubuntu jammy InRelease
+Hit:2 http://sft.if.usp.br/ubuntu jammy-backports InRelease
 Reading package lists...
 Repository: 'deb https://ppa.launchpadcontent.net/apt-fast/stable/ubuntu/ jammy main'
 Description:
@@ -129,8 +130,8 @@ Learn more about Ubuntu Pro at https://ubuntu.com/pro
 0 upgraded, 0 newly installed, 0 to remove and 0 not upgraded.
 [K[0;37m• Configurando user 'deploy'...[0m
 [K[0;37m• Instalando essentials (base)...[0m
-[apt-fast 20:26:41]
-[apt-fast 20:26:41]Working... this may take a while.
+[apt-fast 21:14:09]
+[apt-fast 21:14:09]Working... this may take a while.
 Selecting previously unselected package redis-tools.
 (Reading database ... (Reading database ... 5%(Reading database ... 10%(Reading database ... 15%(Reading database ... 20%(Reading database ... 25%(Reading database ... 30%(Reading database ... 35%(Reading database ... 40%(Reading database ... 45%(Reading database ... 50%(Reading database ... 55%(Reading database ... 60%(Reading database ... 65%(Reading database ... 70%(Reading database ... 75%(Reading database ... 80%(Reading database ... 85%(Reading database ... 90%(Reading database ... 95%(Reading database ... 100%(Reading database ... 122714 files and directories currently installed.)
 Preparing to unpack .../redis-tools_5%3a6.0.16-1ubuntu1_amd64.deb ...
@@ -165,8 +166,8 @@ No user sessions are running outdated binaries.
 
 No VM guests are running outdated hypervisor (qemu) binaries on this host.
 [K[0;37m• Instalando essentials (extras)...[0m
-[apt-fast 20:26:46]
-[apt-fast 20:26:46]Working... this may take a while.
+[apt-fast 21:14:14]
+[apt-fast 21:14:14]Working... this may take a while.
 [K[0;37m• Instalando PostgreSQL 17 (repo)...[0m
 [K[0;37m• Instalando PostgreSQL 17...[0m
 Preconfiguring packages ...
@@ -237,22 +238,18 @@ No VM guests are running outdated hypervisor (qemu) binaries on this host.
 Synchronizing state of postgresql.service with SysV service script with /lib/systemd/systemd-sysv-install.
 Executing: /lib/systemd/systemd-sysv-install enable postgresql
 [K[0;37m• Instalando Node.js 20 (repo)...[0m
-[38;5;79m2025-10-08 20:27:04 - Installing pre-requisites[0m
+[38;5;79m2025-10-08 21:14:33 - Installing pre-requisites[0m
 Hit:1 http://sft.if.usp.br/ubuntu jammy-backports InRelease
 Hit:2 http://sft.if.usp.br/ubuntu jammy InRelease
-Hit:3 http://sft.if.usp.br/ubuntu jammy-security InRelease
-Hit:4 http://sft.if.usp.br/ubuntu jammy-updates InRelease
-Hit:5 https://apt.postgresql.org/pub/repos/apt jammy-pgdg InRelease
+Hit:3 https://apt.postgresql.org/pub/repos/apt jammy-pgdg InRelease
+Hit:4 http://sft.if.usp.br/ubuntu jammy-security InRelease
+Hit:5 http://sft.if.usp.br/ubuntu jammy-updates InRelease
 Hit:6 https://deb.nodesource.com/node_20.x nodistro InRelease
 Hit:7 http://archive.ubuntu.com/ubuntu jammy InRelease
-Get:8 http://archive.ubuntu.com/ubuntu jammy-updates InRelease [128 kB]
+Hit:8 http://archive.ubuntu.com/ubuntu jammy-updates InRelease
 Hit:9 https://ppa.launchpadcontent.net/apt-fast/stable/ubuntu jammy InRelease
 Hit:10 http://archive.ubuntu.com/ubuntu jammy-backports InRelease
-Get:11 http://archive.ubuntu.com/ubuntu jammy-security InRelease [129 kB]
-Get:12 http://archive.ubuntu.com/ubuntu jammy-updates/main amd64 Packages [2988 kB]
-Get:13 http://archive.ubuntu.com/ubuntu jammy-updates/universe amd64 Packages [1232 kB]
-Get:14 http://archive.ubuntu.com/ubuntu jammy-security/universe amd64 c-n-f Metadata [22.1 kB]
-Fetched 4499 kB in 4s (1261 kB/s)
+Hit:11 http://archive.ubuntu.com/ubuntu jammy-security InRelease
 Reading package lists...
 Reading package lists...
 Building dependency tree...
@@ -266,10 +263,10 @@ The following packages were automatically installed and are no longer required:
 Use 'apt autoremove' to remove them.
 0 upgraded, 0 newly installed, 0 to remove and 0 not upgraded.
 Hit:1 http://sft.if.usp.br/ubuntu jammy-backports InRelease
-Hit:2 http://sft.if.usp.br/ubuntu jammy InRelease
-Hit:3 http://sft.if.usp.br/ubuntu jammy-security InRelease
-Hit:4 http://sft.if.usp.br/ubuntu jammy-updates InRelease
-Hit:5 https://apt.postgresql.org/pub/repos/apt jammy-pgdg InRelease
+Hit:2 https://apt.postgresql.org/pub/repos/apt jammy-pgdg InRelease
+Hit:3 http://sft.if.usp.br/ubuntu jammy InRelease
+Hit:4 http://sft.if.usp.br/ubuntu jammy-security InRelease
+Hit:5 http://sft.if.usp.br/ubuntu jammy-updates InRelease
 Hit:6 https://deb.nodesource.com/node_20.x nodistro InRelease
 Hit:7 http://archive.ubuntu.com/ubuntu jammy InRelease
 Hit:8 http://archive.ubuntu.com/ubuntu jammy-updates InRelease
@@ -277,10 +274,10 @@ Hit:9 http://archive.ubuntu.com/ubuntu jammy-backports InRelease
 Hit:10 https://ppa.launchpadcontent.net/apt-fast/stable/ubuntu jammy InRelease
 Hit:11 http://archive.ubuntu.com/ubuntu jammy-security InRelease
 Reading package lists...
-[1;34m2025-10-08 20:27:14 - Repository configured successfully.[0m
-[38;5;79m2025-10-08 20:27:14 - To install Node.js, run: apt-get install nodejs -y[0m
-[38;5;79m2025-10-08 20:27:14 - You can use N|solid Runtime as a node.js alternative[0m
-[1;32m2025-10-08 20:27:14 - To install N|solid Runtime, run: apt-get install nsolid -y 
+[1;34m2025-10-08 21:14:40 - Repository configured successfully.[0m
+[38;5;79m2025-10-08 21:14:40 - To install Node.js, run: apt-get install nodejs -y[0m
+[38;5;79m2025-10-08 21:14:40 - You can use N|solid Runtime as a node.js alternative[0m
+[1;32m2025-10-08 21:14:40 - To install N|solid Runtime, run: apt-get install nsolid -y 
 [0m
 [K[0;37m• Instalando Node.js 20...[0m
 
@@ -319,13 +316,13 @@ No user sessions are running outdated binaries.
 No VM guests are running outdated hypervisor (qemu) binaries on this host.
 [K[0;37m• Instalando pnpm...[0m
 
-changed 1 package in 825ms
+changed 1 package in 980ms
 
 1 package is looking for funding
   run `npm fund` for details
 [K[0;37m• Instalando PM2...[0m
 Progress: resolved 1, reused 0, downloaded 0, added 0
-Progress: resolved 83, reused 0, downloaded 71, added 0
+Progress: resolved 72, reused 0, downloaded 60, added 0
 Packages: +126
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 Progress: resolved 127, reused 0, downloaded 126, added 126, done
@@ -333,7 +330,7 @@ Progress: resolved 127, reused 0, downloaded 126, added 126, done
 /home/deploy/.local/share/pnpm/global/5:
 + pm2 6.0.13
 
-Done in 2.9s using pnpm v10.18.1
+Done in 2s using pnpm v10.18.1
 
                         -------------
 
@@ -465,46 +462,43 @@ CREATE DATABASE
 CREATE EXTENSION
 CREATE EXTENSION
 [K[0;37m• Instalando ChatIA code...[0m
-Cloning into '/tmp/chatia_clone_750076'...
+Cloning into '/tmp/chatia_clone_831505'...
 [K[0;37m• Configurando backend (.env)...[0m
 [K[0;37m• Preparando diretório cache pnpm...[0m
 [K[0;37m• Instalando backend deps...[0m
 [WARN] PNPM cache ausente ou corrompido; reconstruindo dependências.
 [WARN] pnpm-lock.yaml não encontrado; instalando sem --frozen-lockfile.
 Progress: resolved 1, reused 0, downloaded 0, added 0
+ WARN  deprecated @types/moment-timezone@0.5.30: This is a stub types definition. moment-timezone provides its own type definitions, so you do not need this installed.
  WARN  deprecated eslint@8.57.1: This version is no longer supported. Please see https://eslint.org/version-support for other options.
  WARN  deprecated supertest@6.3.4: Please upgrade to supertest v7.1.3+, see release notes at https://github.com/forwardemail/supertest/releases/tag/v7.1.3 - maintenance is supported by Forward Email @ https://forwardemail.net
- WARN  deprecated @types/moment-timezone@0.5.30: This is a stub types definition. moment-timezone provides its own type definitions, so you do not need this installed.
-Progress: resolved 40, reused 0, downloaded 30, added 0
+Progress: resolved 61, reused 0, downloaded 54, added 0
  WARN  deprecated fluent-ffmpeg@2.1.3: Package no longer supported. Contact Support at https://www.npmjs.com/support for more info.
- WARN  deprecated multer@1.4.4: Multer 1.x is affected by CVE-2022-24434. This is fixed in v1.4.4-lts.1 which drops support for versions of Node.js before 6. Please upgrade to at least Node.js 6 and version 1.4.4-lts.1 of Multer. If you need support for older versions of Node.js, we are open to accepting patches that would fix the CVE on the main 1.x release line, whilst maintaining compatibility with Node.js 0.10.
-Progress: resolved 79, reused 0, downloaded 63, added 0
  WARN  deprecated gn-api-sdk-typescript@2.0.1: Package no longer supported. Contact Support at https://www.npmjs.com/support for more info.
- WARN  deprecated request@2.88.2: request has been deprecated, see https://github.com/request/request/issues/3142
+ WARN  deprecated multer@1.4.4: Multer 1.x is affected by CVE-2022-24434. This is fixed in v1.4.4-lts.1 which drops support for versions of Node.js before 6. Please upgrade to at least Node.js 6 and version 1.4.4-lts.1 of Multer. If you need support for older versions of Node.js, we are open to accepting patches that would fix the CVE on the main 1.x release line, whilst maintaining compatibility with Node.js 0.10.
  WARN  deprecated puppeteer@19.11.1: < 24.15.0 is no longer supported
+ WARN  deprecated request@2.88.2: request has been deprecated, see https://github.com/request/request/issues/3142
  WARN  deprecated sequelize@5.22.5: Please update to v6 or higher! A migration guide can be found here: https://sequelize.org/v6/manual/upgrade-to-v6.html
-Progress: resolved 109, reused 0, downloaded 103, added 0
-Progress: resolved 178, reused 9, downloaded 154, added 0
-Progress: resolved 245, reused 16, downloaded 213, added 0
-Progress: resolved 293, reused 19, downloaded 248, added 0
+Progress: resolved 108, reused 0, downloaded 82, added 0
+Progress: resolved 163, reused 5, downloaded 152, added 0
+Progress: resolved 250, reused 16, downloaded 218, added 0
+Progress: resolved 324, reused 20, downloaded 278, added 0
 Packages are hard linked from the content-addressable store to the virtual store.
   Content-addressable store is at: /home/deploy/.local/share/pnpm/store/v10
   Virtual store is at:             node_modules/.pnpm
-Progress: resolved 350, reused 20, downloaded 309, added 0
-Progress: resolved 357, reused 20, downloaded 311, added 0
-Progress: resolved 379, reused 21, downloaded 332, added 0
-Progress: resolved 455, reused 23, downloaded 397, added 0
-Progress: resolved 585, reused 32, downloaded 512, added 0
-Progress: resolved 704, reused 42, downloaded 611, added 0
-Progress: resolved 793, reused 44, downloaded 694, added 0
-Progress: resolved 890, reused 48, downloaded 781, added 0
-Progress: resolved 1080, reused 50, downloaded 957, added 0
-Progress: resolved 1237, reused 65, downloaded 1096, added 0
-Progress: resolved 1348, reused 73, downloaded 1260, added 0
+Progress: resolved 375, reused 21, downloaded 329, added 0
+Progress: resolved 493, reused 24, downloaded 431, added 0
+Progress: resolved 613, reused 38, downloaded 533, added 0
+Progress: resolved 752, reused 42, downloaded 660, added 0
+Progress: resolved 820, reused 45, downloaded 724, added 0
+Progress: resolved 943, reused 50, downloaded 831, added 0
+Progress: resolved 1112, reused 57, downloaded 984, added 0
+Progress: resolved 1259, reused 65, downloaded 1111, added 0
+Progress: resolved 1351, reused 73, downloaded 1269, added 0
  WARN  21 deprecated subdependencies found: @humanwhocodes/config-array@0.13.0, @humanwhocodes/object-schema@2.0.3, @types/glob@9.0.0, abab@2.0.6, core-js@2.6.12, debuglog@1.0.1, domexception@2.0.1, glob@7.1.2, glob@7.2.3, glob@8.1.0, google-p12-pem@4.0.1, har-validator@5.1.5, highlight.js@9.18.5, inflight@1.0.6, node-domexception@1.0.0, querystring@0.2.0, rimraf@2.7.1, rimraf@3.0.2, superagent@8.1.2, uuid@3.4.0, w3c-hr-time@1.0.2
 Packages: +1344
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-Progress: resolved 1352, reused 73, downloaded 1271, added 636
+Progress: resolved 1352, reused 73, downloaded 1271, added 55
 Progress: resolved 1352, reused 73, downloaded 1271, added 1344, done
 
 dependencies:
@@ -630,7 +624,7 @@ devDependencies:
 │                                                                              │
 ╰──────────────────────────────────────────────────────────────────────────────╯
 
-Done in 20.6s using pnpm v10.18.1
+Done in 17.7s using pnpm v10.18.1
 [K[0;37m• Instalando backend build...[0m
 [INFO] Fingerprint inexistente; build inicial necessária.
 [WARN] Diretório dist ausente ou vazio; build será executada.

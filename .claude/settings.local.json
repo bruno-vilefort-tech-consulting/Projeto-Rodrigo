@@ -41,7 +41,16 @@
       "Read(//home/deploy/.pm2/logs/**)",
       "Bash(echo \"🔍 Verificando todos os heredocs no instalador.sh:\" echo \"\" echo \"Heredocs SEM quotes (permitem interpretação):\" grep -n \"<<[A-Z]\" /root/instalador.sh)",
       "Bash(head -20 echo \"\" echo \"Total de heredocs SEM quotes na ETAPA 18:\" grep -n \"<<[A-Z]\" /root/instalador.sh)",
-      "Bash(echo \"🔍 Verificando heredocs corrigidos:\" grep -n \"cat.*<<[A-Z]\" /root/instalador.sh)"
+      "Bash(echo \"🔍 Verificando heredocs corrigidos:\" grep -n \"cat.*<<[A-Z]\" /root/instalador.sh)",
+      "Bash(cd:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)",
+      "Bash(git log:*)",
+      "Bash(git remote add origin https://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@github.com/bruno-vilefort-tech-consulting/Projeto-Rodrigo.git)",
+      "Bash(git clone:*)",
+      "Bash(git add:*)",
+      "Bash(git checkout:*)",
+      "Bash(git merge:*)"
     ],
     "deny": [],
     "ask": []

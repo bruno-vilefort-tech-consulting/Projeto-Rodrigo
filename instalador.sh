@@ -896,7 +896,7 @@ run_quiet "$(t configuring) PostgreSQL..." "sudo -u postgres bash -lc \"ROLE_EXI
 
 #------------------- ETAPA 13: Código ------------------------------------------
 SOURCE_DIR="$(pwd)/chatia"; DEST_DIR="/home/deploy/${empresa}"
-run_quiet "$(t installing) ChatIA code..." "GITHUB_TOKEN='${github_token}' REPO_URL='${repo_url}' GITHUB_BRANCH='${github_branch:-refactor/migrate-installer-patches}' bash -lc '
+run_quiet "$(t installing) ChatIA code..." "GITHUB_TOKEN='${github_token}' REPO_URL='${repo_url}' GITHUB_BRANCH='${github_branch:-main}' bash -lc '
   set -e
   urlenc() { local s=\"\$1\" out=\"\" i c; for ((i=0;i<\${#s};i++)); do c=\"\${s:i:1}\"; case \"\$c\" in [a-zA-Z0-9._~-]) out+=\"\$c\" ;; *) printf -v hex \"%%%02X\" \"'\''\$c\"; out+=\"\$hex\" ;; esac; done; echo \"\$out\"; }
   tmpd=\"/tmp/chatia_clone_\$\$\"
@@ -907,10 +907,7 @@ run_quiet "$(t installing) ChatIA code..." "GITHUB_TOKEN='${github_token}' REPO_
     github_url=\"https://\$tok@\${clean}\"
     git clone --branch \"\$GITHUB_BRANCH\" --single-branch \"\$github_url\" \"\$tmpd\"
     mkdir -p \"$DEST_DIR\"
-    if [ -d \"\$tmpd/Projeto-Rodrigo/chatia\" ]; then
-      cp -r \"\$tmpd/Projeto-Rodrigo/chatia/backend\" \"$DEST_DIR/\"; cp -r \"\$tmpd/Projeto-Rodrigo/chatia/frontend\" \"$DEST_DIR/\"
-      [ -f \"\$tmpd/Projeto-Rodrigo/chatia/ecosystem.config.js\" ] && cp \"\$tmpd/Projeto-Rodrigo/chatia/ecosystem.config.js\" \"$DEST_DIR/\"
-    elif [ -d \"\$tmpd/chatia\" ]; then
+    if [ -d \"\$tmpd/chatia\" ]; then
       cp -r \"\$tmpd/chatia/backend\" \"$DEST_DIR/\"; cp -r \"\$tmpd/chatia/frontend\" \"$DEST_DIR/\"
       [ -f \"\$tmpd/chatia/ecosystem.config.js\" ] && cp \"\$tmpd/chatia/ecosystem.config.js\" \"$DEST_DIR/\"
     elif [ -d \"\$tmpd/backend\" ] && [ -d \"\$tmpd/frontend\" ]; then
