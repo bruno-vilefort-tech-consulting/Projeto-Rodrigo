@@ -3,12 +3,12 @@ import * as Sentry from "@sentry/node";
 import fs from "fs";
 import { exec } from "child_process";
 import path from "path";
-import ffmpegPath from "@ffmpeg-installer/ffmpeg";
+import { getType as getMimeType } from "mime";
 import AppError from "../../errors/AppError";
 import GetTicketWbot from "../../helpers/GetTicketWbot";
 import Ticket from "../../models/Ticket";
-import mime from "mime-types";
 import Contact from "../../models/Contact";
+import getFfmpegPath from "../../config/ffmpeg";
 
 interface Request {
   media: Express.Multer.File;
@@ -29,8 +29,9 @@ const publicFolder = path.resolve(__dirname, "..", "..", "..", "public");
 const processAudio = async (audio: string): Promise<string> => {
   const outputAudio = `${publicFolder}/${new Date().getTime()}.mp3`;
   return new Promise((resolve, reject) => {
+    const ffmpegBinary = getFfmpegPath();
     exec(
-      `${ffmpegPath.path} -i ${audio} -vn -ab 128k -ar 44100 -f ipod ${outputAudio} -y`,
+      `${ffmpegBinary} -i ${audio} -vn -ab 128k -ar 44100 -f ipod ${outputAudio} -y`,
       (error, _stdout, _stderr) => {
         if (error) reject(error);
         //fs.unlinkSync(audio);
@@ -43,8 +44,9 @@ const processAudio = async (audio: string): Promise<string> => {
 const processAudioFile = async (audio: string): Promise<string> => {
   const outputAudio = `${publicFolder}/${new Date().getTime()}.mp3`;
   return new Promise((resolve, reject) => {
+    const ffmpegBinary = getFfmpegPath();
     exec(
-      `${ffmpegPath.path} -i ${audio} -vn -ar 44100 -ac 2 -b:a 192k ${outputAudio}`,
+      `${ffmpegBinary} -i ${audio} -vn -ar 44100 -ac 2 -b:a 192k ${outputAudio}`,
       (error, _stdout, _stderr) => {
         if (error) reject(error);
         //fs.unlinkSync(audio);
@@ -88,7 +90,7 @@ const SendWhatsAppMediaFlow = async ({
   try {
     const wbot = await GetTicketWbot(ticket);
 
-    const mimetype = mime.lookup(media)
+    const mimetype = getMimeType(media) || "application/octet-stream";
     const pathMedia = media
 
     const typeMessage = mimetype.split("/")[0];

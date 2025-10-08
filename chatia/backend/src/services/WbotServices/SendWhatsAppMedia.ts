@@ -4,15 +4,15 @@ import * as Sentry from "@sentry/node";
 import fs, { unlinkSync } from "fs";
 import { exec } from "child_process";
 import path from "path";
-import ffmpegPath from "@ffmpeg-installer/ffmpeg";
+import { getType as getMimeType } from "mime";
 
 import AppError from "../../errors/AppError";
 import Ticket from "../../models/Ticket";
-import mime from "mime-types";
 import Contact from "../../models/Contact";
 import { getWbot } from "../../libs/wbot";
 import CreateMessageService from "../MessageServices/CreateMessageService";
 import formatBody from "../../helpers/Mustache";
+import getFfmpegPath from "../../config/ffmpeg";
 
 interface Request {
   media: Express.Multer.File;
@@ -55,9 +55,10 @@ const looksLikeAudioContainer = (ext: string, mimetype: string) => {
 const processAudioToOpus = async (inputPath: string, companyId: string): Promise<string> => {
   const dir = ensureCompanyFolder(companyId);
   const outputPath = path.join(dir, `${Date.now()}.ogg`);
+  const ffmpegBinary = getFfmpegPath();
 
   const cmd =
-    `"${ffmpegPath.path}" -y -i "${inputPath}" ` +
+    `"${ffmpegBinary}" -y -i "${inputPath}" ` +
     `-vn -ar 48000 -ac 1 -c:a libopus -b:a 48k "${outputPath}"`;
 
   return new Promise((resolve, reject) => {
@@ -72,7 +73,7 @@ export const getMessageOptions = async (
   companyId?: string,
   body: string = " "
 ): Promise<AnyMessageContent | null> => {
-  const mimeType = mime.lookup(pathMedia) || "";
+  const mimeType = getMimeType(pathMedia) || "";
   const ext = path.extname(pathMedia || fileName || "").toLowerCase();
 
   try {
