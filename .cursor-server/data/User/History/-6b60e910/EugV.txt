@@ -1,0 +1,48 @@
+• Etapas 1-2
+
+  - Etapa 1 – apt-cacher-ng: instala o serviço após apt update, reinicia e ativa o daemon, e força o APT a usar o proxy local (exceto para apt.postgresql.org), registrando tudo no log via run_quiet
+    (instalador.sh:610, instalador.sh:612, instalador.sh:618).
+  - Observações Etapa 1: cada execução acrescenta novas linhas em acng.conf e recria 01proxy, o que pode gerar entradas duplicadas ou exigir liberação da porta 3142 caso o host já tenha outro proxy
+    (instalador.sh:613, instalador.sh:618).
+  - Etapa 2 – apt-fast: tenta habilitar o PPA oficial após instalar pré-requisitos, usa debconf-set-selections para preconfiguração e instala apt-fast/aria2 para paralelizar downloads quando disponível
+    (instalador.sh:624, instalador.sh:627, instalador.sh:630).
+  - Fallback Etapa 2: se o PPA falha (ex.: Debian), cria uma flag, pula a configuração e mantém APT_CMD apontando para o apt tradicional, evitando abortar a instalação (instalador.sh:628, instalador.sh:633).
+  - Interação 1-2: o proxy setado na etapa 1 é temporariamente desativado em etapas posteriores antes de grandes instalações ou novos repositórios, garantindo que apt-fast/apt possam acessar diretamente as origens
+    necessárias (instalador.sh:650, instalador.sh:659).
+
+  Etapas 3-8
+
+  - Etapa 3 – Atualizar sistema: aplica apt update/apt upgrade em modo silencioso antes de avançar (instalador.sh:638).
+  - Etapa 4 – Usuário deploy: cria o usuário deploy, define senha e garante participação no grupo sudo (instalador.sh:641).
+  - Etapa 5 – Pacotes essenciais: instala base de ferramentas e dependências pesadas (incluindo libs de headless/pnpm), com fallback para apt puro em caso de erro e restauração do proxy (instalador.sh:644,
+    instalador.sh:652).
+  - Etapa 6 – PostgreSQL 17: baixa keyring oficial, detecta codename de forma robusta, adiciona o repositório PGDG e instala o servidor (instalador.sh:657, instalador.sh:661, instalador.sh:720).
+  - Etapa 7 – Node.js 20: executa o script da Nodesource e instala Node.js 20, contemplando ambientes sem proxy (instalador.sh:770, instalador.sh:772).
+  - Etapa 8 – pnpm: instala pnpm globalmente, configura PNPM_HOME para root e usuários, e deixa perfis prontos para evitar avisos (instalador.sh:776).
+
+  Etapas 9-14
+
+  - Etapa 9 – PM2: prepara o ambiente pnpm/npm do usuário deploy, instala PM2, cria symlink para root e gera unidade systemd (instalador.sh:795).
+  - Etapa 10 – Nginx/Certbot (pré): instala Nginx, snapd e Certbot via snap, habilitando serviços base (instalador.sh:840).
+  - Etapa 11 – Redis: ativa o serviço, define senha, ativa appendonly e reinicia (instalador.sh:843).
+  - Etapa 12 – Banco PostgreSQL: cria role, banco e extensões necessárias (uuid-ossp, unaccent) se ainda não existirem (instalador.sh:846).
+  - Etapa 13 – Código: clona ou copia o código ChatIA (token, zip ou pasta local), ajusta permissões e estrutura de destino (instalador.sh:849).
+  - Etapa 14 – Backend .env: gera o .env com URLs, credenciais, segredos JWT e integrações configuradas no wizard (instalador.sh:887).
+
+  Etapas 15-20
+
+  - Etapa 15 – Backend deps/build: limpa caches, instala dependências com pnpm, adiciona libs pontuais, ajusta tsconfig/mime e compila (instalador.sh:925).
+  - Etapa 16 – Migrações: roda sequelize migrate/seed, atualiza empresa e usuário admin com dados do wizard, garantindo credenciais (instalador.sh:934).
+  - Etapa 17 – Frontend .env: cria .env e .env.production com variáveis de frontend (URLs, nome, suporte) e aplica permissões restritivas (instalador.sh:963).
+  - Etapa 18 – Frontend deps/config: reinstala dependências via pnpm, adiciona polyfills, troca scripts para CRACO, gera servidor Express e remove pacotes legados como react-trello (instalador.sh:974,
+    instalador.sh:986).
+  - Etapa 19 – Builds: recompila backend e frontend com ajustes de memória/OpenSSL e desmonta o cache temporário (instalador.sh:1198, instalador.sh:1208).
+  - Etapa 20 – PM2 apps: mata processos nas portas alvo, recria processos backend/frontend com PM2 e salva o estado (instalador.sh:1211).
+
+  Etapa 21-Encerramento
+
+  - Etapa 21 – Nginx/SSL: escreve vhosts, gera conf global, testa Nginx, reinicia e tenta emitir certificados com Certbot (com warning controlado) (instalador.sh:1218, instalador.sh:1262).
+  - Etapa 22 – Crons: cria script de reinício do PM2 e agenda cron diário às 01h, preservando owner/perms (instalador.sh:1265).
+  - Resumo final: exibe banner de conclusão, lista stack instalada, URLs e credenciais, além de replicar pm2 list no log e no stdout (instalador.sh:1275, instalador.sh:1294).
+  - Checkpoints/logs: checkpoints são gravados após blocos críticos (ex.: etapas 15, 19, 21, 22) e o log padrão scripts/chatia-install.log recebe toda a história de execução (instalador.sh:932, instalador.sh:1209,
+    instalador.sh:1263, instalador.sh:1273).

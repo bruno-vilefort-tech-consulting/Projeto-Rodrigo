@@ -1,17 +1,17 @@
 status: 200
-date: Mon, 06 Oct 2025 22:49:08 GMT
+date: Wed, 08 Oct 2025 20:26:25 GMT
 server: Apache/2.4.41 (Ubuntu)
 content-location: index.wadl
 vary: negotiate,accept,Accept-Encoding
 tcn: choice
-last-modified: Mon, 29 Sep 2025 09:11:30 GMT
-etag: "252679-63fed055c5480-gzip"
+last-modified: Mon, 06 Oct 2025 15:56:20 GMT
+etag: "2521a0-6407f7e0bf100-gzip"
 accept-ranges: bytes
 content-type: application/vnd.sun.wadl+xml; qs=0.9
-x-cache: MISS from juju-98d295-prod-launchpad-29
-x-cache-lookup: MISS from juju-98d295-prod-launchpad-29:3128
-via: 1.1 juju-98d295-prod-launchpad-29 (squid/4.10)
-content-length: 2434681
+x-cache: MISS from juju-98d295-prod-launchpad-30
+x-cache-lookup: MISS from juju-98d295-prod-launchpad-30:3128
+via: 1.1 juju-98d295-prod-launchpad-30 (squid/4.10)
+content-length: 2433440
 -content-encoding: gzip
 -varied-accept: application/vnd.sun.wadl+xml
 -varied-accept-encoding: gzip, deflate
@@ -22038,6 +22038,14 @@ Date Modified
 </wadl:doc>
         
       </wadl:param>
+      <wadl:param style="plain" required="true" name="metadata" path="$['metadata']">
+        <wadl:doc xmlns="http://www.w3.org/1999/xhtml">
+<p>metadata</p>
+<p>CVE metadata.</p>
+
+</wadl:doc>
+        
+      </wadl:param>
       <wadl:param style="plain" required="true" name="sequence" path="$['sequence']">
         <wadl:doc xmlns="http://www.w3.org/1999/xhtml">
 <p>CVE Sequence Number</p>
@@ -22076,63 +22084,6 @@ Date Modified
     </wadl:representation>
 
     <wadl:representation mediaType="application/json" id="cve-diff">
-      <wadl:param style="plain" required="false" name="date_modified" path="$['date_modified']" type="xsd:dateTime">
-        <wadl:doc xmlns="http://www.w3.org/1999/xhtml">
-Date Modified
-</wadl:doc>
-        
-      </wadl:param>
-      <wadl:param style="plain" required="false" name="description" path="$['description']">
-        <wadl:doc xmlns="http://www.w3.org/1999/xhtml">
-<p>Title</p>
-<p>A description of the CVE issue. This will be updated regularly from the CVE database.</p>
-
-</wadl:doc>
-        
-      </wadl:param>
-      <wadl:param style="plain" required="false" name="display_name" path="$['display_name']">
-        <wadl:doc xmlns="http://www.w3.org/1999/xhtml">
-<p>Display Name</p>
-<p>A very brief name describing the ref and state.</p>
-
-</wadl:doc>
-        
-      </wadl:param>
-      <wadl:param style="plain" required="false" name="sequence" path="$['sequence']">
-        <wadl:doc xmlns="http://www.w3.org/1999/xhtml">
-<p>CVE Sequence Number</p>
-<p>Should take the form XXXX-XXXX, all digits.</p>
-
-</wadl:doc>
-        
-      </wadl:param>
-      <wadl:param style="plain" required="false" name="status" path="$['status']">
-        <wadl:doc xmlns="http://www.w3.org/1999/xhtml">
-<p>Current CVE State</p>
-<p>Whether or not the vulnerability has been reviewed and assigned a full CVE number, or is still considered a Candidate, or is deprecated.</p>
-
-</wadl:doc>
-        
-        <wadl:option value="Candidate"/>
-        <wadl:option value="Entry"/>
-        <wadl:option value="Deprecated"/>
-      </wadl:param>
-      <wadl:param style="plain" required="false" name="title" path="$['title']">
-        <wadl:doc xmlns="http://www.w3.org/1999/xhtml">
-<p>Title</p>
-<p>A title for the CVE</p>
-
-</wadl:doc>
-        
-      </wadl:param>
-      <wadl:param style="plain" required="false" name="url" path="$['url']">
-        <wadl:doc xmlns="http://www.w3.org/1999/xhtml">
-<p>URL</p>
-<p>Return a URL to the site that has the CVE data for this CVE reference.</p>
-
-</wadl:doc>
-        
-      </wadl:param>
     </wadl:representation>
 
     <!--Collection page for this type of entry-->
@@ -48703,6 +48654,8 @@ Key type
         <wadl:option value="DSA"/>
         <wadl:option value="ECDSA"/>
         <wadl:option value="ED25519"/>
+        <wadl:option value="SKED25519"/>
+        <wadl:option value="SKECDSA"/>
       </wadl:param>
     </wadl:representation>
 
@@ -58449,6 +58402,14 @@ Used to explain why our importance differs from somebody else's CVSS score.
         <wadl:option value="Proprietary"/>
         <wadl:option value="Embargoed"/>
       </wadl:param>
+      <wadl:param style="plain" required="true" name="metadata" path="$['metadata']">
+        <wadl:doc xmlns="http://www.w3.org/1999/xhtml">
+<p>Metadata</p>
+<p>Metadata of Vulnerability</p>
+
+</wadl:doc>
+        
+      </wadl:param>
       <wadl:param style="plain" required="true" name="mitigation" path="$['mitigation']">
         <wadl:doc xmlns="http://www.w3.org/1999/xhtml">
 Explains why we're ignoring this vulnerability.
@@ -58550,6 +58511,14 @@ Used to explain why our importance differs from somebody else's CVSS score.
         <wadl:option value="Private"/>
         <wadl:option value="Proprietary"/>
         <wadl:option value="Embargoed"/>
+      </wadl:param>
+      <wadl:param style="plain" required="false" name="metadata" path="$['metadata']">
+        <wadl:doc xmlns="http://www.w3.org/1999/xhtml">
+<p>Metadata</p>
+<p>Metadata of Vulnerability</p>
+
+</wadl:doc>
+        
       </wadl:param>
       <wadl:param style="plain" required="false" name="mitigation" path="$['mitigation']">
         <wadl:doc xmlns="http://www.w3.org/1999/xhtml">

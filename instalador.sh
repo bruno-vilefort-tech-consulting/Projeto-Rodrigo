@@ -642,7 +642,11 @@ run_quiet "$(t updating_system)..." "wait_for_apt; apt update -y -qq; apt upgrad
 run_quiet "$(t configuring) user 'deploy'..." "if ! id deploy >/dev/null 2>&1; then /usr/sbin/useradd -m -s /bin/bash -G sudo deploy; echo \"deploy:${senha_deploy}\" | /usr/sbin/chpasswd; fi; /usr/sbin/usermod -aG sudo deploy"
 
 #------------------- ETAPA 5: Pacotes essenciais --------------------------------
-PUPPETEER_DEPS=(libaom-dev libass-dev libfreetype6-dev libfribidi-dev libharfbuzz-dev libgme-dev libgsm1-dev libmp3lame-dev libopencore-amrnb-dev libopencore-amrwb-dev libopenmpt-dev libopus-dev libfdk-aac-dev librubberband-dev libspeex-dev libssh-dev libtheora-dev libvidstab-dev libvo-amrwbenc-dev libvorbis-dev libvpx-dev libwebp-dev libx264-dev libx265-dev libxvidcore-dev libzmq3-dev libsdl2-dev build-essential yasm cmake libtool libc6 libc6-dev unzip wget pkg-config texinfo zlib1g-dev libxshmfence-dev libgcc1 libgbm-dev fontconfig locales libasound2t64 libatk1.0-0 libcairo2 libcups2 libdbus-1-3 libexpat1 libfontconfig1 libgcc-s1 libgdk-pixbuf2.0-0 libglib2.0-0 libgtk-3-0 libnspr4 libpango-1.0-0 libpangocairo-1.0-0 libstdc++6 libx11-6 libx11-xcb1 libxcb1 libxcomposite1 libxcursor1 libxdamage1 libxext6 libxfixes3 libxi6 libxrandr2 libxrender1 libxss1 libxtst6 ca-certificates fonts-liberation libayatana-appindicator3-1 libnss3 lsb-release xdg-utils)
+LIBASOUND_PKG="libasound2"
+if command -v apt-cache >/dev/null 2>&1 && apt-cache show libasound2t64 >/dev/null 2>&1; then
+  LIBASOUND_PKG="libasound2t64"
+fi
+PUPPETEER_DEPS=(libaom-dev libass-dev libfreetype6-dev libfribidi-dev libharfbuzz-dev libgme-dev libgsm1-dev libmp3lame-dev libopencore-amrnb-dev libopencore-amrwb-dev libopenmpt-dev libopus-dev libfdk-aac-dev librubberband-dev libspeex-dev libssh-dev libtheora-dev libvidstab-dev libvo-amrwbenc-dev libvorbis-dev libvpx-dev libwebp-dev libx264-dev libx265-dev libxvidcore-dev libzmq3-dev libsdl2-dev build-essential yasm cmake libtool libc6 libc6-dev unzip wget pkg-config texinfo zlib1g-dev libxshmfence-dev libgcc1 libgbm-dev fontconfig locales "$LIBASOUND_PKG" libatk1.0-0 libcairo2 libcups2 libdbus-1-3 libexpat1 libfontconfig1 libgcc-s1 libgdk-pixbuf2.0-0 libglib2.0-0 libgtk-3-0 libnspr4 libpango-1.0-0 libpangocairo-1.0-0 libstdc++6 libx11-6 libx11-xcb1 libxcb1 libxcomposite1 libxcursor1 libxdamage1 libxext6 libxfixes3 libxi6 libxrandr2 libxrender1 libxss1 libxtst6 ca-certificates fonts-liberation libayatana-appindicator3-1 libnss3 lsb-release xdg-utils)
 BASE_PKGS=(git cron redis-server build-essential apparmor-utils gnupg curl ffmpeg lsof psmisc)
 ALL_PKGS=("${BASE_PKGS[@]}" "${PUPPETEER_DEPS[@]}")
 PKG_STR="$(printf '%s ' "${ALL_PKGS[@]}")"
@@ -841,7 +845,51 @@ run_quiet "$(t installing) PM2..." "bash -lc '
 run_quiet "$(t installing) Nginx/Certbot..." "wait_for_apt; apt install -y -qq --no-install-recommends nginx snapd; systemctl enable snapd; systemctl start snapd; snap install core; snap refresh core; snap install --classic certbot; ln -sf /snap/bin/certbot /usr/bin/certbot; systemctl enable nginx; systemctl start nginx"
 
 #------------------- ETAPA 11: Redis -------------------------------------------
-run_quiet "$(t configuring) Redis..." "systemctl enable redis-server; sed -i \"s/# requirepass foobared/requirepass ${senha_deploy}/g\" /etc/redis/redis.conf; sed -i 's/^appendonly no/appendonly yes/g' /etc/redis/redis.conf; systemctl restart redis-server"
+run_quiet "$(t configuring) Redis..." "bash -lc '
+  set -Eeuo pipefail
+  REDIS_CONF=\"/etc/redis/redis.conf\"
+
+  if [ ! -d \"/etc/redis\" ]; then
+    install -d -m 0755 /etc/redis
+  fi
+
+  if [ ! -f \"\$REDIS_CONF\" ]; then
+    printf \"[WARN] redis.conf não encontrado; aplicando configuração padrão.\\n\"
+    cat <<'CONF' >\"\$REDIS_CONF\"
+# Redis configuração base para ChatIA
+bind 127.0.0.1 ::1
+protected-mode yes
+port 6379
+tcp-backlog 511
+timeout 0
+tcp-keepalive 300
+daemonize no
+supervised systemd
+pidfile /var/run/redis/redis-server.pid
+loglevel notice
+logfile /var/log/redis/redis-server.log
+dir /var/lib/redis
+appendonly yes
+CONF
+    chown redis:redis \"\$REDIS_CONF\" 2>/dev/null || true
+    chmod 640 \"\$REDIS_CONF\" 2>/dev/null || true
+  fi
+
+  if grep -qE \"^[#[:space:]]*requirepass \" \"\$REDIS_CONF\"; then
+    sed -i \"s@^[#[:space:]]*requirepass .*@requirepass ${senha_deploy}@\" \"\$REDIS_CONF\"
+  else
+    printf \"requirepass %s\\n\" \"${senha_deploy}\" >> \"\$REDIS_CONF\"
+  fi
+
+  if grep -qE \"^appendonly \" \"\$REDIS_CONF\"; then
+    sed -i \"s/^appendonly .*/appendonly yes/\" \"\$REDIS_CONF\"
+  else
+    printf \"appendonly yes\\n\" >> \"\$REDIS_CONF\"
+  fi
+
+  systemctl enable redis-server
+  systemctl restart redis-server
+'"
 
 #------------------- ETAPA 12: Banco PostgreSQL --------------------------------
 run_quiet "$(t configuring) PostgreSQL..." "sudo -u postgres bash -lc \"ROLE_EXISTS=\\\$(psql -Atqc \\\"SELECT 1 FROM pg_roles WHERE rolname='${empresa}'\\\" || true); [ \\\"\\\$ROLE_EXISTS\\\" = \\\"1\\\" ] || psql -c \\\"CREATE ROLE ${empresa} LOGIN PASSWORD '${senha_deploy}';\\\"; DB_EXISTS=\\\$(psql -Atqc \\\"SELECT 1 FROM pg_database WHERE datname='${empresa}'\\\" || true); [ \\\"\\\$DB_EXISTS\\\" = \\\"1\\\" ] || psql -c \\\"CREATE DATABASE ${empresa} OWNER ${empresa};\\\"; psql -d \\\"${empresa}\\\" -c \\\"CREATE EXTENSION IF NOT EXISTS \\\\\\\"uuid-ossp\\\\\\\";\\\"; psql -d \\\"${empresa}\\\" -c \\\"CREATE EXTENSION IF NOT EXISTS unaccent;\\\"\""
@@ -885,7 +933,10 @@ run_quiet "$(t installing) ChatIA code..." "GITHUB_TOKEN='${github_token}' REPO_
   mkdir -p \"$DEST_DIR/backend/public\"; chown -R deploy:deploy \"$DEST_DIR\"; chmod -R 775 \"$DEST_DIR/backend/public\" '"
 
 #------------------- ETAPA 14: Backend .env ------------------------------------
-run_quiet "$(t configuring) backend (.env)..." "sudo -u deploy bash -lc 'cat > /home/deploy/${empresa}/backend/.env << ENVFILE
+ENV_PATH="/home/deploy/${empresa}/backend/.env"
+ENV_TMP="$(mktemp)"
+
+cat > "$ENV_TMP" << ENVFILE
 NODE_ENV=production
 BACKEND_URL=${subdominio_backend_formatted}
 FRONTEND_URL=${subdominio_frontend_formatted}
@@ -939,18 +990,195 @@ fi
 run_quiet "Preparando diretório cache pnpm..." "mkdir -p /mnt/pnpm-cache && chown deploy:deploy /mnt/pnpm-cache && chmod 775 /mnt/pnpm-cache"
 
 #------------------- ETAPA 15: Backend deps/build ------------------------------
-run_quiet "$(t installing) backend deps..." "sudo -u deploy bash -lc 'set -e; export PNPM_HOME=\$HOME/.local/share/pnpm; export PATH=\$PNPM_HOME:\$PATH; export PUPPETEER_SKIP_DOWNLOAD=true; export PNPM_STORE_DIR=/mnt/pnpm-cache; cd /home/deploy/${empresa}/backend; rm -rf node_modules package-lock.json; pnpm install --frozen-lockfile'"
+run_quiet "$(t installing) backend deps..." "sudo -H -u deploy bash -lc '
+  set -Eeuo pipefail
+  export PNPM_HOME=\$HOME/.local/share/pnpm
+  export PATH=\"\$PNPM_HOME:\$PATH\"
+  export PUPPETEER_SKIP_DOWNLOAD=true
+  export PNPM_STORE_DIR=/mnt/pnpm-cache
+  BACKEND_DIR=\"/home/deploy/${empresa}/backend\"
+  cd \"\$BACKEND_DIR\"
 
-run_quiet "$(t installing) backend build..." "sudo -u deploy bash -lc 'export PNPM_HOME=\"\$HOME/.local/share/pnpm\"; export PATH=\"\$PNPM_HOME:\$PATH\"; cd /home/deploy/${empresa}/backend; pnpm run build'"
+  HEALTHY_CACHE=1
+  if [ ! -d node_modules ] || [ ! -f node_modules/.modules.yaml ]; then
+    HEALTHY_CACHE=0
+    printf \"[WARN] PNPM cache ausente ou corrompido; reconstruindo dependências.\\n\"
+  fi
+
+  INSTALL_ARGS=\"--frozen-lockfile --prefer-offline\"
+  RETRY_ARGS=\"--frozen-lockfile\"
+
+  if [ ! -f pnpm-lock.yaml ]; then
+    printf \"[WARN] pnpm-lock.yaml não encontrado; instalando sem --frozen-lockfile.\\n\"
+    INSTALL_ARGS=\"--prefer-offline\"
+    RETRY_ARGS=\"\"
+  elif [ \"\$HEALTHY_CACHE\" = 1 ]; then
+    printf \"[INFO] Validando dependências existentes com pnpm --prefer-offline.\\n\"
+  fi
+
+  if ! pnpm install \$INSTALL_ARGS; then
+    printf \"[WARN] Falha na validação pnpm; limpando node_modules e repetindo.\\n\"
+    rm -rf node_modules
+    if [ -n \"\$RETRY_ARGS\" ]; then
+      pnpm install \$RETRY_ARGS
+    else
+      pnpm install
+    fi
+  fi
+'"
+
+run_quiet "$(t installing) backend build..." "sudo -H -u deploy bash -lc '
+  set -Eeuo pipefail
+  export PNPM_HOME=\$HOME/.local/share/pnpm
+  export PATH=\"\$PNPM_HOME:\$PATH\"
+  BACKEND_DIR=\"/home/deploy/${empresa}/backend\"
+  cd \"\$BACKEND_DIR\"
+
+  calc_backend_hash() {
+    local -a paths=()
+    local item
+    for item in package.json pnpm-lock.yaml tsconfig.json tsconfig.build.json src; do
+      if [ -e \"\$item\" ]; then
+        paths+=(\"\$item\")
+      fi
+    done
+    if [ \"\${#paths[@]}\" -eq 0 ]; then
+      echo \"0\"
+      return
+    fi
+    find \"\${paths[@]}\" -type f -print0 2>/dev/null | LC_ALL=C sort -z | xargs -0 sha256sum 2>/dev/null | sha256sum | cut -d\" \" -f1
+  }
+
+  FINGERPRINT_FILE=.chatia_backend_build.fingerprint
+  CURRENT_HASH=\$(calc_backend_hash)
+  NEED_BUILD=0
+
+  if [ ! -f \"\$FINGERPRINT_FILE\" ]; then
+    NEED_BUILD=1
+    printf \"[INFO] Fingerprint inexistente; build inicial necessária.\\n\"
+  else
+    PREVIOUS_HASH=\$(cat \"\$FINGERPRINT_FILE\" 2>/dev/null || true)
+    if [ \"\$CURRENT_HASH\" != \"\$PREVIOUS_HASH\" ]; then
+      NEED_BUILD=1
+      printf \"[INFO] Alterações detectadas no backend (hash atualizado).\\n\"
+    fi
+  fi
+
+  if [ ! -d dist ] || [ -z \"\$(find dist -type f -print -quit 2>/dev/null)\" ]; then
+    NEED_BUILD=1
+    printf \"[WARN] Diretório dist ausente ou vazio; build será executada.\\n\"
+  fi
+
+  if [ \"\$NEED_BUILD\" = 0 ]; then
+    printf \"[INFO] Build backend reutilizada; nenhuma ação necessária.\\n\"
+  else
+    pnpm run build
+    printf \"%s\" \"\$CURRENT_HASH\" > \"\$FINGERPRINT_FILE\"
+    printf \"[INFO] Fingerprint backend atualizado para %s.\\n\" \"\$CURRENT_HASH\"
+  fi
+'"
 
 save_checkpoint "ETAPA_15_BACKEND_INSTALADO"
 
 #------------------- ETAPA 16: Migrações ---------------------------------------
-run_quiet "$(t configuring) database (migrations/seeds)..." "sudo -u deploy bash -lc 'cd /home/deploy/${empresa}/backend; export SEQUELIZE_POOL_MAX=10; export SEQUELIZE_POOL_MIN=5; ./node_modules/.bin/sequelize db:migrate; ./node_modules/.bin/sequelize db:seed:all'"
-run_quiet "$(t configuring) company name..." "sudo -u postgres bash -lc 'PGPASSWORD=\"${senha_deploy}\" psql -h 127.0.0.1 -U ${empresa} -d ${empresa} -c \"UPDATE \\\"Companies\\\" SET name = '\''${nome_titulo}'\'' WHERE id = 1;\"'"
+run_quiet "$(t configuring) database (migrations/seeds)..." "bash -lc '
+  set -Eeuo pipefail
+  BACKEND_DIR=\"/home/deploy/${empresa}/backend\"
+  DIST_DIR=\"\$BACKEND_DIR/dist\"
+  MIGRATIONS_DIR=\"\$DIST_DIR/database/migrations\"
+  SEEDS_DIR=\"\$DIST_DIR/database/seeds\"
+  DB_NAME=\"${empresa}\"
+  SEED_SENTINEL=\"\$BACKEND_DIR/.chatia_backend_seeds.fingerprint\"
+
+  DEPLOY_BASE=\"cd \\\"\$BACKEND_DIR\\\"; export PNPM_HOME=\\\$HOME/.local/share/pnpm; export PATH=\\\"\\\$PNPM_HOME:\\\\\$PATH\\\"; export SEQUELIZE_POOL_MAX=10; export SEQUELIZE_POOL_MIN=5;\"
+
+  migrations_pending=0
+  pending_labels=\"\"
+  SQL_CHECK_META=\"SELECT 1 FROM information_schema.tables WHERE table_schema='\''public'\'' AND table_name='\''SequelizeMeta'\'' LIMIT 1;\"
+  HAS_META=\$(sudo -u postgres psql -At -d \"\$DB_NAME\" -c \"\$SQL_CHECK_META\" 2>/dev/null | head -n 1 || true)
+  APPLIED_LIST=\"\"
+  if [ \"\$HAS_META\" = \"1\" ]; then
+    APPLIED_LIST=\$(sudo -u postgres psql -At -d \"\$DB_NAME\" -c \"SELECT name FROM \\\"SequelizeMeta\\\" ORDER BY name;\" 2>/dev/null || true)
+  fi
+
+  if [ -d \"\$MIGRATIONS_DIR\" ]; then
+    while IFS= read -r file; do
+      if [ -n \"\$file\" ] && ! printf \"%s\\n\" \"\$APPLIED_LIST\" | grep -Fxq \"\$file\"; then
+        migrations_pending=1
+        pending_labels=\"\$pending_labels \$file\"
+      fi
+    done < <(find \"\$MIGRATIONS_DIR\" -maxdepth 1 -type f -name \"*.js\" -printf \"%f\\n\" 2>/dev/null | LC_ALL=C sort)
+
+    if [ \"\$migrations_pending\" = 1 ]; then
+      printf \"[INFO] Migrations pendentes detectadas:%s\\n\" \"\$pending_labels\"
+      sudo -H -u deploy bash -lc \"\$DEPLOY_BASE ./node_modules/.bin/sequelize db:migrate\"
+    else
+      printf \"[INFO] Nenhuma migration pendente; pulando db:migrate.\\n\"
+    fi
+  else
+    printf \"[INFO] Diretório de migrations não encontrado; pulando db:migrate.\\n\"
+  fi
+
+  calc_seed_hash() {
+    local dir=\"\$1\"
+    if [ ! -d \"\$dir\" ]; then
+      echo \"0\"
+      return
+    fi
+    if ! find \"\$dir\" -type f -name \"*.js\" -print -quit 2>/dev/null | grep -q .; then
+      echo \"0\"
+      return
+    fi
+    find \"\$dir\" -type f -name \"*.js\" -print0 2>/dev/null | LC_ALL=C sort -z | xargs -0 sha256sum 2>/dev/null | sha256sum | cut -d\" \" -f1
+  }
+
+  SEED_HASH=\$(calc_seed_hash \"\$SEEDS_DIR\")
+  SEED_PREV=\"\"
+  if [ -f \"\$SEED_SENTINEL\" ]; then
+    SEED_PREV=\$(cat \"\$SEED_SENTINEL\" 2>/dev/null || true)
+  fi
+
+  if [ \"\$SEED_HASH\" = \"0\" ]; then
+    printf \"[INFO] Nenhum seed compilado encontrado; pulando db:seed:all.\\n\"
+  elif [ \"\$SEED_HASH\" = \"\$SEED_PREV\" ]; then
+    printf \"[INFO] Seeds já aplicados anteriormente (fingerprint inalterado).\\n\"
+  else
+    printf \"[INFO] Executando seeds atualizados (fingerprint novo detectado).\\n\"
+    sudo -H -u deploy bash -lc \"\$DEPLOY_BASE ./node_modules/.bin/sequelize db:seed:all\"
+    printf \"%s\" \"\$SEED_HASH\" > \"\$SEED_SENTINEL\"
+    chown deploy:deploy \"\$SEED_SENTINEL\" 2>/dev/null || true
+  fi
+'"
+
+run_quiet "$(t configuring) company name..." "bash -lc '
+  set -Eeuo pipefail
+  DB_NAME=\"${empresa}\"
+  TARGET_NAME=\"${nome_titulo}\"
+  SAFE_NEW_NAME=\$(printf \"%s\" \"\$TARGET_NAME\" | sed \"s/'/''/g\")
+  CURRENT_NAME=\$(sudo -u postgres psql -At -d \"\$DB_NAME\" -c \"SELECT name FROM \\\"Companies\\\" WHERE id = 1;\" 2>/dev/null | tr -d \"\\r\" | head -n 1 | sed \"s/[[:space:]]*\$//\" || true)
+  if [ \"\$CURRENT_NAME\" = \"\$TARGET_NAME\" ]; then
+    printf \"[INFO] Nome da empresa já configurado para %s; nenhuma mudança necessária.\\n\" \"\$TARGET_NAME\"
+  else
+    if [ -z \"\$CURRENT_NAME\" ]; then
+      printf \"[WARN] Nome atual indisponível; aplicando valor configurado.\\n\"
+    else
+      printf \"[INFO] Atualizando nome da empresa de %s para %s.\\n\" \"\$CURRENT_NAME\" \"${nome_titulo}\"
+    fi
+    sudo -u postgres psql -d \"\$DB_NAME\" -c \"UPDATE \\\"Companies\\\" SET name = '\$SAFE_NEW_NAME' WHERE id = 1;\" >/dev/null
+  fi
+'"
 
 #------------------- ETAPA 17: Frontend .env -----------------------------------
-run_quiet "$(t configuring) frontend (.env)..." "sudo -u deploy bash -lc 'mkdir -p \"/home/deploy/${empresa}/frontend\" && cat > \"/home/deploy/${empresa}/frontend/.env\" << ENVFILE
+run_quiet "$(t configuring) frontend (.env)..." "bash -lc '
+  set -Eeuo pipefail
+  ENV_DIR=\"/home/deploy/${empresa}/frontend\"
+  ENV_TARGET=\"\$ENV_DIR/.env\"
+  ENV_TARGET_PROD=\"\$ENV_DIR/.env.production\"
+
+  install -d -m 0755 -o deploy -g deploy \"\$ENV_DIR\"
+  umask 077
+  TMP_ENV=\$(mktemp)
+  cat >\"\$TMP_ENV\" <<'ENVFILE'
 REACT_APP_BACKEND_URL=${subdominio_backend_formatted}
 REACT_APP_FACEBOOK_APP_ID=${facebook_app_id}
 REACT_APP_REQUIRE_BUSINESS_MANAGEMENT=TRUE
@@ -958,39 +1186,261 @@ REACT_APP_NAME_SYSTEM=${nome_titulo}
 REACT_APP_NUMBER_SUPPORT=${numero_suporte}
 SERVER_PORT=${frontend_port}
 ENVFILE
-cp -f \"/home/deploy/${empresa}/frontend/.env\" \"/home/deploy/${empresa}/frontend/.env.production\"; chown deploy:deploy \"/home/deploy/${empresa}/frontend/.env\" \"/home/deploy/${empresa}/frontend/.env.production\"; chmod 640 \"/home/deploy/${empresa}/frontend/.env\" \"/home/deploy/${empresa}/frontend/.env.production\"'"
+
+  if [ -f \"\$ENV_TARGET\" ] && [ -f \"\$ENV_TARGET_PROD\" ] && cmp -s \"\$TMP_ENV\" \"\$ENV_TARGET\" && cmp -s \"\$TMP_ENV\" \"\$ENV_TARGET_PROD\"; then
+    printf \"[INFO] Arquivos .env do frontend já atualizados; nenhuma alteração aplicada.\\n\"
+  else
+    install -m 0640 -o deploy -g deploy \"\$TMP_ENV\" \"\$ENV_TARGET\"
+    install -m 0640 -o deploy -g deploy \"\$TMP_ENV\" \"\$ENV_TARGET_PROD\"
+    printf \"[INFO] Arquivos .env do frontend atualizados com novo conteúdo.\\n\"
+  fi
+
+  rm -f \"\$TMP_ENV\"
+'"
 
 #------------------- ETAPA 18: Frontend deps + config/env ----------------------
-run_quiet "$(t installing) frontend deps..." "sudo -u deploy bash -lc '
-  set -e
-  export PNPM_HOME="$HOME/.local/share/pnpm"; export PATH="$PNPM_HOME:$PATH"; export PNPM_STORE_DIR=/mnt/pnpm-cache
-  cd /home/deploy/${empresa}/frontend
-  rm -rf node_modules package-lock.json
-  pnpm install --frozen-lockfile
+run_quiet "$(t installing) frontend deps..." "sudo -H -u deploy bash -lc '
+  set -Eeuo pipefail
+  export PNPM_HOME=\$HOME/.local/share/pnpm
+  export PATH=\"\$PNPM_HOME:\$PATH\"
+  export PNPM_STORE_DIR=/mnt/pnpm-cache
+  FRONTEND_DIR=\"/home/deploy/${empresa}/frontend\"
+  cd \"\$FRONTEND_DIR\"
+
+  printf \"[INFO] Utilizando PNPM store em %s.\\n\" \"\$PNPM_STORE_DIR\"
+
+  HEALTHY_CACHE=1
+  if [ ! -d node_modules ] || [ ! -f node_modules/.modules.yaml ]; then
+    HEALTHY_CACHE=0
+    printf \"[WARN] PNPM node_modules do frontend ausente ou corrompido; reconstruindo.\\n\"
+  fi
+
+  INSTALL_ARGS=\"--frozen-lockfile --prefer-offline\"
+  RETRY_ARGS=\"--frozen-lockfile\"
+
+  if [ ! -f pnpm-lock.yaml ]; then
+    printf \"[WARN] pnpm-lock.yaml não encontrado no frontend; instalando sem --frozen-lockfile.\\n\"
+    INSTALL_ARGS=\"--prefer-offline\"
+    RETRY_ARGS=\"\"
+  elif [ \"\$HEALTHY_CACHE\" = 1 ]; then
+    printf \"[INFO] Validando dependências do frontend com pnpm --prefer-offline.\\n\"
+  fi
+
+  if ! pnpm install \$INSTALL_ARGS; then
+    printf \"[WARN] Falha na validação pnpm; limpando node_modules do frontend e repetindo.\\n\"
+    rm -rf node_modules
+    if [ -n \"\$RETRY_ARGS\" ]; then
+      pnpm install \$RETRY_ARGS
+    else
+      pnpm install
+    fi
+  fi
 '"
 
 #------------------- ETAPA 19: Builds ------------------------------------------
-run_quiet "$(t installing) backend build (final)..." "sudo -u deploy bash -lc 'export PNPM_HOME=\"\$HOME/.local/share/pnpm\"; export PATH=\"\$PNPM_HOME:\$PATH\"; cd /home/deploy/${empresa}/backend && pnpm run build'"
-run_quiet "$(t installing) frontend build..." "sudo -u deploy bash -lc '
-  export PNPM_HOME=\"\$HOME/.local/share/pnpm\"; export PATH=\"\$PNPM_HOME:\$PATH\";
-  cd /home/deploy/${empresa}/frontend
-  RS_MAJOR=\$(node -e \"try{const p=require(\\\"./package.json\\\");const v=((p.devDependencies&&p.devDependencies[\\\"react-scripts\\\"])||(p.dependencies&&p.dependencies[\\\"react-scripts\\\"])||0);const m=String(v).match(/\\\\d+/);console.log(m?m[0]:0)}catch(e){console.log(0)}\")
-  BUILD_NODE_OPTIONS=\"--max-old-space-size=4096\"
-  if [ \"\$RS_MAJOR\" -le 4 ] && [ \"\$RS_MAJOR\" -gt 0 ]; then BUILD_NODE_OPTIONS=\"\$BUILD_NODE_OPTIONS --openssl-legacy-provider\"; fi
-  NODE_OPTIONS=\"\$BUILD_NODE_OPTIONS\" pnpm run build
+run_quiet "$(t installing) backend build (final)..." "sudo -H -u deploy bash -lc '
+  set -Eeuo pipefail
+  export PNPM_HOME=\$HOME/.local/share/pnpm
+  export PATH=\"\$PNPM_HOME:\$PATH\"
+  BACKEND_DIR=\"/home/deploy/${empresa}/backend\"
+  cd \"\$BACKEND_DIR\"
+
+  calc_backend_hash() {
+    local -a paths=()
+    local item
+    for item in package.json pnpm-lock.yaml tsconfig.json tsconfig.build.json src; do
+      if [ -e \"\$item\" ]; then
+        paths+=(\"\$item\")
+      fi
+    done
+    if [ \"\${#paths[@]}\" -eq 0 ]; then
+      echo \"0\"
+      return
+    fi
+    find \"\${paths[@]}\" -type f -print0 2>/dev/null | LC_ALL=C sort -z | xargs -0 sha256sum 2>/dev/null | sha256sum | cut -d\" \" -f1
+  }
+
+  FINGERPRINT_FILE=.chatia_backend_build.fingerprint
+  CURRENT_HASH=\$(calc_backend_hash)
+  NEED_BUILD=0
+
+  if [ ! -f \"\$FINGERPRINT_FILE\" ]; then
+    NEED_BUILD=1
+    printf \"[INFO] Fingerprint ausente durante etapa final; recompilando backend.\\n\"
+  else
+    PREVIOUS_HASH=\$(cat \"\$FINGERPRINT_FILE\" 2>/dev/null || true)
+    if [ \"\$CURRENT_HASH\" != \"\$PREVIOUS_HASH\" ]; then
+      NEED_BUILD=1
+      printf \"[INFO] Fingerprint divergente na etapa final; recompilando backend.\\n\"
+    fi
+  fi
+
+  if [ ! -d dist ] || [ -z \"\$(find dist -type f -print -quit 2>/dev/null)\" ]; then
+    NEED_BUILD=1
+    printf \"[WARN] Diretório dist ausente/vazio; build final necessária.\\n\"
+  fi
+
+  if [ \"\$NEED_BUILD\" = 0 ]; then
+    printf \"[INFO] Build backend já atualizada (fingerprint inalterado); pulando recompilação.\\n\"
+  else
+    pnpm exec tsc --incremental --pretty false
+    printf \"%s\" \"\$CURRENT_HASH\" > \"\$FINGERPRINT_FILE\"
+    chown deploy:deploy \"\$FINGERPRINT_FILE\" 2>/dev/null || true
+    printf \"[INFO] Fingerprint backend atualizado para %s após build final.\\n\" \"\$CURRENT_HASH\"
+  fi
 '"
-run_quiet "Cleanup pnpm tmpfs..." "umount -f /mnt/pnpm-cache 2>/dev/null || true; rmdir /mnt/pnpm-cache 2>/dev/null || true"
+
+run_quiet "$(t installing) frontend build..." "sudo -H -u deploy bash -lc '
+  set -Eeuo pipefail
+  export PNPM_HOME=\$HOME/.local/share/pnpm
+  export PATH=\"\$PNPM_HOME:\$PATH\"
+  FRONTEND_DIR=\"/home/deploy/${empresa}/frontend\"
+  cd \"\$FRONTEND_DIR\"
+
+  calc_frontend_hash() {
+    local -a paths=()
+    local item
+    for item in package.json pnpm-lock.yaml tsconfig.json craco.config.js server.js src public .env .env.production; do
+      if [ -e \"\$item\" ]; then
+        paths+=(\"\$item\")
+      fi
+    done
+    if [ \"\${#paths[@]}\" -eq 0 ]; then
+      echo \"0\"
+      return
+    fi
+    find \"\${paths[@]}\" -type f -print0 2>/dev/null | LC_ALL=C sort -z | xargs -0 sha256sum 2>/dev/null | sha256sum | cut -d\" \" -f1
+  }
+
+  FINGERPRINT_FILE=.chatia_frontend_build.fingerprint
+  CURRENT_HASH=\$(calc_frontend_hash)
+  NEED_BUILD=0
+
+  if [ ! -f \"\$FINGERPRINT_FILE\" ]; then
+    NEED_BUILD=1
+    printf \"[INFO] Fingerprint do frontend ausente; build será executada.\\n\"
+  else
+    PREVIOUS_HASH=\$(cat \"\$FINGERPRINT_FILE\" 2>/dev/null || true)
+    if [ \"\$CURRENT_HASH\" != \"\$PREVIOUS_HASH\" ]; then
+      NEED_BUILD=1
+      printf \"[INFO] Alterações detectadas no frontend (fingerprint atualizado).\\n\"
+    fi
+  fi
+
+  if [ ! -d build ] || [ -z \"\$(find build -type f -print -quit 2>/dev/null)\" ]; then
+    NEED_BUILD=1
+    printf \"[WARN] Diretório build ausente/vazio; build do frontend necessária.\\n\"
+  fi
+
+  if [ \"\$NEED_BUILD\" = 0 ]; then
+    printf \"[INFO] Build do frontend reutilizada; nenhuma ação executada.\\n\"
+  else
+    RS_MAJOR=\$(node -e \"try{const p=require(\\\"./package.json\\\");const v=((p.devDependencies&&p.devDependencies[\\\"react-scripts\\\"])||(p.dependencies&&p.dependencies[\\\"react-scripts\\\"])||0);const m=String(v).match(/\\\\d+/);console.log(m?m[0]:0)}catch(e){console.log(0)}\")
+    BUILD_NODE_OPTIONS=\"--max-old-space-size=4096\"
+    if [ \"\$RS_MAJOR\" -le 4 ] && [ \"\$RS_MAJOR\" -gt 0 ]; then
+      BUILD_NODE_OPTIONS=\"\$BUILD_NODE_OPTIONS --openssl-legacy-provider\"
+      printf \"[INFO] Aplicando --openssl-legacy-provider devido à versão do react-scripts (%s).\\n\" \"\$RS_MAJOR\"
+    fi
+    NODE_OPTIONS=\"\$BUILD_NODE_OPTIONS\" pnpm run build
+    printf \"%s\" \"\$CURRENT_HASH\" > \"\$FINGERPRINT_FILE\"
+    chown deploy:deploy \"\$FINGERPRINT_FILE\" 2>/dev/null || true
+    printf \"[INFO] Fingerprint do frontend atualizado para %s após build.\\n\" \"\$CURRENT_HASH\"
+  fi
+'"
+
+run_quiet "Cleanup pnpm cache..." "bash -lc '
+  if mountpoint -q /mnt/pnpm-cache 2>/dev/null; then
+    umount /mnt/pnpm-cache
+    printf \"[INFO] tmpfs de pnpm desmontado.\\n\"
+  else
+    printf \"[INFO] /mnt/pnpm-cache não é ponto de montagem; mantendo diretório para cache.\\n\"
+  fi
+  rmdir /mnt/pnpm-cache 2>/dev/null || true
+'"
 save_checkpoint "ETAPA_19_BUILD_COMPLETO"
 
 #------------------- ETAPA 20: PM2 ---------------------------------------------
 run_quiet "$(t configuring) PM2 apps..." "bash -lc '
-  lsof -ti:${backend_port} | xargs -r kill -9 2>/dev/null || true
-  lsof -ti:${frontend_port} | xargs -r kill -9 2>/dev/null || true
-  /usr/bin/sudo -u deploy bash -lc \"export PNPM_HOME=\\\$HOME/.local/share/pnpm; export PATH=\\\$PNPM_HOME:\\\$PATH; cd /home/deploy/${empresa}/backend; pm2 delete ${empresa}-backend 2>/dev/null || true; pm2 start dist/server.js --name ${empresa}-backend -i 2; cd /home/deploy/${empresa}/frontend; pm2 delete ${empresa}-frontend 2>/dev/null || true; pm2 start server.js --name ${empresa}-frontend; pm2 save\"
+  set -Eeuo pipefail
+  PM2_CONFIG=\"/home/deploy/${empresa}/ecosystem.config.js\"
+  DEPLOY_ENV=\"export PNPM_HOME=\\\$HOME/.local/share/pnpm; export PATH=\\\"\\\$PNPM_HOME:\\\\\$PATH\\\";\"
+  BACKEND_DIR=\"/home/deploy/${empresa}/backend\"
+  FRONTEND_DIR=\"/home/deploy/${empresa}/frontend\"
+
+  PRE_DUMP_HASH=\$(sudo -H -u deploy bash -lc \"if [ -f \\\"\\\$HOME/.pm2/dump.pm2\\\" ]; then sha256sum \\\"\\\$HOME/.pm2/dump.pm2\\\" | cut -d\" \" -f1; fi\" 2>/dev/null || true)
+
+  reload_success=0
+  if [ -f \"\$PM2_CONFIG\" ]; then
+    if sudo -H -u deploy bash -lc \"\$DEPLOY_ENV cd '/home/deploy/${empresa}'; pm2 startOrReload '\$PM2_CONFIG' --update-env\"; then
+      printf \"[INFO] PM2 startOrReload aplicado com ecosystem.config.js.\\n\"
+      reload_success=1
+    else
+      printf \"[WARN] startOrReload falhou; aplicando fallback com restart manual.\\n\"
+    fi
+  else
+    printf \"[WARN] ecosystem.config.js não encontrado; utilizando fallback de start manual.\\n\"
+  fi
+
+  CMD_BACKEND=\"${DEPLOY_ENV} cd \\\"${BACKEND_DIR}\\\"; pm2 delete ${empresa}-backend 2>/dev/null || true; pm2 start dist/server.js --name ${empresa}-backend -i 2 --update-env\"
+  CMD_FRONTEND=\"${DEPLOY_ENV} cd \\\"${FRONTEND_DIR}\\\"; pm2 delete ${empresa}-frontend 2>/dev/null || true; pm2 start server.js --name ${empresa}-frontend --update-env\"
+
+  if [ \"\$reload_success\" = 0 ]; then
+    if lsof -ti:${backend_port} >/dev/null 2>&1; then
+      printf \"[WARN] Liberando porta ${backend_port} (processos residuais).\\n\"
+      lsof -ti:${backend_port} | xargs -r kill -9 2>/dev/null || true
+    fi
+    if lsof -ti:${frontend_port} >/dev/null 2>&1; then
+      printf \"[WARN] Liberando porta ${frontend_port} (processos residuais).\\n\"
+      lsof -ti:${frontend_port} | xargs -r kill -9 2>/dev/null || true
+    fi
+    sudo -H -u deploy bash -lc \"\$CMD_BACKEND\"
+    sudo -H -u deploy bash -lc \"\$CMD_FRONTEND\"
+    reload_success=1
+  fi
+
+  POST_DUMP_HASH=\$(sudo -H -u deploy bash -lc \"if [ -f \\\"\\\$HOME/.pm2/dump.pm2\\\" ]; then sha256sum \\\"\\\$HOME/.pm2/dump.pm2\\\" | cut -d\" \" -f1; fi\" 2>/dev/null || true)
+
+  if [ \"\$reload_success\" = 1 ]; then
+    if [ \"\$PRE_DUMP_HASH\" != \"\$POST_DUMP_HASH\" ]; then
+      sudo -H -u deploy bash -lc \"\$DEPLOY_ENV pm2 save\"
+      printf \"[INFO] Dump do PM2 atualizado e salvo.\\n\"
+    else
+      printf \"[INFO] Configuração PM2 inalterada; pm2 save não necessário.\\n\"
+    fi
+  else
+    printf \"[WARN] Não foi possível ajustar o PM2; verifique manualmente.\\n\"
+  fi
 '"
 
 #------------------- ETAPA 21: Nginx/SSL ---------------------------------------
-run_quiet "$(t configuring) Nginx..." "bash -lc 'rm -f /etc/nginx/sites-enabled/default; echo \"client_max_body_size 100M;\" > /etc/nginx/conf.d/${empresa}.conf; cat > /etc/nginx/sites-available/${empresa}-backend <<'\''NGINX_BACKEND'\''
+run_quiet "$(t configuring) Nginx..." "bash -lc '
+  set -Eeuo pipefail
+  CLIENT_CONF=\"/etc/nginx/conf.d/${empresa}.conf\"
+  BACKEND_CONF=\"/etc/nginx/sites-available/${empresa}-backend\"
+  FRONTEND_CONF=\"/etc/nginx/sites-available/${empresa}-frontend\"
+  ENABLED_DIR=\"/etc/nginx/sites-enabled\"
+  LINK_BACKEND=\"\$ENABLED_DIR/${empresa}-backend\"
+  LINK_FRONTEND=\"\$ENABLED_DIR/${empresa}-frontend\"
+
+  TMP_GLOBAL=\$(mktemp)
+  TMP_BACKEND=\$(mktemp)
+  TMP_FRONTEND=\$(mktemp)
+  cleanup() { rm -f \"\$TMP_GLOBAL\" \"\$TMP_BACKEND\" \"\$TMP_FRONTEND\"; }
+  trap cleanup EXIT
+
+  printf \"client_max_body_size 100M;\\n\" > \"\$TMP_GLOBAL\"
+
+  reload_needed=0
+
+  if ! cmp -s \"\$TMP_GLOBAL\" \"\$CLIENT_CONF\" 2>/dev/null; then
+    install -m 0644 \"\$TMP_GLOBAL\" \"\$CLIENT_CONF\"
+    reload_needed=1
+    printf \"[INFO] Atualizada diretiva client_max_body_size em conf.d.\\n\"
+  else
+    printf \"[INFO] Diretiva client_max_body_size já configurada; mantendo arquivo atual.\\n\"
+  fi
+
+  cat <<'NGINX_BACKEND' > \"\$TMP_BACKEND\"
 server {
     listen 80;
     server_name BACKEND_HOST_PLACEHOLDER;
@@ -1009,8 +1459,9 @@ server {
     }
 }
 NGINX_BACKEND
-sed -i \"s/BACKEND_HOST_PLACEHOLDER/${backend_host}/g; s/BACKEND_PORT_PLACEHOLDER/${backend_port}/g\" /etc/nginx/sites-available/${empresa}-backend
-cat > /etc/nginx/sites-available/${empresa}-frontend <<'\''NGINX_FRONTEND'\''
+  sed -i \"s/BACKEND_HOST_PLACEHOLDER/${backend_host}/g; s/BACKEND_PORT_PLACEHOLDER/${backend_port}/g\" \"\$TMP_BACKEND\"
+
+  cat <<'NGINX_FRONTEND' > \"\$TMP_FRONTEND\"
 server {
     listen 80;
     server_name FRONTEND_HOST_PLACEHOLDER;
@@ -1027,23 +1478,110 @@ server {
     }
 }
 NGINX_FRONTEND
-sed -i \"s/FRONTEND_HOST_PLACEHOLDER/${frontend_host}/g; s/FRONTEND_PORT_PLACEHOLDER/${frontend_port}/g\" /etc/nginx/sites-available/${empresa}-frontend
-ln -sf /etc/nginx/sites-available/${empresa}-backend /etc/nginx/sites-enabled/
-ln -sf /etc/nginx/sites-available/${empresa}-frontend /etc/nginx/sites-enabled/
-nginx -t'"
+  sed -i \"s/FRONTEND_HOST_PLACEHOLDER/${frontend_host}/g; s/FRONTEND_PORT_PLACEHOLDER/${frontend_port}/g\" \"\$TMP_FRONTEND\"
+
+  if ! cmp -s \"\$TMP_BACKEND\" \"\$BACKEND_CONF\" 2>/dev/null; then
+    install -m 0644 \"\$TMP_BACKEND\" \"\$BACKEND_CONF\"
+    reload_needed=1
+    printf \"[INFO] Configuração do backend atualizada em sites-available.\\n\"
+  else
+    printf \"[INFO] Configuração do backend já estava alinhada; sem alterações.\\n\"
+  fi
+
+  if ! cmp -s \"\$TMP_FRONTEND\" \"\$FRONTEND_CONF\" 2>/dev/null; then
+    install -m 0644 \"\$TMP_FRONTEND\" \"\$FRONTEND_CONF\"
+    reload_needed=1
+    printf \"[INFO] Configuração do frontend atualizada em sites-available.\\n\"
+  else
+    printf \"[INFO] Configuração do frontend já estava alinhada; sem alterações.\\n\"
+  fi
+
+  if [ -e \"\$ENABLED_DIR/default\" ]; then
+    rm -f \"\$ENABLED_DIR/default\"
+    reload_needed=1
+    printf \"[INFO] Removido site default do Nginx.\\n\"
+  fi
+
+  ensure_link() {
+    local target=\"\$1\" link=\"\$2\" desc=\"\$3\"
+    if [ \"\$(readlink -f \"\$link\" 2>/dev/null)\" != \"\$target\" ]; then
+      ln -sf \"\$target\" \"\$link\"
+      reload_needed=1
+      printf \"[INFO] Symlink do %s apontado para %s.\\n\" \"\$desc\" \"\$target\"
+    else
+      printf \"[INFO] Symlink do %s já apontava para %s; mantendo.\\n\" \"\$desc\" \"\$target\"
+    fi
+  }
+
+  ensure_link \"\$BACKEND_CONF\" \"\$LINK_BACKEND\" \"backend\"
+  ensure_link \"\$FRONTEND_CONF\" \"\$LINK_FRONTEND\" \"frontend\"
+
+  nginx -t >/dev/null
+  printf \"[INFO] nginx -t executado com sucesso.\\n\"
+
+  if [ \"\$reload_needed\" = 1 ]; then
+    if nginx -s reload >/dev/null 2>&1; then
+      printf \"[INFO] Nginx recarregado com novas configurações.\\n\"
+    else
+      printf \"[WARN] nginx -s reload falhou; tentando systemctl restart.\\n\"
+      systemctl restart nginx
+    fi
+  else
+    printf \"[INFO] Nenhuma alteração detectada; reload do Nginx não necessário.\\n\"
+  fi
+'"
 log_success "$(t nginx_valid)"
-run_quiet "$(t nginx_restarted)" "systemctl restart nginx || true"
-run_quiet_may_fail "Certbot (SSL)..." "bash -lc 'certbot --nginx -d ${backend_host} -d ${frontend_host} --non-interactive --agree-tos --email ${email_deploy}'"
+run_quiet_may_fail "Certbot (SSL)..." "bash -lc '
+  set -Eeuo pipefail
+  CERT_PATH=\"/etc/letsencrypt/live/${backend_host}/fullchain.pem\"
+  RENEW_THRESHOLD=$((30*24*3600))
+
+  if [ -f \"\$CERT_PATH\" ] && openssl x509 -checkend \"\$RENEW_THRESHOLD\" -noout -in \"\$CERT_PATH\" >/dev/null 2>&1; then
+    printf \"[INFO] Certificado vigente por mais de 30 dias; pulando execução do certbot.\\n\"
+    exit 0
+  fi
+
+  certbot --nginx -d ${backend_host} -d ${frontend_host} --non-interactive --agree-tos --email ${email_deploy}
+'"
 save_checkpoint "ETAPA_21_NGINX_SSL_CONFIGURADO"
 
 #------------------- ETAPA 22: Crons -------------------------------------------
-run_quiet "$(t configuring) crons..." "bash -lc 'cat > /home/deploy/reinicia_instancia.sh << CRON_SCRIPT
+run_quiet "$(t configuring) crons..." "bash -lc '
+  set -Eeuo pipefail
+  SCRIPT_PATH=\"/home/deploy/reinicia_instancia.sh\"
+  TMP_SCRIPT=\$(mktemp)
+  TMP_CRON=\$(mktemp)
+  cleanup() { rm -f \"\$TMP_SCRIPT\" \"\$TMP_CRON\"; }
+  trap cleanup EXIT
+
+  cat <<'CRON_SCRIPT' > \"\$TMP_SCRIPT\"
 #!/bin/bash
 pm2 restart all
 CRON_SCRIPT
-chmod +x /home/deploy/reinicia_instancia.sh
-chown deploy:deploy /home/deploy/reinicia_instancia.sh
-/usr/bin/sudo -u deploy bash -lc '\''CRON_JOB=\"0 1 * * * /bin/bash /home/deploy/reinicia_instancia.sh >> /home/deploy/cron.log 2>&1\"; (crontab -l 2>/dev/null | grep -F \"\$CRON_JOB\") || (crontab -l 2>/dev/null; echo \"\$CRON_JOB\") | crontab -'\'' '"
+
+  if [ -f \"\$SCRIPT_PATH\" ] && cmp -s \"\$TMP_SCRIPT\" \"\$SCRIPT_PATH\"; then
+    printf \"[INFO] Script de reinício já atualizado; nenhuma alteração aplicada.\\n\"
+  else
+    install -m 0755 -o deploy -g deploy \"\$TMP_SCRIPT\" \"\$SCRIPT_PATH\"
+    printf \"[INFO] Script de reinício atualizado em %s.\\n\" \"\$SCRIPT_PATH\"
+  fi
+
+  CRON_JOB=\"0 1 * * * /bin/bash /home/deploy/reinicia_instancia.sh >> /home/deploy/cron.log 2>&1\"
+  CURRENT_CRON=\$(sudo -H -u deploy bash -lc \"crontab -l 2>/dev/null\" || true)
+
+  if printf \"%s\\n\" \"\$CURRENT_CRON\" | grep -Fx \"\$CRON_JOB\" >/dev/null; then
+    printf \"[INFO] Entrada de cron já existente; mantendo agenda atual.\\n\"
+  else
+    if [ -n \"\$CURRENT_CRON\" ]; then
+      printf \"%s\\n\" \"\$CURRENT_CRON\" > \"\$TMP_CRON\"
+    else
+      : > \"\$TMP_CRON\"
+    fi
+    printf \"%s\\n\" \"\$CRON_JOB\" >> \"\$TMP_CRON\"
+    sudo -H -u deploy crontab \"\$TMP_CRON\"
+    printf \"[INFO] Entrada de cron registrada para o usuário deploy.\\n\"
+  fi
+'"
 save_checkpoint "ETAPA_22_INSTALACAO_COMPLETA"
 
 #============================= RESUMO FINAL ====================================

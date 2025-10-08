@@ -1,0 +1,22 @@
+2025-10-08 14:22:39.767 [info] [main] Log level: Info
+2025-10-08 14:22:39.767 [info] [main] Validating found git in: "git"
+2025-10-08 14:22:39.767 [info] [main] Using git "2.34.1" from "git"
+2025-10-08 14:22:39.767 [info] [Model][doInitialScan] Initial repository scan started
+2025-10-08 14:22:39.767 [info] [Model][doInitialScan] Initial repository scan completed - repositories (0), closed repositories (0), parent repositories (0), unsafe repositories (0)
+2025-10-08 14:22:39.858 [info] > git config --get remote.origin.url [7ms]
+2025-10-08 14:22:40.386 [info] > git symbolic-ref --short refs/remotes/origin/HEAD [9ms]
+2025-10-08 14:22:40.386 [info] fatal: ref refs/remotes/origin/HEAD is not a symbolic ref
+2025-10-08 14:22:40.396 [info] > git rev-parse --abbrev-ref HEAD [11ms]
+2025-10-08 14:22:40.398 [info] > git rev-parse --verify origin/master [3ms]
+2025-10-08 14:22:40.398 [info] fatal: Needed a single revision
+2025-10-08 14:22:40.410 [info] > git rev-parse --verify origin/main [2ms]
+2025-10-08 14:22:40.410 [info] fatal: Needed a single revision
+2025-10-08 14:22:40.422 [info] > git rev-parse --verify origin/master [2ms]
+2025-10-08 14:22:40.422 [info] fatal: Needed a single revision
+2025-10-08 14:22:40.433 [info] > git rev-parse --verify origin/develop [1ms]
+2025-10-08 14:22:40.433 [info] fatal: Needed a single revision
+2025-10-08 14:22:40.444 [info] > git branch -r [3ms]
+2025-10-08 14:22:40.454 [info] > git config --get init.defaultBranch [0ms]
+2025-10-08 14:22:49.229 [info] > git config --global user.name [2ms]
+2025-10-08 14:22:49.234 [info] > git config --global user.email [1ms]
+2025-10-08 14:22:49.234 [info] [main] Stored git author name in global state:  <>

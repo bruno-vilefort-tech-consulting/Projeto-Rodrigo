@@ -1,0 +1,176 @@
+[
+  {
+    "debug": "Starting connection with timeout of 30000ms",
+    "timestamp": "2025-10-07T00:38:37.556Z",
+    "sessionId": "09bbb0e0-ebaf-4d1a-b7f4-9dabe1ee4feb",
+    "cwd": "/root"
+  },
+  {
+    "debug": "Successfully connected to ws-ide server in 71ms",
+    "timestamp": "2025-10-07T00:38:37.609Z",
+    "sessionId": "09bbb0e0-ebaf-4d1a-b7f4-9dabe1ee4feb",
+    "cwd": "/root"
+  },
+  {
+    "debug": "Connection established with capabilities: {\"hasTools\":true,\"hasPrompts\":false,\"hasResources\":false,\"serverVersion\":{\"name\":\"Claude Code Cursor MCP\",\"version\":\"2.0.1\"}}",
+    "timestamp": "2025-10-07T00:38:37.609Z",
+    "sessionId": "09bbb0e0-ebaf-4d1a-b7f4-9dabe1ee4feb",
+    "cwd": "/root"
+  },
+  {
+    "debug": "Calling MCP tool: closeAllDiffTabs",
+    "timestamp": "2025-10-07T00:38:43.457Z",
+    "sessionId": "09bbb0e0-ebaf-4d1a-b7f4-9dabe1ee4feb",
+    "cwd": "/root"
+  },
+  {
+    "debug": "Tool 'closeAllDiffTabs' completed successfully in 33ms",
+    "timestamp": "2025-10-07T00:38:43.490Z",
+    "sessionId": "09bbb0e0-ebaf-4d1a-b7f4-9dabe1ee4feb",
+    "cwd": "/root"
+  },
+  {
+    "debug": "Calling MCP tool: getDiagnostics",
+    "timestamp": "2025-10-07T00:38:50.714Z",
+    "sessionId": "09bbb0e0-ebaf-4d1a-b7f4-9dabe1ee4feb",
+    "cwd": "/root"
+  },
+  {
+    "debug": "Tool 'getDiagnostics' completed successfully in 18ms",
+    "timestamp": "2025-10-07T00:38:50.732Z",
+    "sessionId": "09bbb0e0-ebaf-4d1a-b7f4-9dabe1ee4feb",
+    "cwd": "/root"
+  },
+  {
+    "debug": "Calling MCP tool: getDiagnostics",
+    "timestamp": "2025-10-07T00:38:57.945Z",
+    "sessionId": "09bbb0e0-ebaf-4d1a-b7f4-9dabe1ee4feb",
+    "cwd": "/root"
+  },
+  {
+    "debug": "Tool 'getDiagnostics' completed successfully in 16ms",
+    "timestamp": "2025-10-07T00:38:57.961Z",
+    "sessionId": "09bbb0e0-ebaf-4d1a-b7f4-9dabe1ee4feb",
+    "cwd": "/root"
+  },
+  {
+    "debug": "Calling MCP tool: getDiagnostics",
+    "timestamp": "2025-10-07T00:39:02.099Z",
+    "sessionId": "09bbb0e0-ebaf-4d1a-b7f4-9dabe1ee4feb",
+    "cwd": "/root"
+  },
+  {
+    "debug": "Tool 'getDiagnostics' completed successfully in 22ms",
+    "timestamp": "2025-10-07T00:39:02.121Z",
+    "sessionId": "09bbb0e0-ebaf-4d1a-b7f4-9dabe1ee4feb",
+    "cwd": "/root"
+  },
+  {
+    "debug": "Calling MCP tool: getDiagnostics",
+    "timestamp": "2025-10-07T00:39:06.331Z",
+    "sessionId": "09bbb0e0-ebaf-4d1a-b7f4-9dabe1ee4feb",
+    "cwd": "/root"
+  },
+  {
+    "debug": "Tool 'getDiagnostics' completed successfully in 20ms",
+    "timestamp": "2025-10-07T00:39:06.351Z",
+    "sessionId": "09bbb0e0-ebaf-4d1a-b7f4-9dabe1ee4feb",
+    "cwd": "/root"
+  },
+  {
+    "debug": "Calling MCP tool: getDiagnostics",
+    "timestamp": "2025-10-07T00:39:10.542Z",
+    "sessionId": "09bbb0e0-ebaf-4d1a-b7f4-9dabe1ee4feb",
+    "cwd": "/root"
+  },
+  {
+    "debug": "Tool 'getDiagnostics' completed successfully in 17ms",
+    "timestamp": "2025-10-07T00:39:10.559Z",
+    "sessionId": "09bbb0e0-ebaf-4d1a-b7f4-9dabe1ee4feb",
+    "cwd": "/root"
+  },
+  {
+    "debug": "Calling MCP tool: getDiagnostics",
+    "timestamp": "2025-10-07T00:39:15.366Z",
+    "sessionId": "09bbb0e0-ebaf-4d1a-b7f4-9dabe1ee4feb",
+    "cwd": "/root"
+  },
+  {
+    "debug": "Tool 'getDiagnostics' completed successfully in 22ms",
+    "timestamp": "2025-10-07T00:39:15.388Z",
+    "sessionId": "09bbb0e0-ebaf-4d1a-b7f4-9dabe1ee4feb",
+    "cwd": "/root"
+  },
+  {
+    "debug": "Calling MCP tool: openDiff",
+    "timestamp": "2025-10-07T00:39:23.531Z",
+    "sessionId": "09bbb0e0-ebaf-4d1a-b7f4-9dabe1ee4feb",
+    "cwd": "/root"
+  },
+  {
+    "debug": "Calling MCP tool: close_tab",
+    "timestamp": "2025-10-07T00:39:25.575Z",
+    "sessionId": "09bbb0e0-ebaf-4d1a-b7f4-9dabe1ee4feb",
+    "cwd": "/root"
+  },
+  {
+    "debug": "Calling MCP tool: getDiagnostics",
+    "timestamp": "2025-10-07T00:39:25.612Z",
+    "sessionId": "09bbb0e0-ebaf-4d1a-b7f4-9dabe1ee4feb",
+    "cwd": "/root"
+  },
+  {
+    "debug": "Tool 'getDiagnostics' completed successfully in 14ms",
+    "timestamp": "2025-10-07T00:39:25.626Z",
+    "sessionId": "09bbb0e0-ebaf-4d1a-b7f4-9dabe1ee4feb",
+    "cwd": "/root"
+  },
+  {
+    "debug": "Calling MCP tool: getDiagnostics",
+    "timestamp": "2025-10-07T00:39:25.692Z",
+    "sessionId": "09bbb0e0-ebaf-4d1a-b7f4-9dabe1ee4feb",
+    "cwd": "/root"
+  },
+  {
+    "debug": "Tool 'close_tab' completed successfully in 138ms",
+    "timestamp": "2025-10-07T00:39:25.713Z",
+    "sessionId": "09bbb0e0-ebaf-4d1a-b7f4-9dabe1ee4feb",
+    "cwd": "/root"
+  },
+  {
+    "debug": "Tool 'getDiagnostics' completed successfully in 21ms",
+    "timestamp": "2025-10-07T00:39:25.713Z",
+    "sessionId": "09bbb0e0-ebaf-4d1a-b7f4-9dabe1ee4feb",
+    "cwd": "/root"
+  },
+  {
+    "debug": "Tool 'openDiff' completed successfully in 2s",
+    "timestamp": "2025-10-07T00:39:25.753Z",
+    "sessionId": "09bbb0e0-ebaf-4d1a-b7f4-9dabe1ee4feb",
+    "cwd": "/root"
+  },
+  {
+    "debug": "Calling MCP tool: close_tab",
+    "timestamp": "2025-10-07T00:39:25.754Z",
+    "sessionId": "09bbb0e0-ebaf-4d1a-b7f4-9dabe1ee4feb",
+    "cwd": "/root"
+  },
+  {
+    "debug": "Tool 'close_tab' completed successfully in 1ms",
+    "timestamp": "2025-10-07T00:39:25.755Z",
+    "sessionId": "09bbb0e0-ebaf-4d1a-b7f4-9dabe1ee4feb",
+    "cwd": "/root"
+  },
+  {
+    "debug": "Calling MCP tool: getDiagnostics",
+    "timestamp": "2025-10-07T00:39:32.310Z",
+    "sessionId": "09bbb0e0-ebaf-4d1a-b7f4-9dabe1ee4feb",
+    "cwd": "/root"
+  },
+  {
+    "debug": "Tool 'getDiagnostics' completed successfully in 26ms",
+    "timestamp": "2025-10-07T00:39:32.336Z",
+    "sessionId": "09bbb0e0-ebaf-4d1a-b7f4-9dabe1ee4feb",
+    "cwd": "/root"
+  }
+]

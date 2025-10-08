@@ -284,3 +284,95 @@
 2025-10-06 21:28:07.530 [warning] [Decorations] CAPPING events from decorations provider vscode.git 5721
 2025-10-06 21:28:12.770 [warning] [Decorations] CAPPING events from decorations provider vscode.git 5721
 2025-10-06 21:28:15.540 [warning] [Decorations] CAPPING events from decorations provider vscode.git 5721
+2025-10-07 04:32:46.002 [info] Extension host terminating: renderer disconnected for too long (1)
+2025-10-07 04:32:46.005 [info] Lock '/root/.cursor-server/data/User/workspaceStorage/ad364dd25bffd1cba4ae0390584b5dda/vscode.lock': Marking the lockfile as scheduled to be released in 6000 ms.
+2025-10-07 04:32:46.125 [error] Canceled: Canceled
+	at new LMe (file:///root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/out/vs/workbench/api/node/extensionHostProcess.js:44:164021)
+	at ewe._remoteCall (file:///root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/out/vs/workbench/api/node/extensionHostProcess.js:44:170352)
+	at r.<computed>.a.charCodeAt.r.<computed> (file:///root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/out/vs/workbench/api/node/extensionHostProcess.js:44:167106)
+	at Rfe._doExecuteCommand (file:///root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/out/vs/workbench/api/node/extensionHostProcess.js:134:48918)
+	at Rfe.executeCommand (file:///root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/out/vs/workbench/api/node/extensionHostProcess.js:134:48357)
+	at t.registerCommand.description (file:///root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/out/vs/workbench/api/node/extensionHostProcess.js:134:47621)
+	at Rfe._executeContributedCommand (file:///root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/out/vs/workbench/api/node/extensionHostProcess.js:134:49488)
+	at Rfe._doExecuteCommand (file:///root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/out/vs/workbench/api/node/extensionHostProcess.js:134:48490)
+	at Rfe.executeCommand (file:///root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/out/vs/workbench/api/node/extensionHostProcess.js:134:48357)
+	at Object.executeCommand (file:///root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/out/vs/workbench/api/node/extensionHostProcess.js:196:139897)
+	at Use.H [as value] (/root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/extensions/git/dist/main.js:2:107370)
+	at J._deliver (file:///root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/out/vs/workbench/api/node/extensionHostProcess.js:27:2961)
+	at J._deliverQueue (file:///root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/out/vs/workbench/api/node/extensionHostProcess.js:27:3052)
+	at J.fire (file:///root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/out/vs/workbench/api/node/extensionHostProcess.js:27:3389)
+	at Object.f [as dispose] (/root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/extensions/git/dist/main.js:2:173231)
+	at /root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/extensions/git/dist/main.js:2:179517
+	at Array.forEach (<anonymous>)
+	at C.dispose (/root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/extensions/git/dist/main.js:2:179504)
+	at Nde.<anonymous> (file:///root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/out/vs/workbench/api/node/extensionHostProcess.js:129:10090)
+	at Nde.dispose (file:///root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/out/vs/workbench/api/node/extensionHostProcess.js:129:10186)
+	at Nde.<anonymous> (/root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/extensions/git/dist/main.js:2:109847)
+	at Nde.dispose (file:///root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/out/vs/workbench/api/node/extensionHostProcess.js:129:10186)
+	at ui (file:///root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/out/vs/workbench/api/node/extensionHostProcess.js:25:706)
+	at file:///root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/out/vs/workbench/api/node/extensionHostProcess.js:138:18912
+	at file:///root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/out/vs/workbench/api/node/extensionHostProcess.js:25:1019
+	at Object.dispose (file:///root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/out/vs/workbench/api/node/extensionHostProcess.js:8:713)
+	at yqt._deactivate (file:///root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/out/vs/workbench/api/node/extensionHostProcess.js:138:15086)
+	at file:///root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/out/vs/workbench/api/node/extensionHostProcess.js:138:12369
+	at Array.map (<anonymous>)
+	at yqt._deactivateAll (file:///root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/out/vs/workbench/api/node/extensionHostProcess.js:138:12357)
+	at yqt.terminate (file:///root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/out/vs/workbench/api/node/extensionHostProcess.js:138:12711)
+	at hqe.terminate (file:///root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/out/vs/workbench/api/node/extensionHostProcess.js:139:1617)
+	at cr (file:///root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/out/vs/workbench/api/node/extensionHostProcess.js:671:15436)
+	at aSe.runner (file:///root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/out/vs/workbench/api/node/extensionHostProcess.js:671:12172)
+	at aSe.onInterval (file:///root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/out/vs/workbench/api/node/extensionHostProcess.js:28:85230)
+	at listOnTimeout (node:internal/timers:581:17)
+	at process.processTimers (node:internal/timers:519:7) setContext undefined
+2025-10-07 04:32:46.128 [error] Canceled: Canceled
+	at new LMe (file:///root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/out/vs/workbench/api/node/extensionHostProcess.js:44:164021)
+	at ewe._remoteCall (file:///root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/out/vs/workbench/api/node/extensionHostProcess.js:44:170352)
+	at r.<computed>.a.charCodeAt.r.<computed> (file:///root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/out/vs/workbench/api/node/extensionHostProcess.js:44:167106)
+	at Rfe._doExecuteCommand (file:///root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/out/vs/workbench/api/node/extensionHostProcess.js:134:48918)
+	at Rfe.executeCommand (file:///root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/out/vs/workbench/api/node/extensionHostProcess.js:134:48357)
+	at t.registerCommand.description (file:///root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/out/vs/workbench/api/node/extensionHostProcess.js:134:47621)
+	at Rfe._executeContributedCommand (file:///root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/out/vs/workbench/api/node/extensionHostProcess.js:134:49488)
+	at Rfe._doExecuteCommand (file:///root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/out/vs/workbench/api/node/extensionHostProcess.js:134:48490)
+	at Rfe.executeCommand (file:///root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/out/vs/workbench/api/node/extensionHostProcess.js:134:48357)
+	at Object.executeCommand (file:///root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/out/vs/workbench/api/node/extensionHostProcess.js:196:139897)
+	at set hasGitHubRepositories [as hasGitHubRepositories] (/root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/extensions/github/dist/extension.js:2:270497)
+	at /root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/extensions/github/dist/extension.js:2:271447
+	at Use.value (/root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/extensions/git/dist/main.js:2:567666)
+	at J._deliver (file:///root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/out/vs/workbench/api/node/extensionHostProcess.js:27:2961)
+	at J._deliverQueue (file:///root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/out/vs/workbench/api/node/extensionHostProcess.js:27:3052)
+	at J.fire (file:///root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/out/vs/workbench/api/node/extensionHostProcess.js:27:3389)
+	at Object.f [as dispose] (/root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/extensions/git/dist/main.js:2:173231)
+	at /root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/extensions/git/dist/main.js:2:179517
+	at Array.forEach (<anonymous>)
+	at C.dispose (/root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/extensions/git/dist/main.js:2:179504)
+	at Nde.<anonymous> (file:///root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/out/vs/workbench/api/node/extensionHostProcess.js:129:10090)
+	at Nde.dispose (file:///root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/out/vs/workbench/api/node/extensionHostProcess.js:129:10186)
+	at Nde.<anonymous> (/root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/extensions/git/dist/main.js:2:109847)
+	at Nde.dispose (file:///root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/out/vs/workbench/api/node/extensionHostProcess.js:129:10186)
+	at ui (file:///root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/out/vs/workbench/api/node/extensionHostProcess.js:25:706)
+	at file:///root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/out/vs/workbench/api/node/extensionHostProcess.js:138:18912
+	at file:///root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/out/vs/workbench/api/node/extensionHostProcess.js:25:1019
+	at Object.dispose (file:///root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/out/vs/workbench/api/node/extensionHostProcess.js:8:713)
+	at yqt._deactivate (file:///root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/out/vs/workbench/api/node/extensionHostProcess.js:138:15086)
+	at file:///root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/out/vs/workbench/api/node/extensionHostProcess.js:138:12369
+	at Array.map (<anonymous>)
+	at yqt._deactivateAll (file:///root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/out/vs/workbench/api/node/extensionHostProcess.js:138:12357)
+	at yqt.terminate (file:///root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/out/vs/workbench/api/node/extensionHostProcess.js:138:12711)
+	at hqe.terminate (file:///root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/out/vs/workbench/api/node/extensionHostProcess.js:139:1617)
+	at cr (file:///root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/out/vs/workbench/api/node/extensionHostProcess.js:671:15436)
+	at aSe.runner (file:///root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/out/vs/workbench/api/node/extensionHostProcess.js:671:12172)
+	at aSe.onInterval (file:///root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/out/vs/workbench/api/node/extensionHostProcess.js:28:85230)
+	at listOnTimeout (node:internal/timers:581:17)
+	at process.processTimers (node:internal/timers:519:7) setContext undefined
+2025-10-07 04:32:46.129 [error] ExtensionError: Error in extension anthropic.claude-code: FAILED to handle event
+	at Use.value (file:///root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/out/vs/workbench/api/node/extensionHostProcess.js:196:133558)
+	at J._deliver (file:///root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/out/vs/workbench/api/node/extensionHostProcess.js:27:2961)
+	at J.fire (file:///root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/out/vs/workbench/api/node/extensionHostProcess.js:27:3282)
+	at Use.value (file:///root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/out/vs/workbench/api/node/extensionHostProcess.js:25:6038)
+	at hOe._deliver (file:///root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/out/vs/workbench/api/node/extensionHostProcess.js:27:2961)
+	at hOe.fire (file:///root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/out/vs/workbench/api/node/extensionHostProcess.js:27:3282)
+	at hOe.resume (file:///root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/out/vs/workbench/api/node/extensionHostProcess.js:27:4563)
+	at Timeout._onTimeout (file:///root/.cursor-server/cli/servers/Stable-a84f941711ad680a635c8a3456002833186c4840/server/out/vs/workbench/api/node/extensionHostProcess.js:27:4920)
+	at listOnTimeout (node:internal/timers:581:17)
+	at process.processTimers (node:internal/timers:519:7)
+2025-10-07 04:32:46.133 [info] Extension host with pid 2804 exiting with code 0

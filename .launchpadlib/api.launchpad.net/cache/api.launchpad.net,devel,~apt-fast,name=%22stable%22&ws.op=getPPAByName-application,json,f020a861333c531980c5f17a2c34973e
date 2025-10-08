@@ -1,5 +1,5 @@
 status: 200
-date: Mon, 06 Oct 2025 22:49:10 GMT
+date: Wed, 08 Oct 2025 20:26:26 GMT
 server: gunicorn
 x-powered-by: Zope (www.zope.org), Python (www.python.org)
 content-security-policy: frame-ancestors 'self';
@@ -8,11 +8,11 @@ strict-transport-security: max-age=15552000
 vary: Accept,Accept-Encoding
 x-content-type-options: nosniff
 x-frame-options: SAMEORIGIN
-x-launchpad-revision: 8f35df7956d277b113de8d286a4ca280c7b8ebdf
+x-launchpad-revision: bff9b0558f8357613643d9a74c009da18fafa917
 x-lazr-notifications: []
 x-xss-protection: 1; mode=block
-x-vcs-revision: 8f35df7956d277b113de8d286a4ca280c7b8ebdf
-x-request-id: 6e28498e-e897-4e43-8200-6ce4464303ac
+x-vcs-revision: bff9b0558f8357613643d9a74c009da18fafa917
+x-request-id: 493fd379-1f7e-496d-bff2-734bc487736f
 content-length: 1503
 -content-encoding: gzip
 content-location: https://api.launchpad.net/devel/~apt-fast?name=%22stable%22&ws.op=getPPAByName

@@ -342,6 +342,9 @@ importers:
       react-app-rewired:
         specifier: ^2.2.1
         version: 2.2.1(react-scripts@5.0.1(@babel/plugin-syntax-flow@7.27.1(@babel/core@7.28.4))(@babel/plugin-transform-react-jsx@7.27.1(@babel/core@7.28.4))(@types/babel__core@7.20.5)(eslint@8.57.1)(react@17.0.2)(ts-node@10.9.2(@types/node@24.7.0)(typescript@5.9.3))(type-fest@4.41.0)(typescript@5.9.3))
+      react-dev-utils:
+        specifier: ^12.0.1
+        version: 12.0.1(eslint@8.57.1)(typescript@5.9.3)(webpack@5.102.1)
       typescript:
         specifier: ^5.5.3
         version: 5.9.3

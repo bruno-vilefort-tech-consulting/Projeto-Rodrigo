@@ -1,0 +1,20 @@
+[
+  {
+    "debug": "Starting connection with timeout of 30000ms",
+    "timestamp": "2025-10-07T20:09:04.439Z",
+    "sessionId": "209c8015-5405-4447-9010-7e08e7dfcf4a",
+    "cwd": "/root"
+  },
+  {
+    "debug": "Successfully connected to ws-ide server in 91ms",
+    "timestamp": "2025-10-07T20:09:04.512Z",
+    "sessionId": "209c8015-5405-4447-9010-7e08e7dfcf4a",
+    "cwd": "/root"
+  },
+  {
+    "debug": "Connection established with capabilities: {\"hasTools\":true,\"hasPrompts\":false,\"hasResources\":false,\"serverVersion\":{\"name\":\"Claude Code Cursor MCP\",\"version\":\"2.0.1\"}}",
+    "timestamp": "2025-10-07T20:09:04.513Z",
+    "sessionId": "209c8015-5405-4447-9010-7e08e7dfcf4a",
+    "cwd": "/root"
+  }
+]
