@@ -2488,5 +2488,521 @@
     "timestamp": "2025-10-08T22:04:36.543Z",
     "sessionId": "17568d22-943e-4068-be7e-be5f4920c2b1",
     "cwd": "/root"
+  },
+  {
+    "debug": "Calling MCP tool: getDiagnostics",
+    "timestamp": "2025-10-08T22:12:11.231Z",
+    "sessionId": "17568d22-943e-4068-be7e-be5f4920c2b1",
+    "cwd": "/root"
+  },
+  {
+    "debug": "Tool 'getDiagnostics' completed successfully in 42ms",
+    "timestamp": "2025-10-08T22:12:11.273Z",
+    "sessionId": "17568d22-943e-4068-be7e-be5f4920c2b1",
+    "cwd": "/root"
+  },
+  {
+    "debug": "Calling MCP tool: closeAllDiffTabs",
+    "timestamp": "2025-10-08T22:12:11.884Z",
+    "sessionId": "17568d22-943e-4068-be7e-be5f4920c2b1",
+    "cwd": "/root"
+  },
+  {
+    "debug": "Tool 'closeAllDiffTabs' completed successfully in 29ms",
+    "timestamp": "2025-10-08T22:12:11.914Z",
+    "sessionId": "17568d22-943e-4068-be7e-be5f4920c2b1",
+    "cwd": "/root"
+  },
+  {
+    "debug": "Calling MCP tool: getDiagnostics",
+    "timestamp": "2025-10-08T22:12:24.958Z",
+    "sessionId": "17568d22-943e-4068-be7e-be5f4920c2b1",
+    "cwd": "/root"
+  },
+  {
+    "debug": "Tool 'getDiagnostics' completed successfully in 41ms",
+    "timestamp": "2025-10-08T22:12:24.999Z",
+    "sessionId": "17568d22-943e-4068-be7e-be5f4920c2b1",
+    "cwd": "/root"
+  },
+  {
+    "debug": "Calling MCP tool: closeAllDiffTabs",
+    "timestamp": "2025-10-08T22:12:25.665Z",
+    "sessionId": "17568d22-943e-4068-be7e-be5f4920c2b1",
+    "cwd": "/root"
+  },
+  {
+    "debug": "Tool 'closeAllDiffTabs' completed successfully in 28ms",
+    "timestamp": "2025-10-08T22:12:25.694Z",
+    "sessionId": "17568d22-943e-4068-be7e-be5f4920c2b1",
+    "cwd": "/root"
+  },
+  {
+    "debug": "Calling MCP tool: getDiagnostics",
+    "timestamp": "2025-10-08T22:12:36.464Z",
+    "sessionId": "17568d22-943e-4068-be7e-be5f4920c2b1",
+    "cwd": "/root"
+  },
+  {
+    "debug": "Tool 'getDiagnostics' completed successfully in 33ms",
+    "timestamp": "2025-10-08T22:12:36.497Z",
+    "sessionId": "17568d22-943e-4068-be7e-be5f4920c2b1",
+    "cwd": "/root"
+  },
+  {
+    "debug": "Calling MCP tool: getDiagnostics",
+    "timestamp": "2025-10-08T22:12:45.901Z",
+    "sessionId": "17568d22-943e-4068-be7e-be5f4920c2b1",
+    "cwd": "/root"
+  },
+  {
+    "debug": "Tool 'getDiagnostics' completed successfully in 32ms",
+    "timestamp": "2025-10-08T22:12:45.933Z",
+    "sessionId": "17568d22-943e-4068-be7e-be5f4920c2b1",
+    "cwd": "/root"
+  },
+  {
+    "debug": "Calling MCP tool: getDiagnostics",
+    "timestamp": "2025-10-08T22:13:08.414Z",
+    "sessionId": "17568d22-943e-4068-be7e-be5f4920c2b1",
+    "cwd": "/root"
+  },
+  {
+    "debug": "Tool 'getDiagnostics' completed successfully in 40ms",
+    "timestamp": "2025-10-08T22:13:08.453Z",
+    "sessionId": "17568d22-943e-4068-be7e-be5f4920c2b1",
+    "cwd": "/root"
+  },
+  {
+    "debug": "Calling MCP tool: getDiagnostics",
+    "timestamp": "2025-10-08T22:13:16.766Z",
+    "sessionId": "17568d22-943e-4068-be7e-be5f4920c2b1",
+    "cwd": "/root"
+  },
+  {
+    "debug": "Tool 'getDiagnostics' completed successfully in 32ms",
+    "timestamp": "2025-10-08T22:13:16.798Z",
+    "sessionId": "17568d22-943e-4068-be7e-be5f4920c2b1",
+    "cwd": "/root"
+  },
+  {
+    "debug": "Calling MCP tool: getDiagnostics",
+    "timestamp": "2025-10-08T22:13:23.139Z",
+    "sessionId": "17568d22-943e-4068-be7e-be5f4920c2b1",
+    "cwd": "/root"
+  },
+  {
+    "debug": "Tool 'getDiagnostics' completed successfully in 30ms",
+    "timestamp": "2025-10-08T22:13:23.169Z",
+    "sessionId": "17568d22-943e-4068-be7e-be5f4920c2b1",
+    "cwd": "/root"
+  },
+  {
+    "debug": "Calling MCP tool: getDiagnostics",
+    "timestamp": "2025-10-08T22:13:27.268Z",
+    "sessionId": "17568d22-943e-4068-be7e-be5f4920c2b1",
+    "cwd": "/root"
+  },
+  {
+    "debug": "Tool 'getDiagnostics' completed successfully in 47ms",
+    "timestamp": "2025-10-08T22:13:27.315Z",
+    "sessionId": "17568d22-943e-4068-be7e-be5f4920c2b1",
+    "cwd": "/root"
+  },
+  {
+    "debug": "Calling MCP tool: getDiagnostics",
+    "timestamp": "2025-10-08T22:13:33.211Z",
+    "sessionId": "17568d22-943e-4068-be7e-be5f4920c2b1",
+    "cwd": "/root"
+  },
+  {
+    "debug": "Tool 'getDiagnostics' completed successfully in 8ms",
+    "timestamp": "2025-10-08T22:13:33.220Z",
+    "sessionId": "17568d22-943e-4068-be7e-be5f4920c2b1",
+    "cwd": "/root"
+  },
+  {
+    "debug": "Calling MCP tool: getDiagnostics",
+    "timestamp": "2025-10-08T22:13:33.321Z",
+    "sessionId": "17568d22-943e-4068-be7e-be5f4920c2b1",
+    "cwd": "/root"
+  },
+  {
+    "debug": "Tool 'getDiagnostics' completed successfully in 29ms",
+    "timestamp": "2025-10-08T22:13:33.350Z",
+    "sessionId": "17568d22-943e-4068-be7e-be5f4920c2b1",
+    "cwd": "/root"
+  },
+  {
+    "debug": "Calling MCP tool: getDiagnostics",
+    "timestamp": "2025-10-08T22:13:37.189Z",
+    "sessionId": "17568d22-943e-4068-be7e-be5f4920c2b1",
+    "cwd": "/root"
+  },
+  {
+    "debug": "Tool 'getDiagnostics' completed successfully in 38ms",
+    "timestamp": "2025-10-08T22:13:37.228Z",
+    "sessionId": "17568d22-943e-4068-be7e-be5f4920c2b1",
+    "cwd": "/root"
+  },
+  {
+    "debug": "Calling MCP tool: getDiagnostics",
+    "timestamp": "2025-10-08T22:13:42.983Z",
+    "sessionId": "17568d22-943e-4068-be7e-be5f4920c2b1",
+    "cwd": "/root"
+  },
+  {
+    "debug": "Tool 'getDiagnostics' completed successfully in 12ms",
+    "timestamp": "2025-10-08T22:13:42.994Z",
+    "sessionId": "17568d22-943e-4068-be7e-be5f4920c2b1",
+    "cwd": "/root"
+  },
+  {
+    "debug": "Calling MCP tool: getDiagnostics",
+    "timestamp": "2025-10-08T22:13:43.084Z",
+    "sessionId": "17568d22-943e-4068-be7e-be5f4920c2b1",
+    "cwd": "/root"
+  },
+  {
+    "debug": "Tool 'getDiagnostics' completed successfully in 34ms",
+    "timestamp": "2025-10-08T22:13:43.118Z",
+    "sessionId": "17568d22-943e-4068-be7e-be5f4920c2b1",
+    "cwd": "/root"
+  },
+  {
+    "debug": "Calling MCP tool: getDiagnostics",
+    "timestamp": "2025-10-08T22:13:50.321Z",
+    "sessionId": "17568d22-943e-4068-be7e-be5f4920c2b1",
+    "cwd": "/root"
+  },
+  {
+    "debug": "Tool 'getDiagnostics' completed successfully in 39ms",
+    "timestamp": "2025-10-08T22:13:50.359Z",
+    "sessionId": "17568d22-943e-4068-be7e-be5f4920c2b1",
+    "cwd": "/root"
+  },
+  {
+    "debug": "Calling MCP tool: getDiagnostics",
+    "timestamp": "2025-10-08T22:14:04.096Z",
+    "sessionId": "17568d22-943e-4068-be7e-be5f4920c2b1",
+    "cwd": "/root"
+  },
+  {
+    "debug": "Tool 'getDiagnostics' completed successfully in 37ms",
+    "timestamp": "2025-10-08T22:14:04.133Z",
+    "sessionId": "17568d22-943e-4068-be7e-be5f4920c2b1",
+    "cwd": "/root"
+  },
+  {
+    "debug": "Calling MCP tool: getDiagnostics",
+    "timestamp": "2025-10-08T22:14:11.494Z",
+    "sessionId": "17568d22-943e-4068-be7e-be5f4920c2b1",
+    "cwd": "/root"
+  },
+  {
+    "debug": "Tool 'getDiagnostics' completed successfully in 33ms",
+    "timestamp": "2025-10-08T22:14:11.527Z",
+    "sessionId": "17568d22-943e-4068-be7e-be5f4920c2b1",
+    "cwd": "/root"
+  },
+  {
+    "debug": "Calling MCP tool: getDiagnostics",
+    "timestamp": "2025-10-08T22:14:40.372Z",
+    "sessionId": "17568d22-943e-4068-be7e-be5f4920c2b1",
+    "cwd": "/root"
+  },
+  {
+    "debug": "Tool 'getDiagnostics' completed successfully in 29ms",
+    "timestamp": "2025-10-08T22:14:40.401Z",
+    "sessionId": "17568d22-943e-4068-be7e-be5f4920c2b1",
+    "cwd": "/root"
+  },
+  {
+    "debug": "Calling MCP tool: getDiagnostics",
+    "timestamp": "2025-10-08T22:14:45.799Z",
+    "sessionId": "17568d22-943e-4068-be7e-be5f4920c2b1",
+    "cwd": "/root"
+  },
+  {
+    "debug": "Tool 'getDiagnostics' completed successfully in 35ms",
+    "timestamp": "2025-10-08T22:14:45.834Z",
+    "sessionId": "17568d22-943e-4068-be7e-be5f4920c2b1",
+    "cwd": "/root"
+  },
+  {
+    "debug": "Calling MCP tool: getDiagnostics",
+    "timestamp": "2025-10-08T22:19:00.855Z",
+    "sessionId": "17568d22-943e-4068-be7e-be5f4920c2b1",
+    "cwd": "/root"
+  },
+  {
+    "debug": "Tool 'getDiagnostics' completed successfully in 45ms",
+    "timestamp": "2025-10-08T22:19:00.900Z",
+    "sessionId": "17568d22-943e-4068-be7e-be5f4920c2b1",
+    "cwd": "/root"
+  },
+  {
+    "debug": "Calling MCP tool: closeAllDiffTabs",
+    "timestamp": "2025-10-08T22:19:00.967Z",
+    "sessionId": "17568d22-943e-4068-be7e-be5f4920c2b1",
+    "cwd": "/root"
+  },
+  {
+    "debug": "Tool 'closeAllDiffTabs' completed successfully in 29ms",
+    "timestamp": "2025-10-08T22:19:00.996Z",
+    "sessionId": "17568d22-943e-4068-be7e-be5f4920c2b1",
+    "cwd": "/root"
+  },
+  {
+    "debug": "Calling MCP tool: getDiagnostics",
+    "timestamp": "2025-10-08T22:19:14.308Z",
+    "sessionId": "17568d22-943e-4068-be7e-be5f4920c2b1",
+    "cwd": "/root"
+  },
+  {
+    "debug": "Tool 'getDiagnostics' completed successfully in 42ms",
+    "timestamp": "2025-10-08T22:19:14.350Z",
+    "sessionId": "17568d22-943e-4068-be7e-be5f4920c2b1",
+    "cwd": "/root"
+  },
+  {
+    "debug": "Calling MCP tool: getDiagnostics",
+    "timestamp": "2025-10-08T22:19:23.965Z",
+    "sessionId": "17568d22-943e-4068-be7e-be5f4920c2b1",
+    "cwd": "/root"
+  },
+  {
+    "debug": "Tool 'getDiagnostics' completed successfully in 38ms",
+    "timestamp": "2025-10-08T22:19:24.003Z",
+    "sessionId": "17568d22-943e-4068-be7e-be5f4920c2b1",
+    "cwd": "/root"
+  },
+  {
+    "debug": "Calling MCP tool: getDiagnostics",
+    "timestamp": "2025-10-08T22:19:29.827Z",
+    "sessionId": "17568d22-943e-4068-be7e-be5f4920c2b1",
+    "cwd": "/root"
+  },
+  {
+    "debug": "Tool 'getDiagnostics' completed successfully in 41ms",
+    "timestamp": "2025-10-08T22:19:29.868Z",
+    "sessionId": "17568d22-943e-4068-be7e-be5f4920c2b1",
+    "cwd": "/root"
+  },
+  {
+    "debug": "Calling MCP tool: getDiagnostics",
+    "timestamp": "2025-10-08T22:19:56.252Z",
+    "sessionId": "17568d22-943e-4068-be7e-be5f4920c2b1",
+    "cwd": "/root"
+  },
+  {
+    "debug": "Tool 'getDiagnostics' completed successfully in 56ms",
+    "timestamp": "2025-10-08T22:19:56.308Z",
+    "sessionId": "17568d22-943e-4068-be7e-be5f4920c2b1",
+    "cwd": "/root"
+  },
+  {
+    "debug": "Calling MCP tool: getDiagnostics",
+    "timestamp": "2025-10-08T22:20:21.950Z",
+    "sessionId": "17568d22-943e-4068-be7e-be5f4920c2b1",
+    "cwd": "/root"
+  },
+  {
+    "debug": "Tool 'getDiagnostics' completed successfully in 53ms",
+    "timestamp": "2025-10-08T22:20:22.003Z",
+    "sessionId": "17568d22-943e-4068-be7e-be5f4920c2b1",
+    "cwd": "/root"
+  },
+  {
+    "debug": "Calling MCP tool: getDiagnostics",
+    "timestamp": "2025-10-08T22:20:51.038Z",
+    "sessionId": "17568d22-943e-4068-be7e-be5f4920c2b1",
+    "cwd": "/root"
+  },
+  {
+    "debug": "Tool 'getDiagnostics' completed successfully in 48ms",
+    "timestamp": "2025-10-08T22:20:51.085Z",
+    "sessionId": "17568d22-943e-4068-be7e-be5f4920c2b1",
+    "cwd": "/root"
+  },
+  {
+    "debug": "Calling MCP tool: getDiagnostics",
+    "timestamp": "2025-10-08T22:20:59.132Z",
+    "sessionId": "17568d22-943e-4068-be7e-be5f4920c2b1",
+    "cwd": "/root"
+  },
+  {
+    "debug": "Tool 'getDiagnostics' completed successfully in 42ms",
+    "timestamp": "2025-10-08T22:20:59.174Z",
+    "sessionId": "17568d22-943e-4068-be7e-be5f4920c2b1",
+    "cwd": "/root"
+  },
+  {
+    "debug": "Calling MCP tool: getDiagnostics",
+    "timestamp": "2025-10-08T22:21:21.574Z",
+    "sessionId": "17568d22-943e-4068-be7e-be5f4920c2b1",
+    "cwd": "/root"
+  },
+  {
+    "debug": "Tool 'getDiagnostics' completed successfully in 46ms",
+    "timestamp": "2025-10-08T22:21:21.621Z",
+    "sessionId": "17568d22-943e-4068-be7e-be5f4920c2b1",
+    "cwd": "/root"
+  },
+  {
+    "debug": "Calling MCP tool: getDiagnostics",
+    "timestamp": "2025-10-08T22:21:32.822Z",
+    "sessionId": "17568d22-943e-4068-be7e-be5f4920c2b1",
+    "cwd": "/root"
+  },
+  {
+    "debug": "Tool 'getDiagnostics' completed successfully in 37ms",
+    "timestamp": "2025-10-08T22:21:32.860Z",
+    "sessionId": "17568d22-943e-4068-be7e-be5f4920c2b1",
+    "cwd": "/root"
+  },
+  {
+    "debug": "Calling MCP tool: getDiagnostics",
+    "timestamp": "2025-10-08T22:21:41.125Z",
+    "sessionId": "17568d22-943e-4068-be7e-be5f4920c2b1",
+    "cwd": "/root"
+  },
+  {
+    "debug": "Tool 'getDiagnostics' completed successfully in 41ms",
+    "timestamp": "2025-10-08T22:21:41.166Z",
+    "sessionId": "17568d22-943e-4068-be7e-be5f4920c2b1",
+    "cwd": "/root"
+  },
+  {
+    "debug": "Calling MCP tool: getDiagnostics",
+    "timestamp": "2025-10-08T22:21:52.719Z",
+    "sessionId": "17568d22-943e-4068-be7e-be5f4920c2b1",
+    "cwd": "/root"
+  },
+  {
+    "debug": "Tool 'getDiagnostics' completed successfully in 45ms",
+    "timestamp": "2025-10-08T22:21:52.764Z",
+    "sessionId": "17568d22-943e-4068-be7e-be5f4920c2b1",
+    "cwd": "/root"
+  },
+  {
+    "debug": "Calling MCP tool: getDiagnostics",
+    "timestamp": "2025-10-08T22:21:58.369Z",
+    "sessionId": "17568d22-943e-4068-be7e-be5f4920c2b1",
+    "cwd": "/root"
+  },
+  {
+    "debug": "Tool 'getDiagnostics' completed successfully in 42ms",
+    "timestamp": "2025-10-08T22:21:58.411Z",
+    "sessionId": "17568d22-943e-4068-be7e-be5f4920c2b1",
+    "cwd": "/root"
+  },
+  {
+    "debug": "Calling MCP tool: getDiagnostics",
+    "timestamp": "2025-10-08T22:22:04.564Z",
+    "sessionId": "17568d22-943e-4068-be7e-be5f4920c2b1",
+    "cwd": "/root"
+  },
+  {
+    "debug": "Tool 'getDiagnostics' completed successfully in 37ms",
+    "timestamp": "2025-10-08T22:22:04.601Z",
+    "sessionId": "17568d22-943e-4068-be7e-be5f4920c2b1",
+    "cwd": "/root"
+  },
+  {
+    "debug": "Calling MCP tool: getDiagnostics",
+    "timestamp": "2025-10-08T22:22:10.167Z",
+    "sessionId": "17568d22-943e-4068-be7e-be5f4920c2b1",
+    "cwd": "/root"
+  },
+  {
+    "debug": "Tool 'getDiagnostics' completed successfully in 48ms",
+    "timestamp": "2025-10-08T22:22:10.215Z",
+    "sessionId": "17568d22-943e-4068-be7e-be5f4920c2b1",
+    "cwd": "/root"
+  },
+  {
+    "debug": "Calling MCP tool: getDiagnostics",
+    "timestamp": "2025-10-08T22:22:16.057Z",
+    "sessionId": "17568d22-943e-4068-be7e-be5f4920c2b1",
+    "cwd": "/root"
+  },
+  {
+    "debug": "Tool 'getDiagnostics' completed successfully in 39ms",
+    "timestamp": "2025-10-08T22:22:16.096Z",
+    "sessionId": "17568d22-943e-4068-be7e-be5f4920c2b1",
+    "cwd": "/root"
+  },
+  {
+    "debug": "Calling MCP tool: getDiagnostics",
+    "timestamp": "2025-10-08T22:22:25.428Z",
+    "sessionId": "17568d22-943e-4068-be7e-be5f4920c2b1",
+    "cwd": "/root"
+  },
+  {
+    "debug": "Tool 'getDiagnostics' completed successfully in 37ms",
+    "timestamp": "2025-10-08T22:22:25.465Z",
+    "sessionId": "17568d22-943e-4068-be7e-be5f4920c2b1",
+    "cwd": "/root"
+  },
+  {
+    "debug": "Calling MCP tool: getDiagnostics",
+    "timestamp": "2025-10-08T22:22:32.996Z",
+    "sessionId": "17568d22-943e-4068-be7e-be5f4920c2b1",
+    "cwd": "/root"
+  },
+  {
+    "debug": "Tool 'getDiagnostics' completed successfully in 50ms",
+    "timestamp": "2025-10-08T22:22:33.046Z",
+    "sessionId": "17568d22-943e-4068-be7e-be5f4920c2b1",
+    "cwd": "/root"
+  },
+  {
+    "debug": "Calling MCP tool: getDiagnostics",
+    "timestamp": "2025-10-08T22:23:12.889Z",
+    "sessionId": "17568d22-943e-4068-be7e-be5f4920c2b1",
+    "cwd": "/root"
+  },
+  {
+    "debug": "Tool 'getDiagnostics' completed successfully in 43ms",
+    "timestamp": "2025-10-08T22:23:12.932Z",
+    "sessionId": "17568d22-943e-4068-be7e-be5f4920c2b1",
+    "cwd": "/root"
+  },
+  {
+    "debug": "Calling MCP tool: getDiagnostics",
+    "timestamp": "2025-10-08T22:23:18.440Z",
+    "sessionId": "17568d22-943e-4068-be7e-be5f4920c2b1",
+    "cwd": "/root"
+  },
+  {
+    "debug": "Tool 'getDiagnostics' completed successfully in 40ms",
+    "timestamp": "2025-10-08T22:23:18.480Z",
+    "sessionId": "17568d22-943e-4068-be7e-be5f4920c2b1",
+    "cwd": "/root"
+  },
+  {
+    "debug": "Calling MCP tool: getDiagnostics",
+    "timestamp": "2025-10-08T22:23:23.937Z",
+    "sessionId": "17568d22-943e-4068-be7e-be5f4920c2b1",
+    "cwd": "/root"
+  },
+  {
+    "debug": "Tool 'getDiagnostics' completed successfully in 48ms",
+    "timestamp": "2025-10-08T22:23:23.985Z",
+    "sessionId": "17568d22-943e-4068-be7e-be5f4920c2b1",
+    "cwd": "/root"
+  },
+  {
+    "debug": "Calling MCP tool: getDiagnostics",
+    "timestamp": "2025-10-08T22:23:30.423Z",
+    "sessionId": "17568d22-943e-4068-be7e-be5f4920c2b1",
+    "cwd": "/root"
+  },
+  {
+    "debug": "Tool 'getDiagnostics' completed successfully in 44ms",
+    "timestamp": "2025-10-08T22:23:30.468Z",
+    "sessionId": "17568d22-943e-4068-be7e-be5f4920c2b1",
+    "cwd": "/root"
   }
 ]

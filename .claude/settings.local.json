@@ -11,7 +11,14 @@
       "Bash(eval \"$test_frontend\")",
       "Bash(__NEW_LINE__ test_db=\"bash -lc ''\n  BACKEND_DIR=\"\"/home/deploy/$empresa/backend\"\"\n  printf \"\"[INFO] Nenhuma migration pendente; pulando db:migrate.\\n\"\"\n  printf \"\"[INFO] Diretório de migrations não encontrado; pulando db:migrate.\\n\"\"\n  printf \"\"[INFO] Seeds já aplicados anteriormente (fingerprint inalterado).\\n\"\"\n''\")",
       "Bash(__NEW_LINE__ echo \"=== Testando seção database com eval ===\")",
-      "Bash(eval \"$test_db\")"
+      "Bash(eval \"$test_db\")",
+      "Bash(systemctl start:*)",
+      "Bash(journalctl:*)",
+      "Bash(pg_ctlcluster:*)",
+      "Bash(pg_lsclusters:*)",
+      "Bash(dpkg:*)",
+      "Bash(pg_createcluster:*)",
+      "Bash(source:*)"
     ],
     "deny": [],
     "ask": []

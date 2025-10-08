@@ -8245,3 +8245,1684 @@ EOF
 [DEBUG] Applied original permissions to temp file
 [DEBUG] Renaming /root/.claude.json.tmp.769730.1759961096789 to /root/.claude.json
 [DEBUG] File /root/.claude.json written atomically
+[DEBUG] AutoUpdaterWrapper: Installation type: npm-global, using native: false
+[DEBUG] Writing to temp file: /root/.claude/settings.json.tmp.769730.1759961428288
+[DEBUG] Temp file written successfully, size: 22 bytes
+[DEBUG] Renaming /root/.claude/settings.json.tmp.769730.1759961428288 to /root/.claude/settings.json
+[DEBUG] File /root/.claude/settings.json written atomically
+[DEBUG] AutoUpdaterWrapper: Installation type: npm-global, using native: false
+[DEBUG] FileHistory: Making snapshot for message 0287c5ff-2fa9-457e-84ca-098c3d50ab3e
+[DEBUG] FileHistory: Added snapshot for 0287c5ff-2fa9-457e-84ca-098c3d50ab3e, tracking 1 files
+[DEBUG] Writing to temp file: /root/.claude.json.tmp.769730.1759961428630
+[DEBUG] Preserving file permissions: 100600
+[DEBUG] Temp file written successfully, size: 33478 bytes
+[DEBUG] Applied original permissions to temp file
+[DEBUG] Renaming /root/.claude.json.tmp.769730.1759961428630 to /root/.claude.json
+[DEBUG] File /root/.claude.json written atomically
+[DEBUG] Writing to temp file: /root/.claude.json.tmp.769730.1759961428657
+[DEBUG] Preserving file permissions: 100600
+[DEBUG] Temp file written successfully, size: 33478 bytes
+[DEBUG] Applied original permissions to temp file
+[DEBUG] Renaming /root/.claude.json.tmp.769730.1759961428657 to /root/.claude.json
+[DEBUG] File /root/.claude.json written atomically
+[DEBUG] AutoUpdater: Detected installation type: npm-global
+[DEBUG] AutoUpdater: Using global update method
+[DEBUG] Writing to temp file: /root/.claude.json.tmp.769730.1759961430781
+[DEBUG] Preserving file permissions: 100600
+[DEBUG] Temp file written successfully, size: 33478 bytes
+[DEBUG] Applied original permissions to temp file
+[DEBUG] Renaming /root/.claude.json.tmp.769730.1759961430781 to /root/.claude.json
+[DEBUG] File /root/.claude.json written atomically
+[DEBUG] rg error (signal=undefined, code=ERR_CHILD_PROCESS_STDIO_MAXBUFFER, stderr: ), 127596 results
+[ERROR] RangeError: RangeError [ERR_CHILD_PROCESS_STDIO_MAXBUFFER]: stdout maxBuffer length exceeded
+    at Socket.onChildStdout (node:child_process:490:14)
+    at Socket.emit (node:events:524:28)
+    at Socket.emit (node:domain:489:12)
+    at addChunk (node:internal/streams/readable:561:12)
+    at readableAddChunkPushByteMode (node:internal/streams/readable:512:3)
+    at Readable.push (node:internal/streams/readable:392:5)
+    at Pipe.onStreamRead (node:internal/stream_base_commons:191:23)
+[DEBUG] AutoUpdaterWrapper: Installation type: npm-global, using native: false
+[DEBUG] AutoUpdater: Detected installation type: npm-global
+[DEBUG] AutoUpdater: Using global update method
+[DEBUG] Writing to temp file: /root/.claude.json.tmp.769730.1759961465947
+[DEBUG] Preserving file permissions: 100600
+[DEBUG] Temp file written successfully, size: 33478 bytes
+[DEBUG] Applied original permissions to temp file
+[DEBUG] Renaming /root/.claude.json.tmp.769730.1759961465947 to /root/.claude.json
+[DEBUG] File /root/.claude.json written atomically
+[DEBUG] MCP server "ide": Calling MCP tool: getDiagnostics
+[DEBUG] Hooks: getAsyncHookResponseAttachments called
+[DEBUG] Hooks: checkForNewResponses called
+[DEBUG] Hooks: Found 0 total hooks in registry
+[DEBUG] Hooks: checkForNewResponses returning 0 responses
+[DEBUG] MCP server "ide": Tool 'getDiagnostics' completed successfully in 42ms
+[DEBUG] Executing hooks for UserPromptSubmit
+[DEBUG] Getting matching hook commands for UserPromptSubmit with query: undefined
+[DEBUG] Found 0 hook matchers in settings
+[DEBUG] Matched 0 unique hooks for query "no match query" (0 before deduplication)
+[DEBUG] Found 0 hook commands to execute
+[DEBUG] FileHistory: Making snapshot for message 76b32fd9-6a63-49e8-9ece-e33b6171c45d
+[DEBUG] FileHistory: Added snapshot for 76b32fd9-6a63-49e8-9ece-e33b6171c45d, tracking 1 files
+[DEBUG] MCP server "ide": Calling MCP tool: closeAllDiffTabs
+[DEBUG] Writing to temp file: /root/.claude.json.tmp.769730.1759961531895
+[DEBUG] Preserving file permissions: 100600
+[DEBUG] Temp file written successfully, size: 33878 bytes
+[DEBUG] Applied original permissions to temp file
+[DEBUG] Renaming /root/.claude.json.tmp.769730.1759961531895 to /root/.claude.json
+[DEBUG] File /root/.claude.json written atomically
+[DEBUG] MCP server "ide": Tool 'closeAllDiffTabs' completed successfully in 29ms
+[DEBUG] Slash commands included in SlashCommand tool:
+[DEBUG] Slash commands included in SlashCommand tool:
+[ERROR] Error streaming, falling back to non-streaming mode: 429 {"type":"error","error":{"type":"rate_limit_error","message":"This request would exceed your account's rate limit. Please try again later."},"request_id":"req_011CTvVtTCD5dZyCsEUnmSfT"}
+[ERROR] Error in non-streaming fallback: 429 {"type":"error","error":{"type":"rate_limit_error","message":"This request would exceed your account's rate limit. Please try again later."},"request_id":"req_011CTvVtUg1DAXWcvcWD2Kqm"}
+[ERROR] Error: Error: 429 {"type":"error","error":{"type":"rate_limit_error","message":"This request would exceed your account's rate limit. Please try again later."},"request_id":"req_011CTvVtUg1DAXWcvcWD2Kqm"}
+    at i9.generate (file:///usr/lib/node_modules/@anthropic-ai/claude-code/cli.js:881:18918)
+    at bP.makeStatusError (file:///usr/lib/node_modules/@anthropic-ai/claude-code/cli.js:1026:2117)
+    at bP.makeRequest (file:///usr/lib/node_modules/@anthropic-ai/claude-code/cli.js:1026:5330)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async tI1.model (file:///usr/lib/node_modules/@anthropic-ai/claude-code/cli.js:3208:18601)
+    at async tI1 (file:///usr/lib/node_modules/@anthropic-ai/claude-code/cli.js:2534:2114)
+    at async pQQ (file:///usr/lib/node_modules/@anthropic-ai/claude-code/cli.js:3208:18755)
+    at async file:///usr/lib/node_modules/@anthropic-ai/claude-code/cli.js:3208:12983
+    at async Nk0 (file:///usr/lib/node_modules/@anthropic-ai/claude-code/cli.js:3208:4228)
+    at async x11 (file:///usr/lib/node_modules/@anthropic-ai/claude-code/cli.js:3208:12953)
+[DEBUG] Executing hooks for Stop
+[DEBUG] Getting matching hook commands for Stop with query: undefined
+[DEBUG] Found 0 hook matchers in settings
+[DEBUG] Matched 0 unique hooks for query "no match query" (0 before deduplication)
+[DEBUG] Found 0 hook commands to execute
+[DEBUG] Writing to temp file: /root/.claude.json.tmp.769730.1759961532744
+[DEBUG] Preserving file permissions: 100600
+[DEBUG] Temp file written successfully, size: 33878 bytes
+[DEBUG] Applied original permissions to temp file
+[DEBUG] Renaming /root/.claude.json.tmp.769730.1759961532744 to /root/.claude.json
+[DEBUG] File /root/.claude.json written atomically
+[DEBUG] Writing to temp file: /root/.claude/settings.json.tmp.769730.1759961543309
+[DEBUG] Preserving file permissions: 100644
+[DEBUG] Temp file written successfully, size: 3 bytes
+[DEBUG] Applied original permissions to temp file
+[DEBUG] Renaming /root/.claude/settings.json.tmp.769730.1759961543309 to /root/.claude/settings.json
+[DEBUG] File /root/.claude/settings.json written atomically
+[DEBUG] AutoUpdaterWrapper: Installation type: npm-global, using native: false
+[DEBUG] FileHistory: Making snapshot for message dc695332-4f8d-4632-a622-1b72a8aea406
+[DEBUG] FileHistory: Added snapshot for dc695332-4f8d-4632-a622-1b72a8aea406, tracking 1 files
+[DEBUG] Writing to temp file: /root/.claude.json.tmp.769730.1759961543616
+[DEBUG] Preserving file permissions: 100600
+[DEBUG] Temp file written successfully, size: 33962 bytes
+[DEBUG] Applied original permissions to temp file
+[DEBUG] Renaming /root/.claude.json.tmp.769730.1759961543616 to /root/.claude.json
+[DEBUG] File /root/.claude.json written atomically
+[DEBUG] Writing to temp file: /root/.claude.json.tmp.769730.1759961543634
+[DEBUG] Preserving file permissions: 100600
+[DEBUG] Temp file written successfully, size: 33962 bytes
+[DEBUG] Applied original permissions to temp file
+[DEBUG] Renaming /root/.claude.json.tmp.769730.1759961543634 to /root/.claude.json
+[DEBUG] File /root/.claude.json written atomically
+[DEBUG] AutoUpdater: Detected installation type: npm-global
+[DEBUG] AutoUpdater: Using global update method
+[DEBUG] MCP server "ide": Calling MCP tool: getDiagnostics
+[DEBUG] Hooks: getAsyncHookResponseAttachments called
+[DEBUG] Hooks: checkForNewResponses called
+[DEBUG] Hooks: Found 0 total hooks in registry
+[DEBUG] Hooks: checkForNewResponses returning 0 responses
+[DEBUG] MCP server "ide": Tool 'getDiagnostics' completed successfully in 41ms
+[DEBUG] Writing to temp file: /root/.claude.json.tmp.769730.1759961545295
+[DEBUG] Preserving file permissions: 100600
+[DEBUG] Temp file written successfully, size: 33962 bytes
+[DEBUG] Applied original permissions to temp file
+[DEBUG] Renaming /root/.claude.json.tmp.769730.1759961545295 to /root/.claude.json
+[DEBUG] File /root/.claude.json written atomically
+[DEBUG] Executing hooks for UserPromptSubmit
+[DEBUG] Getting matching hook commands for UserPromptSubmit with query: undefined
+[DEBUG] Found 0 hook matchers in settings
+[DEBUG] Matched 0 unique hooks for query "no match query" (0 before deduplication)
+[DEBUG] Found 0 hook commands to execute
+[DEBUG] FileHistory: Making snapshot for message 9133020b-9700-446e-9b9d-94e081fc40f1
+[DEBUG] FileHistory: Added snapshot for 9133020b-9700-446e-9b9d-94e081fc40f1, tracking 1 files
+[DEBUG] MCP server "ide": Calling MCP tool: closeAllDiffTabs
+[DEBUG] Writing to temp file: /root/.claude.json.tmp.769730.1759961545681
+[DEBUG] Preserving file permissions: 100600
+[DEBUG] Temp file written successfully, size: 34362 bytes
+[DEBUG] Applied original permissions to temp file
+[DEBUG] Renaming /root/.claude.json.tmp.769730.1759961545681 to /root/.claude.json
+[DEBUG] File /root/.claude.json written atomically
+[DEBUG] MCP server "ide": Tool 'closeAllDiffTabs' completed successfully in 28ms
+[DEBUG] Slash commands included in SlashCommand tool:
+[DEBUG] Slash commands included in SlashCommand tool:
+[DEBUG] Stream started - received first chunk
+[DEBUG] executePreToolHooks called for tool: TodoWrite
+[DEBUG] Executing hooks for PreToolUse:TodoWrite
+[DEBUG] Getting matching hook commands for PreToolUse with query: TodoWrite
+[DEBUG] Found 0 hook matchers in settings
+[DEBUG] Matched 0 unique hooks for query "TodoWrite" (0 before deduplication)
+[DEBUG] Found 0 hook commands to execute
+[DEBUG] Writing to temp file: /root/.claude/todos/17568d22-943e-4068-be7e-be5f4920c2b1-agent-17568d22-943e-4068-be7e-be5f4920c2b1.json.tmp.769730.1759961556203
+[DEBUG] Preserving file permissions: 100644
+[DEBUG] Temp file written successfully, size: 688 bytes
+[DEBUG] Applied original permissions to temp file
+[DEBUG] Renaming /root/.claude/todos/17568d22-943e-4068-be7e-be5f4920c2b1-agent-17568d22-943e-4068-be7e-be5f4920c2b1.json.tmp.769730.1759961556203 to /root/.claude/todos/17568d22-943e-4068-be7e-be5f4920c2b1-agent-17568d22-943e-4068-be7e-be5f4920c2b1.json
+[DEBUG] File /root/.claude/todos/17568d22-943e-4068-be7e-be5f4920c2b1-agent-17568d22-943e-4068-be7e-be5f4920c2b1.json written atomically
+[DEBUG] Executing hooks for PostToolUse:TodoWrite
+[DEBUG] Getting matching hook commands for PostToolUse with query: TodoWrite
+[DEBUG] Found 0 hook matchers in settings
+[DEBUG] Matched 0 unique hooks for query "TodoWrite" (0 before deduplication)
+[DEBUG] Found 0 hook commands to execute
+[DEBUG] executePreToolHooks called for tool: Bash
+[DEBUG] Executing hooks for PreToolUse:Bash
+[DEBUG] Getting matching hook commands for PreToolUse with query: Bash
+[DEBUG] Found 0 hook matchers in settings
+[DEBUG] Matched 0 unique hooks for query "Bash" (0 before deduplication)
+[DEBUG] Found 0 hook commands to execute
+[DEBUG] Bash tool invoked with command: tail -80 /root/scripts/chatia-install.log
+[DEBUG] Bash tool description: Read last 80 lines of installation log
+[DEBUG] Executing hooks for PostToolUse:Bash
+[DEBUG] Getting matching hook commands for PostToolUse with query: Bash
+[DEBUG] Found 0 hook matchers in settings
+[DEBUG] Matched 0 unique hooks for query "Bash" (0 before deduplication)
+[DEBUG] Found 0 hook commands to execute
+[DEBUG] MCP server "ide": Calling MCP tool: getDiagnostics
+[DEBUG] Hooks: getAsyncHookResponseAttachments called
+[DEBUG] Hooks: checkForNewResponses called
+[DEBUG] Hooks: Found 0 total hooks in registry
+[DEBUG] Hooks: checkForNewResponses returning 0 responses
+[DEBUG] MCP server "ide": Tool 'getDiagnostics' completed successfully in 33ms
+[DEBUG] Slash commands included in SlashCommand tool:
+[DEBUG] Slash commands included in SlashCommand tool:
+[ERROR] MaxFileReadTokenExceededError: MaxFileReadTokenExceededError: File content (32156 tokens) exceeds maximum allowed tokens (25000). Please use offset and limit parameters to read specific portions of the file, or use the GrepTool to search for specific content.
+    at Ys2 (file:///usr/lib/node_modules/@anthropic-ai/claude-code/cli.js:1846:400)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async Object.call (file:///usr/lib/node_modules/@anthropic-ai/claude-code/cli.js:1841:1006)
+    at async YO (file:///usr/lib/node_modules/@anthropic-ai/claude-code/cli.js:1846:3205)
+    at async file:///usr/lib/node_modules/@anthropic-ai/claude-code/cli.js:3277:1339
+[DEBUG] Stream started - received first chunk
+[DEBUG] executePreToolHooks called for tool: TodoWrite
+[DEBUG] Executing hooks for PreToolUse:TodoWrite
+[DEBUG] Getting matching hook commands for PreToolUse with query: TodoWrite
+[DEBUG] Found 0 hook matchers in settings
+[DEBUG] Matched 0 unique hooks for query "TodoWrite" (0 before deduplication)
+[DEBUG] Found 0 hook commands to execute
+[DEBUG] Writing to temp file: /root/.claude/todos/17568d22-943e-4068-be7e-be5f4920c2b1-agent-17568d22-943e-4068-be7e-be5f4920c2b1.json.tmp.769730.1759961565696
+[DEBUG] Preserving file permissions: 100644
+[DEBUG] Temp file written successfully, size: 692 bytes
+[DEBUG] Applied original permissions to temp file
+[DEBUG] Renaming /root/.claude/todos/17568d22-943e-4068-be7e-be5f4920c2b1-agent-17568d22-943e-4068-be7e-be5f4920c2b1.json.tmp.769730.1759961565696 to /root/.claude/todos/17568d22-943e-4068-be7e-be5f4920c2b1-agent-17568d22-943e-4068-be7e-be5f4920c2b1.json
+[DEBUG] File /root/.claude/todos/17568d22-943e-4068-be7e-be5f4920c2b1-agent-17568d22-943e-4068-be7e-be5f4920c2b1.json written atomically
+[DEBUG] Executing hooks for PostToolUse:TodoWrite
+[DEBUG] Getting matching hook commands for PostToolUse with query: TodoWrite
+[DEBUG] Found 0 hook matchers in settings
+[DEBUG] Matched 0 unique hooks for query "TodoWrite" (0 before deduplication)
+[DEBUG] Found 0 hook commands to execute
+[DEBUG] executePreToolHooks called for tool: Read
+[DEBUG] Executing hooks for PreToolUse:Read
+[DEBUG] Getting matching hook commands for PreToolUse with query: Read
+[DEBUG] Found 0 hook matchers in settings
+[DEBUG] Matched 0 unique hooks for query "Read" (0 before deduplication)
+[DEBUG] Found 0 hook commands to execute
+[DEBUG] Executing hooks for PostToolUse:Read
+[DEBUG] Getting matching hook commands for PostToolUse with query: Read
+[DEBUG] Found 0 hook matchers in settings
+[DEBUG] Matched 0 unique hooks for query "Read" (0 before deduplication)
+[DEBUG] Found 0 hook commands to execute
+[DEBUG] MCP server "ide": Calling MCP tool: getDiagnostics
+[DEBUG] Hooks: getAsyncHookResponseAttachments called
+[DEBUG] Hooks: checkForNewResponses called
+[DEBUG] Hooks: Found 0 total hooks in registry
+[DEBUG] Hooks: checkForNewResponses returning 0 responses
+[DEBUG] MCP server "ide": Tool 'getDiagnostics' completed successfully in 32ms
+[DEBUG] Slash commands included in SlashCommand tool:
+[DEBUG] Slash commands included in SlashCommand tool:
+[DEBUG] Stream started - received first chunk
+[DEBUG] executePreToolHooks called for tool: Bash
+[DEBUG] Executing hooks for PreToolUse:Bash
+[DEBUG] Getting matching hook commands for PreToolUse with query: Bash
+[DEBUG] Found 0 hook matchers in settings
+[DEBUG] Matched 0 unique hooks for query "Bash" (0 before deduplication)
+[DEBUG] Found 0 hook commands to execute
+[DEBUG] Getting matching hook commands for Notification with query: undefined
+[DEBUG] Found 0 hook matchers in settings
+[DEBUG] Matched 0 unique hooks for query "no match query" (0 before deduplication)
+[DEBUG] AutoUpdaterWrapper: Installation type: npm-global, using native: false
+[DEBUG] Bash tool invoked with command: empresa="atuar_pay"
+nome_titulo="Atuar Pay"
+
+# Teste com diferentes níveis de escape
+cmd="bash <<TESTDOC
+  echo \"Test 1: \\\"Companies\\\"\"
+  echo \"Test 2: \\\\\\\"Companies\\\\\\\"\"
+  echo \"Test 3: Companies\"
+TESTDOC
+"
+
+echo "=== Testando escapes de aspas duplas ==="
+eval "$cmd"
+[DEBUG] Bash tool description: Test quote escaping levels
+[DEBUG] Executing hooks for PostToolUse:Bash
+[DEBUG] Getting matching hook commands for PostToolUse with query: Bash
+[DEBUG] Found 0 hook matchers in settings
+[DEBUG] Matched 0 unique hooks for query "Bash" (0 before deduplication)
+[DEBUG] Found 0 hook commands to execute
+[DEBUG] MCP server "ide": Calling MCP tool: getDiagnostics
+[DEBUG] Hooks: getAsyncHookResponseAttachments called
+[DEBUG] Hooks: checkForNewResponses called
+[DEBUG] Hooks: Found 0 total hooks in registry
+[DEBUG] Hooks: checkForNewResponses returning 0 responses
+[DEBUG] MCP server "ide": Tool 'getDiagnostics' completed successfully in 40ms
+[DEBUG] Slash commands included in SlashCommand tool:
+[DEBUG] AutoUpdater: Detected installation type: npm-global
+[DEBUG] AutoUpdater: Using global update method
+[DEBUG] Slash commands included in SlashCommand tool:
+[DEBUG] Writing to temp file: /root/.claude.json.tmp.769730.1759961589990
+[DEBUG] Preserving file permissions: 100600
+[DEBUG] Temp file written successfully, size: 34362 bytes
+[DEBUG] Applied original permissions to temp file
+[DEBUG] Renaming /root/.claude.json.tmp.769730.1759961589990 to /root/.claude.json
+[DEBUG] File /root/.claude.json written atomically
+[DEBUG] Stream started - received first chunk
+[DEBUG] executePreToolHooks called for tool: TodoWrite
+[DEBUG] Executing hooks for PreToolUse:TodoWrite
+[DEBUG] Getting matching hook commands for PreToolUse with query: TodoWrite
+[DEBUG] Found 0 hook matchers in settings
+[DEBUG] Matched 0 unique hooks for query "TodoWrite" (0 before deduplication)
+[DEBUG] Found 0 hook commands to execute
+[DEBUG] Writing to temp file: /root/.claude/todos/17568d22-943e-4068-be7e-be5f4920c2b1-agent-17568d22-943e-4068-be7e-be5f4920c2b1.json.tmp.769730.1759961596503
+[DEBUG] Preserving file permissions: 100644
+[DEBUG] Temp file written successfully, size: 694 bytes
+[DEBUG] Applied original permissions to temp file
+[DEBUG] Renaming /root/.claude/todos/17568d22-943e-4068-be7e-be5f4920c2b1-agent-17568d22-943e-4068-be7e-be5f4920c2b1.json.tmp.769730.1759961596503 to /root/.claude/todos/17568d22-943e-4068-be7e-be5f4920c2b1-agent-17568d22-943e-4068-be7e-be5f4920c2b1.json
+[DEBUG] File /root/.claude/todos/17568d22-943e-4068-be7e-be5f4920c2b1-agent-17568d22-943e-4068-be7e-be5f4920c2b1.json written atomically
+[DEBUG] Executing hooks for PostToolUse:TodoWrite
+[DEBUG] Getting matching hook commands for PostToolUse with query: TodoWrite
+[DEBUG] Found 0 hook matchers in settings
+[DEBUG] Matched 0 unique hooks for query "TodoWrite" (0 before deduplication)
+[DEBUG] Found 0 hook commands to execute
+[DEBUG] executePreToolHooks called for tool: Bash
+[DEBUG] Executing hooks for PreToolUse:Bash
+[DEBUG] Getting matching hook commands for PreToolUse with query: Bash
+[DEBUG] Found 0 hook matchers in settings
+[DEBUG] Matched 0 unique hooks for query "Bash" (0 before deduplication)
+[DEBUG] Found 0 hook commands to execute
+[DEBUG] Bash tool invoked with command: cp /root/instalador.sh /root/instalador.sh.backup-before-sql-fix
+[DEBUG] Bash tool description: Create backup before SQL fix
+[DEBUG] Executing hooks for PostToolUse:Bash
+[DEBUG] Getting matching hook commands for PostToolUse with query: Bash
+[DEBUG] Found 0 hook matchers in settings
+[DEBUG] Matched 0 unique hooks for query "Bash" (0 before deduplication)
+[DEBUG] Found 0 hook commands to execute
+[DEBUG] MCP server "ide": Calling MCP tool: getDiagnostics
+[DEBUG] Hooks: getAsyncHookResponseAttachments called
+[DEBUG] Hooks: checkForNewResponses called
+[DEBUG] Hooks: Found 0 total hooks in registry
+[DEBUG] Hooks: checkForNewResponses returning 0 responses
+[DEBUG] MCP server "ide": Tool 'getDiagnostics' completed successfully in 32ms
+[DEBUG] Slash commands included in SlashCommand tool:
+[DEBUG] Slash commands included in SlashCommand tool:
+[ERROR] MaxFileReadTokenExceededError: MaxFileReadTokenExceededError: File content (27153 tokens) exceeds maximum allowed tokens (25000). Please use offset and limit parameters to read specific portions of the file, or use the GrepTool to search for specific content.
+    at Ys2 (file:///usr/lib/node_modules/@anthropic-ai/claude-code/cli.js:1846:400)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async Object.call (file:///usr/lib/node_modules/@anthropic-ai/claude-code/cli.js:1841:1006)
+    at async YO (file:///usr/lib/node_modules/@anthropic-ai/claude-code/cli.js:1846:3205)
+    at async file:///usr/lib/node_modules/@anthropic-ai/claude-code/cli.js:3277:1339
+[ERROR] MaxFileReadTokenExceededError: MaxFileReadTokenExceededError: File content (27153 tokens) exceeds maximum allowed tokens (25000). Please use offset and limit parameters to read specific portions of the file, or use the GrepTool to search for specific content.
+    at Ys2 (file:///usr/lib/node_modules/@anthropic-ai/claude-code/cli.js:1846:400)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async Object.call (file:///usr/lib/node_modules/@anthropic-ai/claude-code/cli.js:1841:1006)
+    at async YO (file:///usr/lib/node_modules/@anthropic-ai/claude-code/cli.js:1846:3205)
+    at async file:///usr/lib/node_modules/@anthropic-ai/claude-code/cli.js:3277:1339
+[DEBUG] Stream started - received first chunk
+[DEBUG] MCP server "ide": Calling MCP tool: getDiagnostics
+[DEBUG] Hooks: getAsyncHookResponseAttachments called
+[DEBUG] Hooks: checkForNewResponses called
+[DEBUG] Hooks: Found 0 total hooks in registry
+[DEBUG] Hooks: checkForNewResponses returning 0 responses
+[DEBUG] MCP server "ide": Tool 'getDiagnostics' completed successfully in 30ms
+[DEBUG] Slash commands included in SlashCommand tool:
+[DEBUG] Slash commands included in SlashCommand tool:
+[DEBUG] Stream started - received first chunk
+[DEBUG] executePreToolHooks called for tool: Read
+[DEBUG] Executing hooks for PreToolUse:Read
+[DEBUG] Getting matching hook commands for PreToolUse with query: Read
+[DEBUG] Found 0 hook matchers in settings
+[DEBUG] Matched 0 unique hooks for query "Read" (0 before deduplication)
+[DEBUG] Found 0 hook commands to execute
+[DEBUG] Executing hooks for PostToolUse:Read
+[DEBUG] Getting matching hook commands for PostToolUse with query: Read
+[DEBUG] Found 0 hook matchers in settings
+[DEBUG] Matched 0 unique hooks for query "Read" (0 before deduplication)
+[DEBUG] Found 0 hook commands to execute
+[DEBUG] MCP server "ide": Calling MCP tool: getDiagnostics
+[DEBUG] Hooks: getAsyncHookResponseAttachments called
+[DEBUG] Hooks: checkForNewResponses called
+[DEBUG] Hooks: Found 0 total hooks in registry
+[DEBUG] Hooks: checkForNewResponses returning 0 responses
+[DEBUG] MCP server "ide": Tool 'getDiagnostics' completed successfully in 47ms
+[DEBUG] Slash commands included in SlashCommand tool:
+[DEBUG] Slash commands included in SlashCommand tool:
+[DEBUG] Stream started - received first chunk
+[DEBUG] executePreToolHooks called for tool: Edit
+[DEBUG] Executing hooks for PreToolUse:Edit
+[DEBUG] Getting matching hook commands for PreToolUse with query: Edit
+[DEBUG] Found 0 hook matchers in settings
+[DEBUG] Matched 0 unique hooks for query "Edit" (0 before deduplication)
+[DEBUG] Found 0 hook commands to execute
+[DEBUG] MCP server "ide": Calling MCP tool: getDiagnostics
+[DEBUG] MCP server "ide": Tool 'getDiagnostics' completed successfully in 8ms
+[DEBUG] Writing to temp file: /root/instalador.sh.tmp.769730.1759961613226
+[DEBUG] Preserving file permissions: 100755
+[DEBUG] Temp file written successfully, size: 72523 bytes
+[DEBUG] Applied original permissions to temp file
+[DEBUG] Renaming /root/instalador.sh.tmp.769730.1759961613226 to /root/instalador.sh
+[DEBUG] File /root/instalador.sh written atomically
+[DEBUG] Executing hooks for PostToolUse:Edit
+[DEBUG] Getting matching hook commands for PostToolUse with query: Edit
+[DEBUG] Found 0 hook matchers in settings
+[DEBUG] Matched 0 unique hooks for query "Edit" (0 before deduplication)
+[DEBUG] Found 0 hook commands to execute
+[DEBUG] MCP server "ide": Calling MCP tool: getDiagnostics
+[DEBUG] Hooks: getAsyncHookResponseAttachments called
+[DEBUG] Hooks: checkForNewResponses called
+[DEBUG] Hooks: Found 0 total hooks in registry
+[DEBUG] Hooks: checkForNewResponses returning 0 responses
+[DEBUG] MCP server "ide": Tool 'getDiagnostics' completed successfully in 29ms
+[DEBUG] Slash commands included in SlashCommand tool:
+[DEBUG] Slash commands included in SlashCommand tool:
+[DEBUG] Stream started - received first chunk
+[DEBUG] executePreToolHooks called for tool: Read
+[DEBUG] Executing hooks for PreToolUse:Read
+[DEBUG] Getting matching hook commands for PreToolUse with query: Read
+[DEBUG] Found 0 hook matchers in settings
+[DEBUG] Matched 0 unique hooks for query "Read" (0 before deduplication)
+[DEBUG] Found 0 hook commands to execute
+[DEBUG] Executing hooks for PostToolUse:Read
+[DEBUG] Getting matching hook commands for PostToolUse with query: Read
+[DEBUG] Found 0 hook matchers in settings
+[DEBUG] Matched 0 unique hooks for query "Read" (0 before deduplication)
+[DEBUG] Found 0 hook commands to execute
+[DEBUG] MCP server "ide": Calling MCP tool: getDiagnostics
+[DEBUG] Hooks: getAsyncHookResponseAttachments called
+[DEBUG] Hooks: checkForNewResponses called
+[DEBUG] Hooks: Found 0 total hooks in registry
+[DEBUG] Hooks: checkForNewResponses returning 0 responses
+[DEBUG] MCP server "ide": Tool 'getDiagnostics' completed successfully in 38ms
+[DEBUG] Slash commands included in SlashCommand tool:
+[DEBUG] Slash commands included in SlashCommand tool:
+[DEBUG] Stream started - received first chunk
+[DEBUG] executePreToolHooks called for tool: Edit
+[DEBUG] Executing hooks for PreToolUse:Edit
+[DEBUG] Getting matching hook commands for PreToolUse with query: Edit
+[DEBUG] Found 0 hook matchers in settings
+[DEBUG] Matched 0 unique hooks for query "Edit" (0 before deduplication)
+[DEBUG] Found 0 hook commands to execute
+[DEBUG] MCP server "ide": Calling MCP tool: getDiagnostics
+[DEBUG] MCP server "ide": Tool 'getDiagnostics' completed successfully in 12ms
+[DEBUG] Writing to temp file: /root/instalador.sh.tmp.769730.1759961622999
+[DEBUG] Preserving file permissions: 100755
+[DEBUG] Temp file written successfully, size: 72515 bytes
+[DEBUG] Applied original permissions to temp file
+[DEBUG] Renaming /root/instalador.sh.tmp.769730.1759961622999 to /root/instalador.sh
+[DEBUG] File /root/instalador.sh written atomically
+[DEBUG] Executing hooks for PostToolUse:Edit
+[DEBUG] Getting matching hook commands for PostToolUse with query: Edit
+[DEBUG] Found 0 hook matchers in settings
+[DEBUG] Matched 0 unique hooks for query "Edit" (0 before deduplication)
+[DEBUG] Found 0 hook commands to execute
+[DEBUG] MCP server "ide": Calling MCP tool: getDiagnostics
+[DEBUG] Hooks: getAsyncHookResponseAttachments called
+[DEBUG] Hooks: checkForNewResponses called
+[DEBUG] Hooks: Found 0 total hooks in registry
+[DEBUG] Hooks: checkForNewResponses returning 0 responses
+[DEBUG] MCP server "ide": Tool 'getDiagnostics' completed successfully in 34ms
+[DEBUG] Slash commands included in SlashCommand tool:
+[DEBUG] Slash commands included in SlashCommand tool:
+[DEBUG] Stream started - received first chunk
+[DEBUG] executePreToolHooks called for tool: TodoWrite
+[DEBUG] Executing hooks for PreToolUse:TodoWrite
+[DEBUG] Getting matching hook commands for PreToolUse with query: TodoWrite
+[DEBUG] Found 0 hook matchers in settings
+[DEBUG] Matched 0 unique hooks for query "TodoWrite" (0 before deduplication)
+[DEBUG] Found 0 hook commands to execute
+[DEBUG] Writing to temp file: /root/.claude/todos/17568d22-943e-4068-be7e-be5f4920c2b1-agent-17568d22-943e-4068-be7e-be5f4920c2b1.json.tmp.769730.1759961630010
+[DEBUG] Preserving file permissions: 100644
+[DEBUG] Temp file written successfully, size: 696 bytes
+[DEBUG] Applied original permissions to temp file
+[DEBUG] Renaming /root/.claude/todos/17568d22-943e-4068-be7e-be5f4920c2b1-agent-17568d22-943e-4068-be7e-be5f4920c2b1.json.tmp.769730.1759961630010 to /root/.claude/todos/17568d22-943e-4068-be7e-be5f4920c2b1-agent-17568d22-943e-4068-be7e-be5f4920c2b1.json
+[DEBUG] File /root/.claude/todos/17568d22-943e-4068-be7e-be5f4920c2b1-agent-17568d22-943e-4068-be7e-be5f4920c2b1.json written atomically
+[DEBUG] Executing hooks for PostToolUse:TodoWrite
+[DEBUG] Getting matching hook commands for PostToolUse with query: TodoWrite
+[DEBUG] Found 0 hook matchers in settings
+[DEBUG] Matched 0 unique hooks for query "TodoWrite" (0 before deduplication)
+[DEBUG] Found 0 hook commands to execute
+[DEBUG] executePreToolHooks called for tool: Bash
+[DEBUG] Executing hooks for PreToolUse:Bash
+[DEBUG] Getting matching hook commands for PreToolUse with query: Bash
+[DEBUG] Found 0 hook matchers in settings
+[DEBUG] Matched 0 unique hooks for query "Bash" (0 before deduplication)
+[DEBUG] Found 0 hook commands to execute
+[DEBUG] Bash tool invoked with command: bash -n /root/instalador.sh && echo "✅ Sintaxe bash válida"
+[DEBUG] Bash tool description: Validate bash syntax
+[DEBUG] Executing hooks for PostToolUse:Bash
+[DEBUG] Getting matching hook commands for PostToolUse with query: Bash
+[DEBUG] Found 0 hook matchers in settings
+[DEBUG] Matched 0 unique hooks for query "Bash" (0 before deduplication)
+[DEBUG] Found 0 hook commands to execute
+[DEBUG] MCP server "ide": Calling MCP tool: getDiagnostics
+[DEBUG] Hooks: getAsyncHookResponseAttachments called
+[DEBUG] Hooks: checkForNewResponses called
+[DEBUG] Hooks: Found 0 total hooks in registry
+[DEBUG] Hooks: checkForNewResponses returning 0 responses
+[DEBUG] MCP server "ide": Tool 'getDiagnostics' completed successfully in 39ms
+[DEBUG] Slash commands included in SlashCommand tool:
+[DEBUG] Slash commands included in SlashCommand tool:
+[ERROR] MaxFileReadTokenExceededError: MaxFileReadTokenExceededError: File content (27145 tokens) exceeds maximum allowed tokens (25000). Please use offset and limit parameters to read specific portions of the file, or use the GrepTool to search for specific content.
+    at Ys2 (file:///usr/lib/node_modules/@anthropic-ai/claude-code/cli.js:1846:400)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async Object.call (file:///usr/lib/node_modules/@anthropic-ai/claude-code/cli.js:1841:1006)
+    at async YO (file:///usr/lib/node_modules/@anthropic-ai/claude-code/cli.js:1846:3205)
+    at async file:///usr/lib/node_modules/@anthropic-ai/claude-code/cli.js:3277:1339
+[DEBUG] Stream started - received first chunk
+[DEBUG] executePreToolHooks called for tool: Bash
+[DEBUG] Executing hooks for PreToolUse:Bash
+[DEBUG] Getting matching hook commands for PreToolUse with query: Bash
+[DEBUG] Found 0 hook matchers in settings
+[DEBUG] Matched 0 unique hooks for query "Bash" (0 before deduplication)
+[DEBUG] Found 0 hook commands to execute
+[DEBUG] AutoUpdaterWrapper: Installation type: npm-global, using native: false
+[DEBUG] Bash tool invoked with command: empresa="atuar_pay"
+nome_titulo="Atuar Pay"
+
+# Testar exatamente como está no instalador agora
+test_cmd="bash <<COMPANY_NAME_UPDATE
+  set -Eeuo pipefail
+  DB_NAME=\"${empresa}\"
+  TARGET_NAME=\"${nome_titulo}\"
+  SAFE_NEW_NAME=\\\$(printf \"%s\" \"\\\$TARGET_NAME\" | sed \"s/'/''/g\")
+  
+  # Simular SELECT (sem sudo para testar)
+  echo \"[TEST] SELECT name FROM \\\"Companies\\\" WHERE id = 1;\"
+  CURRENT_NAME=\"Old Company\"
+  
+  if [ \"\\\$CURRENT_NAME\" = \"\\\$TARGET_NAME\" ]; then
+    printf \"[INFO] Nome da empresa já configurado para %s; nenhuma mudança necessária.\\\\n\" \"\\\$TARGET_NAME\"
+  else
+    if [ -z \"\\\$CURRENT_NAME\" ]; then
+      printf \"[WARN] Nome atual indisponível; aplicando valor configurado.\\\\n\"
+    else
+      printf \"[INFO] Atualizando nome da empresa de %s para %s.\\\\n\" \"\\\$CURRENT_NAME\" \"\\\$TARGET_NAME\"
+    fi
+    # Simular UPDATE (sem sudo para testar)
+    echo \"[TEST] UPDATE \\\"Companies\\\" SET name = '\\\$SAFE_NEW_NAME' WHERE id = 1;\"
+  fi
+COMPANY_NAME_UPDATE
+"
+
+echo "=== Testando código corrigido com eval ==="
+eval "$test_cmd"
+[DEBUG] Bash tool description: Test corrected code with eval
+[DEBUG] Executing hooks for PostToolUse:Bash
+[DEBUG] Getting matching hook commands for PostToolUse with query: Bash
+[DEBUG] Found 0 hook matchers in settings
+[DEBUG] Matched 0 unique hooks for query "Bash" (0 before deduplication)
+[DEBUG] Found 0 hook commands to execute
+[DEBUG] MCP server "ide": Calling MCP tool: getDiagnostics
+[DEBUG] Hooks: getAsyncHookResponseAttachments called
+[DEBUG] Hooks: checkForNewResponses called
+[DEBUG] Hooks: Found 0 total hooks in registry
+[DEBUG] Hooks: checkForNewResponses returning 0 responses
+[DEBUG] MCP server "ide": Tool 'getDiagnostics' completed successfully in 37ms
+[DEBUG] Slash commands included in SlashCommand tool:
+[DEBUG] AutoUpdater: Detected installation type: npm-global
+[DEBUG] AutoUpdater: Using global update method
+[DEBUG] Slash commands included in SlashCommand tool:
+[DEBUG] Writing to temp file: /root/.claude.json.tmp.769730.1759961645679
+[DEBUG] Preserving file permissions: 100600
+[DEBUG] Temp file written successfully, size: 34362 bytes
+[DEBUG] Applied original permissions to temp file
+[DEBUG] Renaming /root/.claude.json.tmp.769730.1759961645679 to /root/.claude.json
+[DEBUG] File /root/.claude.json written atomically
+[DEBUG] Stream started - received first chunk
+[DEBUG] executePreToolHooks called for tool: TodoWrite
+[DEBUG] Executing hooks for PreToolUse:TodoWrite
+[DEBUG] Getting matching hook commands for PreToolUse with query: TodoWrite
+[DEBUG] Found 0 hook matchers in settings
+[DEBUG] Matched 0 unique hooks for query "TodoWrite" (0 before deduplication)
+[DEBUG] Found 0 hook commands to execute
+[DEBUG] Writing to temp file: /root/.claude/todos/17568d22-943e-4068-be7e-be5f4920c2b1-agent-17568d22-943e-4068-be7e-be5f4920c2b1.json.tmp.769730.1759961651208
+[DEBUG] Preserving file permissions: 100644
+[DEBUG] Temp file written successfully, size: 2 bytes
+[DEBUG] Applied original permissions to temp file
+[DEBUG] Renaming /root/.claude/todos/17568d22-943e-4068-be7e-be5f4920c2b1-agent-17568d22-943e-4068-be7e-be5f4920c2b1.json.tmp.769730.1759961651208 to /root/.claude/todos/17568d22-943e-4068-be7e-be5f4920c2b1-agent-17568d22-943e-4068-be7e-be5f4920c2b1.json
+[DEBUG] File /root/.claude/todos/17568d22-943e-4068-be7e-be5f4920c2b1-agent-17568d22-943e-4068-be7e-be5f4920c2b1.json written atomically
+[DEBUG] Executing hooks for PostToolUse:TodoWrite
+[DEBUG] Getting matching hook commands for PostToolUse with query: TodoWrite
+[DEBUG] Found 0 hook matchers in settings
+[DEBUG] Matched 0 unique hooks for query "TodoWrite" (0 before deduplication)
+[DEBUG] Found 0 hook commands to execute
+[DEBUG] executePreToolHooks called for tool: Bash
+[DEBUG] Executing hooks for PreToolUse:Bash
+[DEBUG] Getting matching hook commands for PreToolUse with query: Bash
+[DEBUG] Found 0 hook matchers in settings
+[DEBUG] Matched 0 unique hooks for query "Bash" (0 before deduplication)
+[DEBUG] Found 0 hook commands to execute
+[DEBUG] Bash tool invoked with command: diff -u /root/instalador.sh.backup-before-sql-fix /root/instalador.sh
+[DEBUG] Bash tool description: Show diff of changes
+[DEBUG] Executing hooks for PostToolUse:Bash
+[DEBUG] Getting matching hook commands for PostToolUse with query: Bash
+[DEBUG] Found 0 hook matchers in settings
+[DEBUG] Matched 0 unique hooks for query "Bash" (0 before deduplication)
+[DEBUG] Found 0 hook commands to execute
+[DEBUG] MCP server "ide": Calling MCP tool: getDiagnostics
+[DEBUG] Hooks: getAsyncHookResponseAttachments called
+[DEBUG] Hooks: checkForNewResponses called
+[DEBUG] Hooks: Found 0 total hooks in registry
+[DEBUG] Hooks: checkForNewResponses returning 0 responses
+[DEBUG] MCP server "ide": Tool 'getDiagnostics' completed successfully in 33ms
+[DEBUG] Slash commands included in SlashCommand tool:
+[DEBUG] Slash commands included in SlashCommand tool:
+[ERROR] MaxFileReadTokenExceededError: MaxFileReadTokenExceededError: File content (27153 tokens) exceeds maximum allowed tokens (25000). Please use offset and limit parameters to read specific portions of the file, or use the GrepTool to search for specific content.
+    at Ys2 (file:///usr/lib/node_modules/@anthropic-ai/claude-code/cli.js:1846:400)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async Object.call (file:///usr/lib/node_modules/@anthropic-ai/claude-code/cli.js:1841:1006)
+    at async YO (file:///usr/lib/node_modules/@anthropic-ai/claude-code/cli.js:1846:3205)
+    at async file:///usr/lib/node_modules/@anthropic-ai/claude-code/cli.js:3277:1339
+[ERROR] MaxFileReadTokenExceededError: MaxFileReadTokenExceededError: File content (27145 tokens) exceeds maximum allowed tokens (25000). Please use offset and limit parameters to read specific portions of the file, or use the GrepTool to search for specific content.
+    at Ys2 (file:///usr/lib/node_modules/@anthropic-ai/claude-code/cli.js:1846:400)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async Object.call (file:///usr/lib/node_modules/@anthropic-ai/claude-code/cli.js:1841:1006)
+    at async YO (file:///usr/lib/node_modules/@anthropic-ai/claude-code/cli.js:1846:3205)
+    at async file:///usr/lib/node_modules/@anthropic-ai/claude-code/cli.js:3277:1339
+[DEBUG] Stream started - received first chunk
+[DEBUG] executePreToolHooks called for tool: Bash
+[DEBUG] Executing hooks for PreToolUse:Bash
+[DEBUG] Getting matching hook commands for PreToolUse with query: Bash
+[DEBUG] Found 0 hook matchers in settings
+[DEBUG] Matched 0 unique hooks for query "Bash" (0 before deduplication)
+[DEBUG] Found 0 hook commands to execute
+[DEBUG] Getting matching hook commands for Notification with query: undefined
+[DEBUG] Found 0 hook matchers in settings
+[DEBUG] Matched 0 unique hooks for query "no match query" (0 before deduplication)
+[DEBUG] AutoUpdaterWrapper: Installation type: npm-global, using native: false
+[DEBUG] Bash tool invoked with command: cat <<'FINAL'
+
+═══════════════════════════════════════════════════════════════════
+✅ CORREÇÃO APLICADA - ERRO SQL ETAPA 71%
+═══════════════════════════════════════════════════════════════════
+
+📊 ERRO IDENTIFICADO NO LOG:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ERROR:  syntax error at or near "\"
+LINE 1: UPDATE \Companies\ SET name = 'Atuar Pay' WHERE id = 1;
+               ^
+
+🔍 CAUSA RAIZ:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Excesso de barras invertidas nos escapes de aspas duplas no HEREDOC.
+
+HEREDOC (sem aspas simples) expande variáveis, então:
+  \\\\\\\"  →  \"  (seis barras = três pares = \ no resultado final)
+  \\\"      →  "  (duas barras = um par = aspas corretas)
+
+🔧 CORREÇÃO APLICADA:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Arquivo: /root/instalador.sh
+Linhas modificadas: 1196, 1205
+Backup: /root/instalador.sh.backup-before-sql-fix
+
+Linha 1196 (SELECT):
+  ANTES: \\\\\\\"Companies\\\\\\\"
+  DEPOIS: \\\"Companies\\\"
+
+Linha 1205 (UPDATE):
+  ANTES: \\\\\\\"Companies\\\\\\\"
+  DEPOIS: \\\"Companies\\\"
+
+📊 RESULTADO:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+SQL gerado agora:
+  SELECT name FROM "Companies" WHERE id = 1;
+  UPDATE "Companies" SET name = 'Atuar Pay' WHERE id = 1;
+
+Em vez do erro anterior:
+  SELECT name FROM \Companies\ WHERE id = 1;  ❌
+  UPDATE \Companies\ SET name = 'Atuar Pay' WHERE id = 1;  ❌
+
+✅ VALIDAÇÕES:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+✓ Sintaxe bash válida (bash -n)
+✓ Teste com eval bem-sucedido
+✓ SQL gerado com aspas corretas
+✓ Apenas 2 linhas modificadas
+✓ Nenhuma etapa anterior afetada
+✓ Correção cirúrgica e precisa
+
+═══════════════════════════════════════════════════════════════════
+📈 PROGRESSO ESPERADO
+═══════════════════════════════════════════════════════════════════
+
+Etapa 65% (Build):        ✓ PASSOU
+Etapa 71% (Company name):  ✓ CORRIGIDO (erro SQL resolvido)
+Próximas etapas:           → Deve avançar até 100%
+
+FINAL
+[DEBUG] Bash tool description: Generate final report
+[DEBUG] Executing hooks for PostToolUse:Bash
+[DEBUG] Getting matching hook commands for PostToolUse with query: Bash
+[DEBUG] Found 0 hook matchers in settings
+[DEBUG] Matched 0 unique hooks for query "Bash" (0 before deduplication)
+[DEBUG] Found 0 hook commands to execute
+[DEBUG] MCP server "ide": Calling MCP tool: getDiagnostics
+[DEBUG] Hooks: getAsyncHookResponseAttachments called
+[DEBUG] Hooks: checkForNewResponses called
+[DEBUG] Hooks: Found 0 total hooks in registry
+[DEBUG] Hooks: checkForNewResponses returning 0 responses
+[DEBUG] MCP server "ide": Tool 'getDiagnostics' completed successfully in 29ms
+[DEBUG] Slash commands included in SlashCommand tool:
+[DEBUG] AutoUpdater: Detected installation type: npm-global
+[DEBUG] AutoUpdater: Using global update method
+[DEBUG] Slash commands included in SlashCommand tool:
+[DEBUG] Writing to temp file: /root/.claude.json.tmp.769730.1759961681974
+[DEBUG] Preserving file permissions: 100600
+[DEBUG] Temp file written successfully, size: 34362 bytes
+[DEBUG] Applied original permissions to temp file
+[DEBUG] Renaming /root/.claude.json.tmp.769730.1759961681974 to /root/.claude.json
+[DEBUG] File /root/.claude.json written atomically
+[ERROR] MaxFileReadTokenExceededError: MaxFileReadTokenExceededError: File content (27145 tokens) exceeds maximum allowed tokens (25000). Please use offset and limit parameters to read specific portions of the file, or use the GrepTool to search for specific content.
+    at Ys2 (file:///usr/lib/node_modules/@anthropic-ai/claude-code/cli.js:1846:400)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async Object.call (file:///usr/lib/node_modules/@anthropic-ai/claude-code/cli.js:1841:1006)
+    at async YO (file:///usr/lib/node_modules/@anthropic-ai/claude-code/cli.js:1846:3205)
+    at async file:///usr/lib/node_modules/@anthropic-ai/claude-code/cli.js:3277:1339
+[ERROR] MaxFileReadTokenExceededError: MaxFileReadTokenExceededError: File content (27153 tokens) exceeds maximum allowed tokens (25000). Please use offset and limit parameters to read specific portions of the file, or use the GrepTool to search for specific content.
+    at Ys2 (file:///usr/lib/node_modules/@anthropic-ai/claude-code/cli.js:1846:400)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async Object.call (file:///usr/lib/node_modules/@anthropic-ai/claude-code/cli.js:1841:1006)
+    at async YO (file:///usr/lib/node_modules/@anthropic-ai/claude-code/cli.js:1846:3205)
+    at async file:///usr/lib/node_modules/@anthropic-ai/claude-code/cli.js:3277:1339
+[DEBUG] Stream started - received first chunk
+[DEBUG] executePreToolHooks called for tool: Bash
+[DEBUG] Executing hooks for PreToolUse:Bash
+[DEBUG] Getting matching hook commands for PreToolUse with query: Bash
+[DEBUG] Found 0 hook matchers in settings
+[DEBUG] Matched 0 unique hooks for query "Bash" (0 before deduplication)
+[DEBUG] Found 0 hook commands to execute
+[DEBUG] Bash tool invoked with command: ls -lh /root/instalador.sh* | awk '{print $9, "(" $5 ")"}'
+[DEBUG] Bash tool description: List all installer backups
+[DEBUG] Executing hooks for PostToolUse:Bash
+[DEBUG] Getting matching hook commands for PostToolUse with query: Bash
+[DEBUG] Found 0 hook matchers in settings
+[DEBUG] Matched 0 unique hooks for query "Bash" (0 before deduplication)
+[DEBUG] Found 0 hook commands to execute
+[DEBUG] MCP server "ide": Calling MCP tool: getDiagnostics
+[DEBUG] Hooks: getAsyncHookResponseAttachments called
+[DEBUG] Hooks: checkForNewResponses called
+[DEBUG] Hooks: Found 0 total hooks in registry
+[DEBUG] Hooks: checkForNewResponses returning 0 responses
+[DEBUG] MCP server "ide": Tool 'getDiagnostics' completed successfully in 35ms
+[DEBUG] Slash commands included in SlashCommand tool:
+[DEBUG] Slash commands included in SlashCommand tool:
+[DEBUG] Stream started - received first chunk
+[ERROR] Error: Error: Language not supported while highlighting code, falling back to markdown: 
+    at CK (file:///usr/lib/node_modules/@anthropic-ai/claude-code/cli.js:2218:1218)
+    at file:///usr/lib/node_modules/@anthropic-ai/claude-code/cli.js:2218:946
+    at Array.map (<anonymous>)
+    at hX (file:///usr/lib/node_modules/@anthropic-ai/claude-code/cli.js:2218:937)
+    at WOB (file:///usr/lib/node_modules/@anthropic-ai/claude-code/cli.js:2218:12993)
+    at EC (file:///usr/lib/node_modules/@anthropic-ai/claude-code/cli.js:32:19415)
+    at Cp (file:///usr/lib/node_modules/@anthropic-ai/claude-code/cli.js:34:42814)
+    at G9 (file:///usr/lib/node_modules/@anthropic-ai/claude-code/cli.js:34:38355)
+    at Lh (file:///usr/lib/node_modules/@anthropic-ai/claude-code/cli.js:34:38283)
+    at _C (file:///usr/lib/node_modules/@anthropic-ai/claude-code/cli.js:34:38137)
+[DEBUG] Writing to temp file: /root/.claude.json.tmp.769730.1759961696836
+[DEBUG] Preserving file permissions: 100600
+[DEBUG] Temp file written successfully, size: 34362 bytes
+[DEBUG] Applied original permissions to temp file
+[DEBUG] Renaming /root/.claude.json.tmp.769730.1759961696836 to /root/.claude.json
+[DEBUG] File /root/.claude.json written atomically
+[DEBUG] Executing hooks for Stop
+[DEBUG] Getting matching hook commands for Stop with query: undefined
+[DEBUG] Found 0 hook matchers in settings
+[DEBUG] Matched 0 unique hooks for query "no match query" (0 before deduplication)
+[DEBUG] Found 0 hook commands to execute
+[DEBUG] Writing to temp file: /root/.claude.json.tmp.769730.1759961696875
+[DEBUG] Preserving file permissions: 100600
+[DEBUG] Temp file written successfully, size: 34362 bytes
+[DEBUG] Applied original permissions to temp file
+[DEBUG] Renaming /root/.claude.json.tmp.769730.1759961696875 to /root/.claude.json
+[DEBUG] File /root/.claude.json written atomically
+[DEBUG] MCP server "ide": Calling MCP tool: getDiagnostics
+[DEBUG] Hooks: getAsyncHookResponseAttachments called
+[DEBUG] Hooks: checkForNewResponses called
+[DEBUG] Hooks: Found 0 total hooks in registry
+[DEBUG] Hooks: checkForNewResponses returning 0 responses
+[DEBUG] MCP server "ide": Tool 'getDiagnostics' completed successfully in 45ms
+[DEBUG] Executing hooks for UserPromptSubmit
+[DEBUG] Getting matching hook commands for UserPromptSubmit with query: undefined
+[DEBUG] Found 0 hook matchers in settings
+[DEBUG] Matched 0 unique hooks for query "no match query" (0 before deduplication)
+[DEBUG] Found 0 hook commands to execute
+[DEBUG] FileHistory: Making snapshot for message 2361b9b0-27f9-4949-82a8-6e655e51ac76
+[DEBUG] FileHistory: Added snapshot for 2361b9b0-27f9-4949-82a8-6e655e51ac76, tracking 1 files
+[DEBUG] MCP server "ide": Calling MCP tool: closeAllDiffTabs
+[DEBUG] Writing to temp file: /root/.claude.json.tmp.769730.1759961940983
+[DEBUG] Preserving file permissions: 100600
+[DEBUG] Temp file written successfully, size: 34619 bytes
+[DEBUG] Applied original permissions to temp file
+[DEBUG] Renaming /root/.claude.json.tmp.769730.1759961940983 to /root/.claude.json
+[DEBUG] File /root/.claude.json written atomically
+[DEBUG] MCP server "ide": Tool 'closeAllDiffTabs' completed successfully in 29ms
+[DEBUG] Slash commands included in SlashCommand tool:
+[DEBUG] Slash commands included in SlashCommand tool:
+[DEBUG] Stream started - received first chunk
+[DEBUG] executePreToolHooks called for tool: TodoWrite
+[DEBUG] Executing hooks for PreToolUse:TodoWrite
+[DEBUG] Getting matching hook commands for PreToolUse with query: TodoWrite
+[DEBUG] Found 0 hook matchers in settings
+[DEBUG] Matched 0 unique hooks for query "TodoWrite" (0 before deduplication)
+[DEBUG] Found 0 hook commands to execute
+[DEBUG] Writing to temp file: /root/.claude/todos/17568d22-943e-4068-be7e-be5f4920c2b1-agent-17568d22-943e-4068-be7e-be5f4920c2b1.json.tmp.769730.1759961953945
+[DEBUG] Preserving file permissions: 100644
+[DEBUG] Temp file written successfully, size: 603 bytes
+[DEBUG] Applied original permissions to temp file
+[DEBUG] Renaming /root/.claude/todos/17568d22-943e-4068-be7e-be5f4920c2b1-agent-17568d22-943e-4068-be7e-be5f4920c2b1.json.tmp.769730.1759961953945 to /root/.claude/todos/17568d22-943e-4068-be7e-be5f4920c2b1-agent-17568d22-943e-4068-be7e-be5f4920c2b1.json
+[DEBUG] File /root/.claude/todos/17568d22-943e-4068-be7e-be5f4920c2b1-agent-17568d22-943e-4068-be7e-be5f4920c2b1.json written atomically
+[DEBUG] Executing hooks for PostToolUse:TodoWrite
+[DEBUG] Getting matching hook commands for PostToolUse with query: TodoWrite
+[DEBUG] Found 0 hook matchers in settings
+[DEBUG] Matched 0 unique hooks for query "TodoWrite" (0 before deduplication)
+[DEBUG] Found 0 hook commands to execute
+[DEBUG] executePreToolHooks called for tool: Bash
+[DEBUG] Executing hooks for PreToolUse:Bash
+[DEBUG] Getting matching hook commands for PreToolUse with query: Bash
+[DEBUG] Found 0 hook matchers in settings
+[DEBUG] Matched 0 unique hooks for query "Bash" (0 before deduplication)
+[DEBUG] Found 0 hook commands to execute
+[DEBUG] Bash tool invoked with command: tail -100 /root/scripts/chatia-install.log | grep -A20 "PostgreSQL"
+[DEBUG] Bash tool description: Find PostgreSQL error in log
+[DEBUG] Executing hooks for PostToolUse:Bash
+[DEBUG] Getting matching hook commands for PostToolUse with query: Bash
+[DEBUG] Found 0 hook matchers in settings
+[DEBUG] Matched 0 unique hooks for query "Bash" (0 before deduplication)
+[DEBUG] Found 0 hook commands to execute
+[DEBUG] MCP server "ide": Calling MCP tool: getDiagnostics
+[DEBUG] Hooks: getAsyncHookResponseAttachments called
+[DEBUG] Hooks: checkForNewResponses called
+[DEBUG] Hooks: Found 0 total hooks in registry
+[DEBUG] Hooks: checkForNewResponses returning 0 responses
+[DEBUG] MCP server "ide": Tool 'getDiagnostics' completed successfully in 42ms
+[DEBUG] Slash commands included in SlashCommand tool:
+[DEBUG] Slash commands included in SlashCommand tool:
+[DEBUG] Stream started - received first chunk
+[DEBUG] executePreToolHooks called for tool: TodoWrite
+[DEBUG] Executing hooks for PreToolUse:TodoWrite
+[DEBUG] Getting matching hook commands for PreToolUse with query: TodoWrite
+[DEBUG] Found 0 hook matchers in settings
+[DEBUG] Matched 0 unique hooks for query "TodoWrite" (0 before deduplication)
+[DEBUG] Found 0 hook commands to execute
+[DEBUG] Writing to temp file: /root/.claude/todos/17568d22-943e-4068-be7e-be5f4920c2b1-agent-17568d22-943e-4068-be7e-be5f4920c2b1.json.tmp.769730.1759961963663
+[DEBUG] Preserving file permissions: 100644
+[DEBUG] Temp file written successfully, size: 589 bytes
+[DEBUG] Applied original permissions to temp file
+[DEBUG] Renaming /root/.claude/todos/17568d22-943e-4068-be7e-be5f4920c2b1-agent-17568d22-943e-4068-be7e-be5f4920c2b1.json.tmp.769730.1759961963663 to /root/.claude/todos/17568d22-943e-4068-be7e-be5f4920c2b1-agent-17568d22-943e-4068-be7e-be5f4920c2b1.json
+[DEBUG] File /root/.claude/todos/17568d22-943e-4068-be7e-be5f4920c2b1-agent-17568d22-943e-4068-be7e-be5f4920c2b1.json written atomically
+[DEBUG] Executing hooks for PostToolUse:TodoWrite
+[DEBUG] Getting matching hook commands for PostToolUse with query: TodoWrite
+[DEBUG] Found 0 hook matchers in settings
+[DEBUG] Matched 0 unique hooks for query "TodoWrite" (0 before deduplication)
+[DEBUG] Found 0 hook commands to execute
+[DEBUG] executePreToolHooks called for tool: Bash
+[DEBUG] Executing hooks for PreToolUse:Bash
+[DEBUG] Getting matching hook commands for PreToolUse with query: Bash
+[DEBUG] Found 0 hook matchers in settings
+[DEBUG] Matched 0 unique hooks for query "Bash" (0 before deduplication)
+[DEBUG] Found 0 hook commands to execute
+[DEBUG] Bash tool invoked with command: systemctl status postgresql
+[DEBUG] Bash tool description: Check PostgreSQL service status
+[DEBUG] Executing hooks for PostToolUse:Bash
+[DEBUG] Getting matching hook commands for PostToolUse with query: Bash
+[DEBUG] Found 0 hook matchers in settings
+[DEBUG] Matched 0 unique hooks for query "Bash" (0 before deduplication)
+[DEBUG] Found 0 hook commands to execute
+[DEBUG] MCP server "ide": Calling MCP tool: getDiagnostics
+[DEBUG] Hooks: getAsyncHookResponseAttachments called
+[DEBUG] Hooks: checkForNewResponses called
+[DEBUG] Hooks: Found 0 total hooks in registry
+[DEBUG] Hooks: checkForNewResponses returning 0 responses
+[DEBUG] MCP server "ide": Tool 'getDiagnostics' completed successfully in 38ms
+[DEBUG] Slash commands included in SlashCommand tool:
+[DEBUG] Slash commands included in SlashCommand tool:
+[DEBUG] Stream started - received first chunk
+[DEBUG] executePreToolHooks called for tool: Bash
+[DEBUG] Executing hooks for PreToolUse:Bash
+[DEBUG] Getting matching hook commands for PreToolUse with query: Bash
+[DEBUG] Found 0 hook matchers in settings
+[DEBUG] Matched 0 unique hooks for query "Bash" (0 before deduplication)
+[DEBUG] Found 0 hook commands to execute
+[DEBUG] Bash tool invoked with command: systemctl status postgresql@17-main
+[DEBUG] Bash tool description: Check PostgreSQL 17 cluster status
+[DEBUG] MCP server "ide": Calling MCP tool: getDiagnostics
+[DEBUG] Hooks: getAsyncHookResponseAttachments called
+[DEBUG] Hooks: checkForNewResponses called
+[DEBUG] Hooks: Found 0 total hooks in registry
+[DEBUG] Hooks: checkForNewResponses returning 0 responses
+[DEBUG] MCP server "ide": Tool 'getDiagnostics' completed successfully in 41ms
+[DEBUG] Slash commands included in SlashCommand tool:
+[DEBUG] Slash commands included in SlashCommand tool:
+[DEBUG] Stream started - received first chunk
+[DEBUG] executePreToolHooks called for tool: TodoWrite
+[DEBUG] Executing hooks for PreToolUse:TodoWrite
+[DEBUG] Getting matching hook commands for PreToolUse with query: TodoWrite
+[DEBUG] Found 0 hook matchers in settings
+[DEBUG] Matched 0 unique hooks for query "TodoWrite" (0 before deduplication)
+[DEBUG] Found 0 hook commands to execute
+[DEBUG] Writing to temp file: /root/.claude/todos/17568d22-943e-4068-be7e-be5f4920c2b1-agent-17568d22-943e-4068-be7e-be5f4920c2b1.json.tmp.769730.1759961977856
+[DEBUG] Preserving file permissions: 100644
+[DEBUG] Temp file written successfully, size: 567 bytes
+[DEBUG] Applied original permissions to temp file
+[DEBUG] Renaming /root/.claude/todos/17568d22-943e-4068-be7e-be5f4920c2b1-agent-17568d22-943e-4068-be7e-be5f4920c2b1.json.tmp.769730.1759961977856 to /root/.claude/todos/17568d22-943e-4068-be7e-be5f4920c2b1-agent-17568d22-943e-4068-be7e-be5f4920c2b1.json
+[DEBUG] File /root/.claude/todos/17568d22-943e-4068-be7e-be5f4920c2b1-agent-17568d22-943e-4068-be7e-be5f4920c2b1.json written atomically
+[DEBUG] Executing hooks for PostToolUse:TodoWrite
+[DEBUG] Getting matching hook commands for PostToolUse with query: TodoWrite
+[DEBUG] Found 0 hook matchers in settings
+[DEBUG] Matched 0 unique hooks for query "TodoWrite" (0 before deduplication)
+[DEBUG] Found 0 hook commands to execute
+[DEBUG] executePreToolHooks called for tool: Bash
+[DEBUG] Executing hooks for PreToolUse:Bash
+[DEBUG] Getting matching hook commands for PreToolUse with query: Bash
+[DEBUG] Found 0 hook matchers in settings
+[DEBUG] Matched 0 unique hooks for query "Bash" (0 before deduplication)
+[DEBUG] Found 0 hook commands to execute
+[DEBUG] Permission suggestions for Bash: [
+  {
+    "type": "addRules",
+    "rules": [
+      {
+        "toolName": "Bash",
+        "ruleContent": "systemctl start:*"
+      }
+    ],
+    "behavior": "allow",
+    "destination": "localSettings"
+  }
+]
+[DEBUG] Getting matching hook commands for Notification with query: undefined
+[DEBUG] Found 0 hook matchers in settings
+[DEBUG] Matched 0 unique hooks for query "no match query" (0 before deduplication)
+[DEBUG] Persisting permission update: addRules to source 'localSettings'
+[DEBUG] Persisting 1 allow rule(s) to localSettings
+[DEBUG] Writing to temp file: /root/.claude/settings.local.json.tmp.769730.1759961995807
+[DEBUG] Preserving file permissions: 100644
+[DEBUG] Temp file written successfully, size: 973 bytes
+[DEBUG] Applied original permissions to temp file
+[DEBUG] Renaming /root/.claude/settings.local.json.tmp.769730.1759961995807 to /root/.claude/settings.local.json
+[DEBUG] File /root/.claude/settings.local.json written atomically
+[DEBUG] Applying permission update: Adding 1 allow rule(s) to destination 'localSettings': ["Bash(systemctl start:*)"]
+[DEBUG] AutoUpdaterWrapper: Installation type: npm-global, using native: false
+[DEBUG] Bash tool invoked with command: systemctl start postgresql@17-main && systemctl status postgresql@17-main
+[DEBUG] Bash tool description: Start PostgreSQL 17 cluster
+[DEBUG] MCP server "ide": Calling MCP tool: getDiagnostics
+[DEBUG] Hooks: getAsyncHookResponseAttachments called
+[DEBUG] Hooks: checkForNewResponses called
+[DEBUG] Hooks: Found 0 total hooks in registry
+[DEBUG] Hooks: checkForNewResponses returning 0 responses
+[DEBUG] MCP server "ide": Tool 'getDiagnostics' completed successfully in 56ms
+[DEBUG] Slash commands included in SlashCommand tool:
+[DEBUG] AutoUpdater: Detected installation type: npm-global
+[DEBUG] AutoUpdater: Using global update method
+[DEBUG] Slash commands included in SlashCommand tool:
+[DEBUG] Writing to temp file: /root/.claude.json.tmp.769730.1759961998443
+[DEBUG] Preserving file permissions: 100600
+[DEBUG] Temp file written successfully, size: 34619 bytes
+[DEBUG] Applied original permissions to temp file
+[DEBUG] Renaming /root/.claude.json.tmp.769730.1759961998443 to /root/.claude.json
+[DEBUG] File /root/.claude.json written atomically
+[DEBUG] Stream started - received first chunk
+[DEBUG] executePreToolHooks called for tool: Bash
+[DEBUG] Executing hooks for PreToolUse:Bash
+[DEBUG] Getting matching hook commands for PreToolUse with query: Bash
+[DEBUG] Found 0 hook matchers in settings
+[DEBUG] Matched 0 unique hooks for query "Bash" (0 before deduplication)
+[DEBUG] Found 0 hook commands to execute
+[DEBUG] Permission suggestions for Bash: [
+  {
+    "type": "addRules",
+    "rules": [
+      {
+        "toolName": "Bash",
+        "ruleContent": "journalctl:*"
+      }
+    ],
+    "behavior": "allow",
+    "destination": "localSettings"
+  }
+]
+[DEBUG] Getting matching hook commands for Notification with query: undefined
+[DEBUG] Found 0 hook matchers in settings
+[DEBUG] Matched 0 unique hooks for query "no match query" (0 before deduplication)
+[DEBUG] Persisting permission update: addRules to source 'localSettings'
+[DEBUG] Persisting 1 allow rule(s) to localSettings
+[DEBUG] Writing to temp file: /root/.claude/settings.local.json.tmp.769730.1759962021462
+[DEBUG] Preserving file permissions: 100644
+[DEBUG] Temp file written successfully, size: 1001 bytes
+[DEBUG] Applied original permissions to temp file
+[DEBUG] Renaming /root/.claude/settings.local.json.tmp.769730.1759962021462 to /root/.claude/settings.local.json
+[DEBUG] File /root/.claude/settings.local.json written atomically
+[DEBUG] Applying permission update: Adding 1 allow rule(s) to destination 'localSettings': ["Bash(journalctl:*)"]
+[DEBUG] AutoUpdaterWrapper: Installation type: npm-global, using native: false
+[DEBUG] Bash tool invoked with command: journalctl -u postgresql@17-main -n 50 --no-pager
+[DEBUG] Bash tool description: Check PostgreSQL logs
+[DEBUG] Executing hooks for PostToolUse:Bash
+[DEBUG] Getting matching hook commands for PostToolUse with query: Bash
+[DEBUG] Found 0 hook matchers in settings
+[DEBUG] Matched 0 unique hooks for query "Bash" (0 before deduplication)
+[DEBUG] Found 0 hook commands to execute
+[DEBUG] MCP server "ide": Calling MCP tool: getDiagnostics
+[DEBUG] Hooks: getAsyncHookResponseAttachments called
+[DEBUG] Hooks: checkForNewResponses called
+[DEBUG] Hooks: Found 0 total hooks in registry
+[DEBUG] Hooks: checkForNewResponses returning 0 responses
+[DEBUG] MCP server "ide": Tool 'getDiagnostics' completed successfully in 53ms
+[DEBUG] Slash commands included in SlashCommand tool:
+[DEBUG] AutoUpdater: Detected installation type: npm-global
+[DEBUG] AutoUpdater: Using global update method
+[DEBUG] Slash commands included in SlashCommand tool:
+[DEBUG] Writing to temp file: /root/.claude.json.tmp.769730.1759962023564
+[DEBUG] Preserving file permissions: 100600
+[DEBUG] Temp file written successfully, size: 34619 bytes
+[DEBUG] Applied original permissions to temp file
+[DEBUG] Renaming /root/.claude.json.tmp.769730.1759962023564 to /root/.claude.json
+[DEBUG] File /root/.claude.json written atomically
+[DEBUG] Stream started - received first chunk
+[DEBUG] executePreToolHooks called for tool: Bash
+[DEBUG] Executing hooks for PreToolUse:Bash
+[DEBUG] Getting matching hook commands for PreToolUse with query: Bash
+[DEBUG] Found 0 hook matchers in settings
+[DEBUG] Matched 0 unique hooks for query "Bash" (0 before deduplication)
+[DEBUG] Found 0 hook commands to execute
+[DEBUG] Permission suggestions for Bash: [
+  {
+    "type": "addRules",
+    "rules": [
+      {
+        "toolName": "Bash",
+        "ruleContent": "pg_ctlcluster:*"
+      }
+    ],
+    "behavior": "allow",
+    "destination": "localSettings"
+  }
+]
+[DEBUG] Getting matching hook commands for Notification with query: undefined
+[DEBUG] Found 0 hook matchers in settings
+[DEBUG] Matched 0 unique hooks for query "no match query" (0 before deduplication)
+[DEBUG] Persisting permission update: addRules to source 'localSettings'
+[DEBUG] Persisting 1 allow rule(s) to localSettings
+[DEBUG] Writing to temp file: /root/.claude/settings.local.json.tmp.769730.1759962050484
+[DEBUG] Preserving file permissions: 100644
+[DEBUG] Temp file written successfully, size: 1032 bytes
+[DEBUG] Applied original permissions to temp file
+[DEBUG] Renaming /root/.claude/settings.local.json.tmp.769730.1759962050484 to /root/.claude/settings.local.json
+[DEBUG] File /root/.claude/settings.local.json written atomically
+[DEBUG] Applying permission update: Adding 1 allow rule(s) to destination 'localSettings': ["Bash(pg_ctlcluster:*)"]
+[DEBUG] AutoUpdaterWrapper: Installation type: npm-global, using native: false
+[DEBUG] Bash tool invoked with command: pg_ctlcluster 17 main start
+[DEBUG] Bash tool description: Start PostgreSQL using pg_ctlcluster
+[DEBUG] MCP server "ide": Calling MCP tool: getDiagnostics
+[DEBUG] Hooks: getAsyncHookResponseAttachments called
+[DEBUG] Hooks: checkForNewResponses called
+[DEBUG] Hooks: Found 0 total hooks in registry
+[DEBUG] Hooks: checkForNewResponses returning 0 responses
+[DEBUG] MCP server "ide": Tool 'getDiagnostics' completed successfully in 48ms
+[DEBUG] Slash commands included in SlashCommand tool:
+[DEBUG] AutoUpdater: Detected installation type: npm-global
+[DEBUG] AutoUpdater: Using global update method
+[DEBUG] Slash commands included in SlashCommand tool:
+[DEBUG] Writing to temp file: /root/.claude.json.tmp.769730.1759962052674
+[DEBUG] Preserving file permissions: 100600
+[DEBUG] Temp file written successfully, size: 34619 bytes
+[DEBUG] Applied original permissions to temp file
+[DEBUG] Renaming /root/.claude.json.tmp.769730.1759962052674 to /root/.claude.json
+[DEBUG] File /root/.claude.json written atomically
+[DEBUG] Stream started - received first chunk
+[DEBUG] executePreToolHooks called for tool: Bash
+[DEBUG] Executing hooks for PreToolUse:Bash
+[DEBUG] Getting matching hook commands for PreToolUse with query: Bash
+[DEBUG] Found 0 hook matchers in settings
+[DEBUG] Matched 0 unique hooks for query "Bash" (0 before deduplication)
+[DEBUG] Found 0 hook commands to execute
+[DEBUG] Permission suggestions for Bash: [
+  {
+    "type": "addRules",
+    "rules": [
+      {
+        "toolName": "Bash",
+        "ruleContent": "pg_lsclusters:*"
+      }
+    ],
+    "behavior": "allow",
+    "destination": "localSettings"
+  }
+]
+[DEBUG] Persisting permission update: addRules to source 'localSettings'
+[DEBUG] Persisting 1 allow rule(s) to localSettings
+[DEBUG] Writing to temp file: /root/.claude/settings.local.json.tmp.769730.1759962058668
+[DEBUG] Preserving file permissions: 100644
+[DEBUG] Temp file written successfully, size: 1063 bytes
+[DEBUG] Applied original permissions to temp file
+[DEBUG] Renaming /root/.claude/settings.local.json.tmp.769730.1759962058668 to /root/.claude/settings.local.json
+[DEBUG] File /root/.claude/settings.local.json written atomically
+[DEBUG] Applying permission update: Adding 1 allow rule(s) to destination 'localSettings': ["Bash(pg_lsclusters:*)"]
+[DEBUG] AutoUpdaterWrapper: Installation type: npm-global, using native: false
+[DEBUG] Bash tool invoked with command: pg_lsclusters
+[DEBUG] Bash tool description: List PostgreSQL clusters
+[DEBUG] Executing hooks for PostToolUse:Bash
+[DEBUG] Getting matching hook commands for PostToolUse with query: Bash
+[DEBUG] Found 0 hook matchers in settings
+[DEBUG] Matched 0 unique hooks for query "Bash" (0 before deduplication)
+[DEBUG] Found 0 hook commands to execute
+[DEBUG] MCP server "ide": Calling MCP tool: getDiagnostics
+[DEBUG] Hooks: getAsyncHookResponseAttachments called
+[DEBUG] Hooks: checkForNewResponses called
+[DEBUG] Hooks: Found 0 total hooks in registry
+[DEBUG] Hooks: checkForNewResponses returning 0 responses
+[DEBUG] MCP server "ide": Tool 'getDiagnostics' completed successfully in 42ms
+[DEBUG] Slash commands included in SlashCommand tool:
+[DEBUG] AutoUpdater: Detected installation type: npm-global
+[DEBUG] AutoUpdater: Using global update method
+[DEBUG] Slash commands included in SlashCommand tool:
+[DEBUG] Writing to temp file: /root/.claude.json.tmp.769730.1759962060822
+[DEBUG] Preserving file permissions: 100600
+[DEBUG] Temp file written successfully, size: 34619 bytes
+[DEBUG] Applied original permissions to temp file
+[DEBUG] Renaming /root/.claude.json.tmp.769730.1759962060822 to /root/.claude.json
+[DEBUG] File /root/.claude.json written atomically
+[DEBUG] Stream started - received first chunk
+[DEBUG] executePreToolHooks called for tool: Bash
+[DEBUG] Executing hooks for PreToolUse:Bash
+[DEBUG] Getting matching hook commands for PreToolUse with query: Bash
+[DEBUG] Found 0 hook matchers in settings
+[DEBUG] Matched 0 unique hooks for query "Bash" (0 before deduplication)
+[DEBUG] Found 0 hook commands to execute
+[DEBUG] Permission suggestions for Bash: [
+  {
+    "type": "addRules",
+    "rules": [
+      {
+        "toolName": "Bash",
+        "ruleContent": "dpkg:*"
+      }
+    ],
+    "behavior": "allow",
+    "destination": "localSettings"
+  }
+]
+[DEBUG] Getting matching hook commands for Notification with query: undefined
+[DEBUG] Found 0 hook matchers in settings
+[DEBUG] Matched 0 unique hooks for query "no match query" (0 before deduplication)
+[DEBUG] Persisting permission update: addRules to source 'localSettings'
+[DEBUG] Persisting 1 allow rule(s) to localSettings
+[DEBUG] Writing to temp file: /root/.claude/settings.local.json.tmp.769730.1759962081079
+[DEBUG] Preserving file permissions: 100644
+[DEBUG] Temp file written successfully, size: 1085 bytes
+[DEBUG] Applied original permissions to temp file
+[DEBUG] Renaming /root/.claude/settings.local.json.tmp.769730.1759962081079 to /root/.claude/settings.local.json
+[DEBUG] File /root/.claude/settings.local.json written atomically
+[DEBUG] Applying permission update: Adding 1 allow rule(s) to destination 'localSettings': ["Bash(dpkg:*)"]
+[DEBUG] AutoUpdaterWrapper: Installation type: npm-global, using native: false
+[DEBUG] Bash tool invoked with command: dpkg -l | grep postgresql | head -10
+[DEBUG] Bash tool description: Check PostgreSQL packages
+[DEBUG] Executing hooks for PostToolUse:Bash
+[DEBUG] Getting matching hook commands for PostToolUse with query: Bash
+[DEBUG] Found 0 hook matchers in settings
+[DEBUG] Matched 0 unique hooks for query "Bash" (0 before deduplication)
+[DEBUG] Found 0 hook commands to execute
+[DEBUG] MCP server "ide": Calling MCP tool: getDiagnostics
+[DEBUG] Hooks: getAsyncHookResponseAttachments called
+[DEBUG] Hooks: checkForNewResponses called
+[DEBUG] Hooks: Found 0 total hooks in registry
+[DEBUG] Hooks: checkForNewResponses returning 0 responses
+[DEBUG] MCP server "ide": Tool 'getDiagnostics' completed successfully in 46ms
+[DEBUG] Slash commands included in SlashCommand tool:
+[DEBUG] AutoUpdater: Detected installation type: npm-global
+[DEBUG] AutoUpdater: Using global update method
+[DEBUG] Slash commands included in SlashCommand tool:
+[DEBUG] Writing to temp file: /root/.claude.json.tmp.769730.1759962083291
+[DEBUG] Preserving file permissions: 100600
+[DEBUG] Temp file written successfully, size: 34619 bytes
+[DEBUG] Applied original permissions to temp file
+[DEBUG] Renaming /root/.claude.json.tmp.769730.1759962083291 to /root/.claude.json
+[DEBUG] File /root/.claude.json written atomically
+[DEBUG] Stream started - received first chunk
+[DEBUG] executePreToolHooks called for tool: Bash
+[DEBUG] Executing hooks for PreToolUse:Bash
+[DEBUG] Getting matching hook commands for PreToolUse with query: Bash
+[DEBUG] Found 0 hook matchers in settings
+[DEBUG] Matched 0 unique hooks for query "Bash" (0 before deduplication)
+[DEBUG] Found 0 hook commands to execute
+[DEBUG] Permission suggestions for Bash: [
+  {
+    "type": "addRules",
+    "rules": [
+      {
+        "toolName": "Bash",
+        "ruleContent": "pg_createcluster:*"
+      }
+    ],
+    "behavior": "allow",
+    "destination": "localSettings"
+  }
+]
+[DEBUG] Persisting permission update: addRules to source 'localSettings'
+[DEBUG] Persisting 1 allow rule(s) to localSettings
+[DEBUG] Writing to temp file: /root/.claude/settings.local.json.tmp.769730.1759962089172
+[DEBUG] Preserving file permissions: 100644
+[DEBUG] Temp file written successfully, size: 1119 bytes
+[DEBUG] Applied original permissions to temp file
+[DEBUG] Renaming /root/.claude/settings.local.json.tmp.769730.1759962089172 to /root/.claude/settings.local.json
+[DEBUG] File /root/.claude/settings.local.json written atomically
+[DEBUG] Applying permission update: Adding 1 allow rule(s) to destination 'localSettings': ["Bash(pg_createcluster:*)"]
+[DEBUG] AutoUpdaterWrapper: Installation type: npm-global, using native: false
+[DEBUG] Bash tool invoked with command: pg_createcluster 17 main --start
+[DEBUG] Bash tool description: Create and start PostgreSQL 17 main cluster
+[DEBUG] AutoUpdater: Detected installation type: npm-global
+[DEBUG] AutoUpdater: Using global update method
+[DEBUG] Writing to temp file: /root/.claude.json.tmp.769730.1759962091302
+[DEBUG] Preserving file permissions: 100600
+[DEBUG] Temp file written successfully, size: 34619 bytes
+[DEBUG] Applied original permissions to temp file
+[DEBUG] Renaming /root/.claude.json.tmp.769730.1759962091302 to /root/.claude.json
+[DEBUG] File /root/.claude.json written atomically
+[DEBUG] Executing hooks for PostToolUse:Bash
+[DEBUG] Getting matching hook commands for PostToolUse with query: Bash
+[DEBUG] Found 0 hook matchers in settings
+[DEBUG] Matched 0 unique hooks for query "Bash" (0 before deduplication)
+[DEBUG] Found 0 hook commands to execute
+[DEBUG] MCP server "ide": Calling MCP tool: getDiagnostics
+[DEBUG] Hooks: getAsyncHookResponseAttachments called
+[DEBUG] Hooks: checkForNewResponses called
+[DEBUG] Hooks: Found 0 total hooks in registry
+[DEBUG] Hooks: checkForNewResponses returning 0 responses
+[DEBUG] MCP server "ide": Tool 'getDiagnostics' completed successfully in 37ms
+[DEBUG] Slash commands included in SlashCommand tool:
+[DEBUG] Slash commands included in SlashCommand tool:
+[ERROR] Error: Error: EISDIR: illegal operation on a directory, read
+    at Module.readFileSync (node:fs:449:20)
+    at Object.readFileSync (file:///usr/lib/node_modules/@anthropic-ai/claude-code/cli.js:717:16548)
+    at Is2 (file:///usr/lib/node_modules/@anthropic-ai/claude-code/cli.js:3432:692)
+    at Object.call (file:///usr/lib/node_modules/@anthropic-ai/claude-code/cli.js:1841:952)
+    at call.next (<anonymous>)
+    at YO (file:///usr/lib/node_modules/@anthropic-ai/claude-code/cli.js:1846:3205)
+    at file:///usr/lib/node_modules/@anthropic-ai/claude-code/cli.js:3277:1345
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+[DEBUG] Stream started - received first chunk
+[DEBUG] executePreToolHooks called for tool: TodoWrite
+[DEBUG] Executing hooks for PreToolUse:TodoWrite
+[DEBUG] Getting matching hook commands for PreToolUse with query: TodoWrite
+[DEBUG] Found 0 hook matchers in settings
+[DEBUG] Matched 0 unique hooks for query "TodoWrite" (0 before deduplication)
+[DEBUG] Found 0 hook commands to execute
+[DEBUG] Writing to temp file: /root/.claude/todos/17568d22-943e-4068-be7e-be5f4920c2b1-agent-17568d22-943e-4068-be7e-be5f4920c2b1.json.tmp.769730.1759962100785
+[DEBUG] Preserving file permissions: 100644
+[DEBUG] Temp file written successfully, size: 708 bytes
+[DEBUG] Applied original permissions to temp file
+[DEBUG] Renaming /root/.claude/todos/17568d22-943e-4068-be7e-be5f4920c2b1-agent-17568d22-943e-4068-be7e-be5f4920c2b1.json.tmp.769730.1759962100785 to /root/.claude/todos/17568d22-943e-4068-be7e-be5f4920c2b1-agent-17568d22-943e-4068-be7e-be5f4920c2b1.json
+[DEBUG] File /root/.claude/todos/17568d22-943e-4068-be7e-be5f4920c2b1-agent-17568d22-943e-4068-be7e-be5f4920c2b1.json written atomically
+[DEBUG] Executing hooks for PostToolUse:TodoWrite
+[DEBUG] Getting matching hook commands for PostToolUse with query: TodoWrite
+[DEBUG] Found 0 hook matchers in settings
+[DEBUG] Matched 0 unique hooks for query "TodoWrite" (0 before deduplication)
+[DEBUG] Found 0 hook commands to execute
+[DEBUG] executePreToolHooks called for tool: Bash
+[DEBUG] Executing hooks for PreToolUse:Bash
+[DEBUG] Getting matching hook commands for PreToolUse with query: Bash
+[DEBUG] Found 0 hook matchers in settings
+[DEBUG] Matched 0 unique hooks for query "Bash" (0 before deduplication)
+[DEBUG] Found 0 hook commands to execute
+[DEBUG] Bash tool invoked with command: sudo -u postgres psql -c "SELECT version();"
+[DEBUG] Bash tool description: Test PostgreSQL connection
+[DEBUG] Executing hooks for PostToolUse:Bash
+[DEBUG] Getting matching hook commands for PostToolUse with query: Bash
+[DEBUG] Found 0 hook matchers in settings
+[DEBUG] Matched 0 unique hooks for query "Bash" (0 before deduplication)
+[DEBUG] Found 0 hook commands to execute
+[DEBUG] MCP server "ide": Calling MCP tool: getDiagnostics
+[DEBUG] Hooks: getAsyncHookResponseAttachments called
+[DEBUG] Hooks: checkForNewResponses called
+[DEBUG] Hooks: Found 0 total hooks in registry
+[DEBUG] Hooks: checkForNewResponses returning 0 responses
+[DEBUG] MCP server "ide": Tool 'getDiagnostics' completed successfully in 41ms
+[DEBUG] Slash commands included in SlashCommand tool:
+[DEBUG] Slash commands included in SlashCommand tool:
+[DEBUG] Stream started - received first chunk
+[DEBUG] executePreToolHooks called for tool: Bash
+[DEBUG] Executing hooks for PreToolUse:Bash
+[DEBUG] Getting matching hook commands for PreToolUse with query: Bash
+[DEBUG] Found 0 hook matchers in settings
+[DEBUG] Matched 0 unique hooks for query "Bash" (0 before deduplication)
+[DEBUG] Found 0 hook commands to execute
+[DEBUG] Permission suggestions for Bash: [
+  {
+    "type": "addRules",
+    "rules": [
+      {
+        "toolName": "Bash",
+        "ruleContent": "source:*"
+      }
+    ],
+    "behavior": "allow",
+    "destination": "localSettings"
+  }
+]
+[DEBUG] Persisting permission update: addRules to source 'localSettings'
+[DEBUG] Persisting 1 allow rule(s) to localSettings
+[DEBUG] Writing to temp file: /root/.claude/settings.local.json.tmp.769730.1759962112268
+[DEBUG] Preserving file permissions: 100644
+[DEBUG] Temp file written successfully, size: 1143 bytes
+[DEBUG] Applied original permissions to temp file
+[DEBUG] Renaming /root/.claude/settings.local.json.tmp.769730.1759962112268 to /root/.claude/settings.local.json
+[DEBUG] File /root/.claude/settings.local.json written atomically
+[DEBUG] Applying permission update: Adding 1 allow rule(s) to destination 'localSettings': ["Bash(source:*)"]
+[DEBUG] AutoUpdaterWrapper: Installation type: npm-global, using native: false
+[DEBUG] Bash tool invoked with command: source /root/VARIAVEIS_INSTALACAO && sudo -u postgres psql -Atqc "SELECT 1 FROM pg_roles WHERE rolname='${empresa}';" 2>/dev/null || echo "ROLE_NOT_FOUND"
+[DEBUG] Bash tool description: Check if role exists
+[DEBUG] Executing hooks for PostToolUse:Bash
+[DEBUG] Getting matching hook commands for PostToolUse with query: Bash
+[DEBUG] Found 0 hook matchers in settings
+[DEBUG] Matched 0 unique hooks for query "Bash" (0 before deduplication)
+[DEBUG] Found 0 hook commands to execute
+[DEBUG] MCP server "ide": Calling MCP tool: getDiagnostics
+[DEBUG] Hooks: getAsyncHookResponseAttachments called
+[DEBUG] Hooks: checkForNewResponses called
+[DEBUG] Hooks: Found 0 total hooks in registry
+[DEBUG] Hooks: checkForNewResponses returning 0 responses
+[DEBUG] MCP server "ide": Tool 'getDiagnostics' completed successfully in 45ms
+[DEBUG] Slash commands included in SlashCommand tool:
+[DEBUG] AutoUpdater: Detected installation type: npm-global
+[DEBUG] AutoUpdater: Using global update method
+[DEBUG] Slash commands included in SlashCommand tool:
+[DEBUG] Writing to temp file: /root/.claude.json.tmp.769730.1759962114404
+[DEBUG] Preserving file permissions: 100600
+[DEBUG] Temp file written successfully, size: 34619 bytes
+[DEBUG] Applied original permissions to temp file
+[DEBUG] Renaming /root/.claude.json.tmp.769730.1759962114404 to /root/.claude.json
+[DEBUG] File /root/.claude.json written atomically
+[DEBUG] Stream started - received first chunk
+[DEBUG] executePreToolHooks called for tool: Bash
+[DEBUG] Executing hooks for PreToolUse:Bash
+[DEBUG] Getting matching hook commands for PreToolUse with query: Bash
+[DEBUG] Found 0 hook matchers in settings
+[DEBUG] Matched 0 unique hooks for query "Bash" (0 before deduplication)
+[DEBUG] Found 0 hook commands to execute
+[DEBUG] Bash tool invoked with command: grep "^empresa=" /root/VARIAVEIS_INSTALACAO
+[DEBUG] Bash tool description: Get empresa value
+[DEBUG] Executing hooks for PostToolUse:Bash
+[DEBUG] Getting matching hook commands for PostToolUse with query: Bash
+[DEBUG] Found 0 hook matchers in settings
+[DEBUG] Matched 0 unique hooks for query "Bash" (0 before deduplication)
+[DEBUG] Found 0 hook commands to execute
+[DEBUG] MCP server "ide": Calling MCP tool: getDiagnostics
+[DEBUG] Hooks: getAsyncHookResponseAttachments called
+[DEBUG] Hooks: checkForNewResponses called
+[DEBUG] Hooks: Found 0 total hooks in registry
+[DEBUG] Hooks: checkForNewResponses returning 0 responses
+[DEBUG] MCP server "ide": Tool 'getDiagnostics' completed successfully in 42ms
+[DEBUG] Slash commands included in SlashCommand tool:
+[DEBUG] Slash commands included in SlashCommand tool:
+[DEBUG] Stream started - received first chunk
+[DEBUG] executePreToolHooks called for tool: Bash
+[DEBUG] Executing hooks for PreToolUse:Bash
+[DEBUG] Getting matching hook commands for PreToolUse with query: Bash
+[DEBUG] Found 0 hook matchers in settings
+[DEBUG] Matched 0 unique hooks for query "Bash" (0 before deduplication)
+[DEBUG] Found 0 hook commands to execute
+[DEBUG] Bash tool invoked with command: sudo -u postgres psql -Atqc "SELECT 1 FROM pg_roles WHERE rolname='atuar_pay';" 2>/dev/null | head -1
+[DEBUG] Bash tool description: Check if atuar_pay role exists
+[DEBUG] Executing hooks for PostToolUse:Bash
+[DEBUG] Getting matching hook commands for PostToolUse with query: Bash
+[DEBUG] Found 0 hook matchers in settings
+[DEBUG] Matched 0 unique hooks for query "Bash" (0 before deduplication)
+[DEBUG] Found 0 hook commands to execute
+[DEBUG] MCP server "ide": Calling MCP tool: getDiagnostics
+[DEBUG] Hooks: getAsyncHookResponseAttachments called
+[DEBUG] Hooks: checkForNewResponses called
+[DEBUG] Hooks: Found 0 total hooks in registry
+[DEBUG] Hooks: checkForNewResponses returning 0 responses
+[DEBUG] MCP server "ide": Tool 'getDiagnostics' completed successfully in 37ms
+[DEBUG] Slash commands included in SlashCommand tool:
+[DEBUG] Slash commands included in SlashCommand tool:
+[DEBUG] Stream started - received first chunk
+[DEBUG] executePreToolHooks called for tool: Bash
+[DEBUG] Executing hooks for PreToolUse:Bash
+[DEBUG] Getting matching hook commands for PreToolUse with query: Bash
+[DEBUG] Found 0 hook matchers in settings
+[DEBUG] Matched 0 unique hooks for query "Bash" (0 before deduplication)
+[DEBUG] Found 0 hook commands to execute
+[DEBUG] Bash tool invoked with command: sudo -u postgres psql -Atqc "SELECT 1 FROM pg_database WHERE datname='atuar_pay';" 2>/dev/null | head -1
+[DEBUG] Bash tool description: Check if atuar_pay database exists
+[DEBUG] Executing hooks for PostToolUse:Bash
+[DEBUG] Getting matching hook commands for PostToolUse with query: Bash
+[DEBUG] Found 0 hook matchers in settings
+[DEBUG] Matched 0 unique hooks for query "Bash" (0 before deduplication)
+[DEBUG] Found 0 hook commands to execute
+[DEBUG] MCP server "ide": Calling MCP tool: getDiagnostics
+[DEBUG] Hooks: getAsyncHookResponseAttachments called
+[DEBUG] Hooks: checkForNewResponses called
+[DEBUG] Hooks: Found 0 total hooks in registry
+[DEBUG] Hooks: checkForNewResponses returning 0 responses
+[DEBUG] MCP server "ide": Tool 'getDiagnostics' completed successfully in 48ms
+[DEBUG] Slash commands included in SlashCommand tool:
+[DEBUG] Slash commands included in SlashCommand tool:
+[DEBUG] Stream started - received first chunk
+[DEBUG] executePreToolHooks called for tool: Bash
+[DEBUG] Executing hooks for PreToolUse:Bash
+[DEBUG] Getting matching hook commands for PreToolUse with query: Bash
+[DEBUG] Found 0 hook matchers in settings
+[DEBUG] Matched 0 unique hooks for query "Bash" (0 before deduplication)
+[DEBUG] Found 0 hook commands to execute
+[DEBUG] Bash tool invoked with command: grep "^senha_deploy=" /root/VARIAVEIS_INSTALACAO
+[DEBUG] Bash tool description: Get senha_deploy value
+[DEBUG] Executing hooks for PostToolUse:Bash
+[DEBUG] Getting matching hook commands for PostToolUse with query: Bash
+[DEBUG] Found 0 hook matchers in settings
+[DEBUG] Matched 0 unique hooks for query "Bash" (0 before deduplication)
+[DEBUG] Found 0 hook commands to execute
+[DEBUG] MCP server "ide": Calling MCP tool: getDiagnostics
+[DEBUG] Hooks: getAsyncHookResponseAttachments called
+[DEBUG] Hooks: checkForNewResponses called
+[DEBUG] Hooks: Found 0 total hooks in registry
+[DEBUG] Hooks: checkForNewResponses returning 0 responses
+[DEBUG] MCP server "ide": Tool 'getDiagnostics' completed successfully in 39ms
+[DEBUG] Slash commands included in SlashCommand tool:
+[DEBUG] Slash commands included in SlashCommand tool:
+[DEBUG] Stream started - received first chunk
+[DEBUG] executePreToolHooks called for tool: TodoWrite
+[DEBUG] Executing hooks for PreToolUse:TodoWrite
+[DEBUG] Getting matching hook commands for PreToolUse with query: TodoWrite
+[DEBUG] Found 0 hook matchers in settings
+[DEBUG] Matched 0 unique hooks for query "TodoWrite" (0 before deduplication)
+[DEBUG] Found 0 hook commands to execute
+[DEBUG] Writing to temp file: /root/.claude/todos/17568d22-943e-4068-be7e-be5f4920c2b1-agent-17568d22-943e-4068-be7e-be5f4920c2b1.json.tmp.769730.1759962143594
+[DEBUG] Preserving file permissions: 100644
+[DEBUG] Temp file written successfully, size: 696 bytes
+[DEBUG] Applied original permissions to temp file
+[DEBUG] Renaming /root/.claude/todos/17568d22-943e-4068-be7e-be5f4920c2b1-agent-17568d22-943e-4068-be7e-be5f4920c2b1.json.tmp.769730.1759962143594 to /root/.claude/todos/17568d22-943e-4068-be7e-be5f4920c2b1-agent-17568d22-943e-4068-be7e-be5f4920c2b1.json
+[DEBUG] File /root/.claude/todos/17568d22-943e-4068-be7e-be5f4920c2b1-agent-17568d22-943e-4068-be7e-be5f4920c2b1.json written atomically
+[DEBUG] Executing hooks for PostToolUse:TodoWrite
+[DEBUG] Getting matching hook commands for PostToolUse with query: TodoWrite
+[DEBUG] Found 0 hook matchers in settings
+[DEBUG] Matched 0 unique hooks for query "TodoWrite" (0 before deduplication)
+[DEBUG] Found 0 hook commands to execute
+[DEBUG] executePreToolHooks called for tool: Bash
+[DEBUG] Executing hooks for PreToolUse:Bash
+[DEBUG] Getting matching hook commands for PreToolUse with query: Bash
+[DEBUG] Found 0 hook matchers in settings
+[DEBUG] Matched 0 unique hooks for query "Bash" (0 before deduplication)
+[DEBUG] Found 0 hook commands to execute
+[DEBUG] AutoUpdaterWrapper: Installation type: npm-global, using native: false
+[DEBUG] Bash tool invoked with command: sudo -u postgres psql <<PGSQL
+CREATE ROLE atuar_pay LOGIN PASSWORD '123456';
+CREATE DATABASE atuar_pay OWNER atuar_pay;
+\c atuar_pay
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+CREATE EXTENSION IF NOT EXISTS unaccent;
+PGSQL
+[DEBUG] Bash tool description: Create PostgreSQL role, database and extensions
+[DEBUG] Executing hooks for PostToolUse:Bash
+[DEBUG] Getting matching hook commands for PostToolUse with query: Bash
+[DEBUG] Found 0 hook matchers in settings
+[DEBUG] Matched 0 unique hooks for query "Bash" (0 before deduplication)
+[DEBUG] Found 0 hook commands to execute
+[DEBUG] MCP server "ide": Calling MCP tool: getDiagnostics
+[DEBUG] Hooks: getAsyncHookResponseAttachments called
+[DEBUG] Hooks: checkForNewResponses called
+[DEBUG] Hooks: Found 0 total hooks in registry
+[DEBUG] Hooks: checkForNewResponses returning 0 responses
+[DEBUG] MCP server "ide": Tool 'getDiagnostics' completed successfully in 37ms
+[DEBUG] Slash commands included in SlashCommand tool:
+[DEBUG] AutoUpdater: Detected installation type: npm-global
+[DEBUG] AutoUpdater: Using global update method
+[DEBUG] Slash commands included in SlashCommand tool:
+[DEBUG] Writing to temp file: /root/.claude.json.tmp.769730.1759962147017
+[DEBUG] Preserving file permissions: 100600
+[DEBUG] Temp file written successfully, size: 34619 bytes
+[DEBUG] Applied original permissions to temp file
+[DEBUG] Renaming /root/.claude.json.tmp.769730.1759962147017 to /root/.claude.json
+[DEBUG] File /root/.claude.json written atomically
+[DEBUG] Stream started - received first chunk
+[DEBUG] executePreToolHooks called for tool: TodoWrite
+[DEBUG] Executing hooks for PreToolUse:TodoWrite
+[DEBUG] Getting matching hook commands for PreToolUse with query: TodoWrite
+[DEBUG] Found 0 hook matchers in settings
+[DEBUG] Matched 0 unique hooks for query "TodoWrite" (0 before deduplication)
+[DEBUG] Found 0 hook commands to execute
+[DEBUG] Writing to temp file: /root/.claude/todos/17568d22-943e-4068-be7e-be5f4920c2b1-agent-17568d22-943e-4068-be7e-be5f4920c2b1.json.tmp.769730.1759962152561
+[DEBUG] Preserving file permissions: 100644
+[DEBUG] Temp file written successfully, size: 2 bytes
+[DEBUG] Applied original permissions to temp file
+[DEBUG] Renaming /root/.claude/todos/17568d22-943e-4068-be7e-be5f4920c2b1-agent-17568d22-943e-4068-be7e-be5f4920c2b1.json.tmp.769730.1759962152561 to /root/.claude/todos/17568d22-943e-4068-be7e-be5f4920c2b1-agent-17568d22-943e-4068-be7e-be5f4920c2b1.json
+[DEBUG] File /root/.claude/todos/17568d22-943e-4068-be7e-be5f4920c2b1-agent-17568d22-943e-4068-be7e-be5f4920c2b1.json written atomically
+[DEBUG] Executing hooks for PostToolUse:TodoWrite
+[DEBUG] Getting matching hook commands for PostToolUse with query: TodoWrite
+[DEBUG] Found 0 hook matchers in settings
+[DEBUG] Matched 0 unique hooks for query "TodoWrite" (0 before deduplication)
+[DEBUG] Found 0 hook commands to execute
+[DEBUG] executePreToolHooks called for tool: Bash
+[DEBUG] Executing hooks for PreToolUse:Bash
+[DEBUG] Getting matching hook commands for PreToolUse with query: Bash
+[DEBUG] Found 0 hook matchers in settings
+[DEBUG] Matched 0 unique hooks for query "Bash" (0 before deduplication)
+[DEBUG] Found 0 hook commands to execute
+[DEBUG] Bash tool invoked with command: sudo -u postgres psql -d atuar_pay -c "SELECT current_database(), current_user;" && echo "" && sudo -u postgres psql -d atuar_pay -c "\dx" | grep -E "uuid-ossp|unaccent"
+[DEBUG] Bash tool description: Verify database and extensions
+[DEBUG] Executing hooks for PostToolUse:Bash
+[DEBUG] Getting matching hook commands for PostToolUse with query: Bash
+[DEBUG] Found 0 hook matchers in settings
+[DEBUG] Matched 0 unique hooks for query "Bash" (0 before deduplication)
+[DEBUG] Found 0 hook commands to execute
+[DEBUG] MCP server "ide": Calling MCP tool: getDiagnostics
+[DEBUG] Hooks: getAsyncHookResponseAttachments called
+[DEBUG] Hooks: checkForNewResponses called
+[DEBUG] Hooks: Found 0 total hooks in registry
+[DEBUG] Hooks: checkForNewResponses returning 0 responses
+[DEBUG] MCP server "ide": Tool 'getDiagnostics' completed successfully in 50ms
+[DEBUG] Slash commands included in SlashCommand tool:
+[DEBUG] Slash commands included in SlashCommand tool:
+[DEBUG] Stream started - received first chunk
+[DEBUG] executePreToolHooks called for tool: Bash
+[DEBUG] Executing hooks for PreToolUse:Bash
+[DEBUG] Getting matching hook commands for PreToolUse with query: Bash
+[DEBUG] Found 0 hook matchers in settings
+[DEBUG] Matched 0 unique hooks for query "Bash" (0 before deduplication)
+[DEBUG] Found 0 hook commands to execute
+[DEBUG] Getting matching hook commands for Notification with query: undefined
+[DEBUG] Found 0 hook matchers in settings
+[DEBUG] Matched 0 unique hooks for query "no match query" (0 before deduplication)
+[DEBUG] AutoUpdaterWrapper: Installation type: npm-global, using native: false
+[DEBUG] Bash tool invoked with command: cat <<'REPORT'
+
+═══════════════════════════════════════════════════════════════════
+✅ POSTGRESQL RESTAURADO COM SUCESSO - ETAPA 50%
+═══════════════════════════════════════════════════════════════════
+
+🔍 PROBLEMA IDENTIFICADO:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+O cluster PostgreSQL 17/main foi REMOVIDO (não estava mais listado)
+Causa: Instalador executou múltiplas vezes e alguma limpeza removeu o cluster
+
+📊 ERRO NO LOG:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+psql: error: connection to server on socket failed: No such file or directory
+Is the server running locally and accepting connections on that socket?
+
+⚠️ IMPORTANTE:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Este problema NÃO foi causado pelas minhas correções nos escapes SQL
+(linhas 1196 e 1205). Aquelas mudanças eram apenas na etapa 71%.
+
+O PostgreSQL foi parado/removido externamente, possivelmente por:
+- Múltiplas execuções do instalador
+- Algum script de limpeza
+- Teste/reinício manual
+
+🔧 CORREÇÃO APLICADA:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+1. Recriado cluster PostgreSQL 17/main
+2. Iniciado serviço na porta 5432
+3. Recriado role: atuar_pay (senha: 123456)
+4. Recriado database: atuar_pay (owner: atuar_pay)
+5. Instalado extensões: uuid-ossp, unaccent
+
+✅ VALIDAÇÕES:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+✓ PostgreSQL 17.6 rodando na porta 5432
+✓ Role atuar_pay existe
+✓ Database atuar_pay existe
+✓ Extensão uuid-ossp instalada
+✓ Extensão unaccent instalada
+✓ Conexão funcionando corretamente
+
+📊 STATUS DO SISTEMA:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+✓ Etapa 50% (PostgreSQL):  RESTAURADO E FUNCIONANDO
+✓ Etapa 65% (Build):       Não afetado
+✓ Etapa 71% (Company):     Correções anteriores mantidas
+✓ Código do instalador:    INTACTO (sem quebras)
+
+═══════════════════════════════════════════════════════════════════
+🎯 PRÓXIMOS PASSOS
+═══════════════════════════════════════════════════════════════════
+
+O instalador pode ser executado novamente a partir da etapa 50%.
+Todas as etapas devem funcionar corretamente agora.
+
+NOTA: O banco foi recriado do zero, então as migrations e seeds
+serão executadas novamente na próxima instalação.
+
+REPORT
+[DEBUG] Bash tool description: Generate final restoration report
+[DEBUG] Executing hooks for PostToolUse:Bash
+[DEBUG] Getting matching hook commands for PostToolUse with query: Bash
+[DEBUG] Found 0 hook matchers in settings
+[DEBUG] Matched 0 unique hooks for query "Bash" (0 before deduplication)
+[DEBUG] Found 0 hook commands to execute
+[DEBUG] MCP server "ide": Calling MCP tool: getDiagnostics
+[DEBUG] Hooks: getAsyncHookResponseAttachments called
+[DEBUG] Hooks: checkForNewResponses called
+[DEBUG] Hooks: Found 0 total hooks in registry
+[DEBUG] Hooks: checkForNewResponses returning 0 responses
+[DEBUG] MCP server "ide": Tool 'getDiagnostics' completed successfully in 43ms
+[DEBUG] Slash commands included in SlashCommand tool:
+[DEBUG] AutoUpdater: Detected installation type: npm-global
+[DEBUG] AutoUpdater: Using global update method
+[DEBUG] Slash commands included in SlashCommand tool:
+[DEBUG] Writing to temp file: /root/.claude.json.tmp.769730.1759962194412
+[DEBUG] Preserving file permissions: 100600
+[DEBUG] Temp file written successfully, size: 34619 bytes
+[DEBUG] Applied original permissions to temp file
+[DEBUG] Renaming /root/.claude.json.tmp.769730.1759962194412 to /root/.claude.json
+[DEBUG] File /root/.claude.json written atomically
+[DEBUG] Stream started - received first chunk
+[DEBUG] executePreToolHooks called for tool: Bash
+[DEBUG] Executing hooks for PreToolUse:Bash
+[DEBUG] Getting matching hook commands for PreToolUse with query: Bash
+[DEBUG] Found 0 hook matchers in settings
+[DEBUG] Matched 0 unique hooks for query "Bash" (0 before deduplication)
+[DEBUG] Found 0 hook commands to execute
+[DEBUG] Bash tool invoked with command: sed -n '895p' /root/instalador.sh
+[DEBUG] Bash tool description: Verify line 895 is intact
+[DEBUG] Executing hooks for PostToolUse:Bash
+[DEBUG] Getting matching hook commands for PostToolUse with query: Bash
+[DEBUG] Found 0 hook matchers in settings
+[DEBUG] Matched 0 unique hooks for query "Bash" (0 before deduplication)
+[DEBUG] Found 0 hook commands to execute
+[DEBUG] MCP server "ide": Calling MCP tool: getDiagnostics
+[DEBUG] Hooks: getAsyncHookResponseAttachments called
+[DEBUG] Hooks: checkForNewResponses called
+[DEBUG] Hooks: Found 0 total hooks in registry
+[DEBUG] Hooks: checkForNewResponses returning 0 responses
+[DEBUG] MCP server "ide": Tool 'getDiagnostics' completed successfully in 40ms
+[DEBUG] Slash commands included in SlashCommand tool:
+[DEBUG] Slash commands included in SlashCommand tool:
+[ERROR] MaxFileReadTokenExceededError: MaxFileReadTokenExceededError: File content (27145 tokens) exceeds maximum allowed tokens (25000). Please use offset and limit parameters to read specific portions of the file, or use the GrepTool to search for specific content.
+    at Ys2 (file:///usr/lib/node_modules/@anthropic-ai/claude-code/cli.js:1846:400)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async Object.call (file:///usr/lib/node_modules/@anthropic-ai/claude-code/cli.js:1841:1006)
+    at async YO (file:///usr/lib/node_modules/@anthropic-ai/claude-code/cli.js:1846:3205)
+    at async file:///usr/lib/node_modules/@anthropic-ai/claude-code/cli.js:3277:1339
+[DEBUG] Stream started - received first chunk
+[DEBUG] executePreToolHooks called for tool: Bash
+[DEBUG] Executing hooks for PreToolUse:Bash
+[DEBUG] Getting matching hook commands for PreToolUse with query: Bash
+[DEBUG] Found 0 hook matchers in settings
+[DEBUG] Matched 0 unique hooks for query "Bash" (0 before deduplication)
+[DEBUG] Found 0 hook commands to execute
+[DEBUG] Bash tool invoked with command: sed -n '1196p;1205p' /root/instalador.sh
+[DEBUG] Bash tool description: Verify lines 1196 and 1205 have my fixes
+[DEBUG] Executing hooks for PostToolUse:Bash
+[DEBUG] Getting matching hook commands for PostToolUse with query: Bash
+[DEBUG] Found 0 hook matchers in settings
+[DEBUG] Matched 0 unique hooks for query "Bash" (0 before deduplication)
+[DEBUG] Found 0 hook commands to execute
+[DEBUG] MCP server "ide": Calling MCP tool: getDiagnostics
+[DEBUG] Hooks: getAsyncHookResponseAttachments called
+[DEBUG] Hooks: checkForNewResponses called
+[DEBUG] Hooks: Found 0 total hooks in registry
+[DEBUG] Hooks: checkForNewResponses returning 0 responses
+[DEBUG] MCP server "ide": Tool 'getDiagnostics' completed successfully in 48ms
+[DEBUG] Slash commands included in SlashCommand tool:
+[DEBUG] Slash commands included in SlashCommand tool:
+[ERROR] MaxFileReadTokenExceededError: MaxFileReadTokenExceededError: File content (27145 tokens) exceeds maximum allowed tokens (25000). Please use offset and limit parameters to read specific portions of the file, or use the GrepTool to search for specific content.
+    at Ys2 (file:///usr/lib/node_modules/@anthropic-ai/claude-code/cli.js:1846:400)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async Object.call (file:///usr/lib/node_modules/@anthropic-ai/claude-code/cli.js:1841:1006)
+    at async YO (file:///usr/lib/node_modules/@anthropic-ai/claude-code/cli.js:1846:3205)
+    at async file:///usr/lib/node_modules/@anthropic-ai/claude-code/cli.js:3277:1339
+[DEBUG] Stream started - received first chunk
+[DEBUG] executePreToolHooks called for tool: Bash
+[DEBUG] Executing hooks for PreToolUse:Bash
+[DEBUG] Getting matching hook commands for PreToolUse with query: Bash
+[DEBUG] Found 0 hook matchers in settings
+[DEBUG] Matched 0 unique hooks for query "Bash" (0 before deduplication)
+[DEBUG] Found 0 hook commands to execute
+[DEBUG] Bash tool invoked with command: systemctl status postgresql@17-main --no-pager | head -10
+[DEBUG] Bash tool description: Final PostgreSQL status check
+[DEBUG] Executing hooks for PostToolUse:Bash
+[DEBUG] Getting matching hook commands for PostToolUse with query: Bash
+[DEBUG] Found 0 hook matchers in settings
+[DEBUG] Matched 0 unique hooks for query "Bash" (0 before deduplication)
+[DEBUG] Found 0 hook commands to execute
+[DEBUG] MCP server "ide": Calling MCP tool: getDiagnostics
+[DEBUG] Hooks: getAsyncHookResponseAttachments called
+[DEBUG] Hooks: checkForNewResponses called
+[DEBUG] Hooks: Found 0 total hooks in registry
+[DEBUG] Hooks: checkForNewResponses returning 0 responses
+[DEBUG] MCP server "ide": Tool 'getDiagnostics' completed successfully in 44ms
+[DEBUG] Slash commands included in SlashCommand tool:
+[DEBUG] Slash commands included in SlashCommand tool:
+[DEBUG] Stream started - received first chunk
+[ERROR] Error: Error: Language not supported while highlighting code, falling back to markdown: 
+    at CK (file:///usr/lib/node_modules/@anthropic-ai/claude-code/cli.js:2218:1218)
+    at file:///usr/lib/node_modules/@anthropic-ai/claude-code/cli.js:2218:946
+    at Array.map (<anonymous>)
+    at hX (file:///usr/lib/node_modules/@anthropic-ai/claude-code/cli.js:2218:937)
+    at WOB (file:///usr/lib/node_modules/@anthropic-ai/claude-code/cli.js:2218:12993)
+    at EC (file:///usr/lib/node_modules/@anthropic-ai/claude-code/cli.js:32:19415)
+    at Cp (file:///usr/lib/node_modules/@anthropic-ai/claude-code/cli.js:34:42814)
+    at G9 (file:///usr/lib/node_modules/@anthropic-ai/claude-code/cli.js:34:38355)
+    at Lh (file:///usr/lib/node_modules/@anthropic-ai/claude-code/cli.js:34:38283)
+    at _C (file:///usr/lib/node_modules/@anthropic-ai/claude-code/cli.js:34:38137)
+[DEBUG] Writing to temp file: /root/.claude.json.tmp.769730.1759962224061
+[DEBUG] Preserving file permissions: 100600
+[DEBUG] Temp file written successfully, size: 34619 bytes
+[DEBUG] Applied original permissions to temp file
+[DEBUG] Renaming /root/.claude.json.tmp.769730.1759962224061 to /root/.claude.json
+[DEBUG] File /root/.claude.json written atomically
+[DEBUG] Executing hooks for Stop
+[DEBUG] Getting matching hook commands for Stop with query: undefined
+[DEBUG] Found 0 hook matchers in settings
+[DEBUG] Matched 0 unique hooks for query "no match query" (0 before deduplication)
+[DEBUG] Found 0 hook commands to execute
+[DEBUG] Writing to temp file: /root/.claude.json.tmp.769730.1759962224107
+[DEBUG] Preserving file permissions: 100600
+[DEBUG] Temp file written successfully, size: 34619 bytes
+[DEBUG] Applied original permissions to temp file
+[DEBUG] Renaming /root/.claude.json.tmp.769730.1759962224107 to /root/.claude.json
+[DEBUG] File /root/.claude.json written atomically
