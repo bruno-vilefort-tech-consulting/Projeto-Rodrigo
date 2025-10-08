@@ -51,15 +51,15 @@ The following packages were automatically installed and are no longer required:
   ssl-cert
 Use 'apt autoremove' to remove them.
 0 upgraded, 0 newly installed, 0 to remove and 0 not upgraded.
-Hit:1 http://sft.if.usp.br/ubuntu jammy-backports InRelease
-Hit:2 http://archive.ubuntu.com/ubuntu jammy InRelease
-Hit:3 http://sft.if.usp.br/ubuntu jammy InRelease
-Hit:4 http://archive.ubuntu.com/ubuntu jammy-updates InRelease
-Hit:5 http://sft.if.usp.br/ubuntu jammy-security InRelease
-Hit:6 http://archive.ubuntu.com/ubuntu jammy-backports InRelease
-Hit:7 http://archive.ubuntu.com/ubuntu jammy-security InRelease
-Hit:8 https://apt.postgresql.org/pub/repos/apt jammy-pgdg InRelease
-Hit:9 http://sft.if.usp.br/ubuntu jammy-updates InRelease
+Hit:1 http://archive.ubuntu.com/ubuntu jammy InRelease
+Hit:2 http://archive.ubuntu.com/ubuntu jammy-updates InRelease
+Hit:3 http://archive.ubuntu.com/ubuntu jammy-backports InRelease
+Hit:4 http://archive.ubuntu.com/ubuntu jammy-security InRelease
+Hit:5 http://sft.if.usp.br/ubuntu jammy-backports InRelease
+Hit:6 http://sft.if.usp.br/ubuntu jammy InRelease
+Hit:7 http://sft.if.usp.br/ubuntu jammy-security InRelease
+Hit:8 http://sft.if.usp.br/ubuntu jammy-updates InRelease
+Hit:9 https://apt.postgresql.org/pub/repos/apt jammy-pgdg InRelease
 Hit:10 https://deb.nodesource.com/node_20.x nodistro InRelease
 Hit:11 https://ppa.launchpadcontent.net/apt-fast/stable/ubuntu jammy InRelease
 Reading package lists...
@@ -129,8 +129,8 @@ Learn more about Ubuntu Pro at https://ubuntu.com/pro
 0 upgraded, 0 newly installed, 0 to remove and 0 not upgraded.
 [K[0;37m• Configurando user 'deploy'...[0m
 [K[0;37m• Instalando essentials (base)...[0m
-[apt-fast 21:29:50]
-[apt-fast 21:29:50]Working... this may take a while.
+[apt-fast 22:07:29]
+[apt-fast 22:07:29]Working... this may take a while.
 Selecting previously unselected package redis-tools.
 (Reading database ... (Reading database ... 5%(Reading database ... 10%(Reading database ... 15%(Reading database ... 20%(Reading database ... 25%(Reading database ... 30%(Reading database ... 35%(Reading database ... 40%(Reading database ... 45%(Reading database ... 50%(Reading database ... 55%(Reading database ... 60%(Reading database ... 65%(Reading database ... 70%(Reading database ... 75%(Reading database ... 80%(Reading database ... 85%(Reading database ... 90%(Reading database ... 95%(Reading database ... 100%(Reading database ... 122714 files and directories currently installed.)
 Preparing to unpack .../redis-tools_5%3a6.0.16-1ubuntu1_amd64.deb ...
@@ -165,8 +165,8 @@ No user sessions are running outdated binaries.
 
 No VM guests are running outdated hypervisor (qemu) binaries on this host.
 [K[0;37m• Instalando essentials (extras)...[0m
-[apt-fast 21:29:55]
-[apt-fast 21:29:55]Working... this may take a while.
+[apt-fast 22:07:34]
+[apt-fast 22:07:34]Working... this may take a while.
 [K[0;37m• Instalando PostgreSQL 17 (repo)...[0m
 [K[0;37m• Instalando PostgreSQL 17...[0m
 Preconfiguring packages ...
@@ -237,12 +237,12 @@ No VM guests are running outdated hypervisor (qemu) binaries on this host.
 Synchronizing state of postgresql.service with SysV service script with /lib/systemd/systemd-sysv-install.
 Executing: /lib/systemd/systemd-sysv-install enable postgresql
 [K[0;37m• Instalando Node.js 20 (repo)...[0m
-[38;5;79m2025-10-08 21:30:14 - Installing pre-requisites[0m
+[38;5;79m2025-10-08 22:07:51 - Installing pre-requisites[0m
 Hit:1 http://sft.if.usp.br/ubuntu jammy-backports InRelease
 Hit:2 http://sft.if.usp.br/ubuntu jammy InRelease
-Hit:3 https://apt.postgresql.org/pub/repos/apt jammy-pgdg InRelease
-Hit:4 http://sft.if.usp.br/ubuntu jammy-security InRelease
-Hit:5 http://sft.if.usp.br/ubuntu jammy-updates InRelease
+Hit:3 http://sft.if.usp.br/ubuntu jammy-security InRelease
+Hit:4 http://sft.if.usp.br/ubuntu jammy-updates InRelease
+Hit:5 https://apt.postgresql.org/pub/repos/apt jammy-pgdg InRelease
 Hit:6 https://deb.nodesource.com/node_20.x nodistro InRelease
 Hit:7 http://archive.ubuntu.com/ubuntu jammy InRelease
 Hit:8 http://archive.ubuntu.com/ubuntu jammy-updates InRelease
@@ -273,10 +273,10 @@ Hit:9 http://archive.ubuntu.com/ubuntu jammy-backports InRelease
 Hit:10 http://archive.ubuntu.com/ubuntu jammy-security InRelease
 Hit:11 https://ppa.launchpadcontent.net/apt-fast/stable/ubuntu jammy InRelease
 Reading package lists...
-[1;34m2025-10-08 21:30:20 - Repository configured successfully.[0m
-[38;5;79m2025-10-08 21:30:20 - To install Node.js, run: apt-get install nodejs -y[0m
-[38;5;79m2025-10-08 21:30:20 - You can use N|solid Runtime as a node.js alternative[0m
-[1;32m2025-10-08 21:30:20 - To install N|solid Runtime, run: apt-get install nsolid -y 
+[1;34m2025-10-08 22:07:57 - Repository configured successfully.[0m
+[38;5;79m2025-10-08 22:07:57 - To install Node.js, run: apt-get install nodejs -y[0m
+[38;5;79m2025-10-08 22:07:57 - You can use N|solid Runtime as a node.js alternative[0m
+[1;32m2025-10-08 22:07:57 - To install N|solid Runtime, run: apt-get install nsolid -y 
 [0m
 [K[0;37m• Instalando Node.js 20...[0m
 
@@ -315,13 +315,13 @@ No user sessions are running outdated binaries.
 No VM guests are running outdated hypervisor (qemu) binaries on this host.
 [K[0;37m• Instalando pnpm...[0m
 
-changed 1 package in 875ms
+changed 1 package in 1s
 
 1 package is looking for funding
   run `npm fund` for details
 [K[0;37m• Instalando PM2...[0m
 Progress: resolved 1, reused 0, downloaded 0, added 0
-Progress: resolved 124, reused 0, downloaded 119, added 0
+Progress: resolved 125, reused 0, downloaded 123, added 0
 Packages: +126
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 Progress: resolved 127, reused 0, downloaded 126, added 126, done
@@ -461,8 +461,8 @@ CREATE DATABASE
 CREATE EXTENSION
 CREATE EXTENSION
 [K[0;37m• Instalando ChatIA code...[0m
-Cloning into '/tmp/chatia_clone_854932'...
-Updating files:   1% (1931/147264)Updating files:   2% (2946/147264)Updating files:   3% (4418/147264)Updating files:   4% (5891/147264)Updating files:   5% (7364/147264)Updating files:   5% (7887/147264)Updating files:   6% (8836/147264)Updating files:   7% (10309/147264)Updating files:   7% (11097/147264)Updating files:   8% (11782/147264)Updating files:   8% (12933/147264)Updating files:   9% (13254/147264)Updating files:  10% (14727/147264)Updating files:  11% (16200/147264)Updating files:  12% (17672/147264)Updating files:  13% (19145/147264)Updating files:  14% (20617/147264)Updating files:  14% (20951/147264)Updating files:  15% (22090/147264)Updating files:  16% (23563/147264)Updating files:  17% (25035/147264)Updating files:  18% (26508/147264)Updating files:  19% (27981/147264)Updating files:  20% (29453/147264)Updating files:  21% (30926/147264)Updating files:  21% (31907/147264)Updating files:  22% (32399/147264)Updating files:  23% (33871/147264)Updating files:  24% (35344/147264)Updating files:  25% (36816/147264)Updating files:  26% (38289/147264)Updating files:  27% (39762/147264)Updating files:  28% (41234/147264)Updating files:  29% (42707/147264)Updating files:  30% (44180/147264)Updating files:  30% (45018/147264)Updating files:  31% (45652/147264)Updating files:  32% (47125/147264)Updating files:  33% (48598/147264)Updating files:  34% (50070/147264)Updating files:  35% (51543/147264)Updating files:  36% (53016/147264)Updating files:  37% (54488/147264)Updating files:  38% (55961/147264)Updating files:  38% (57004/147264)Updating files:  39% (57433/147264)Updating files:  40% (58906/147264)Updating files:  41% (60379/147264)Updating files:  42% (61851/147264)Updating files:  43% (63324/147264)Updating files:  44% (64797/147264)Updating files:  45% (66269/147264)Updating files:  46% (67742/147264)Updating files:  47% (69215/147264)Updating files:  47% (70611/147264)Updating files:  48% (70687/147264)Updating files:  49% (72160/147264)Updating files:  50% (73632/147264)Updating files:  51% (75105/147264)Updating files:  52% (76578/147264)Updating files:  53% (78050/147264)Updating files:  54% (79523/147264)Updating files:  55% (80996/147264)Updating files:  56% (82468/147264)Updating files:  56% (83090/147264)Updating files:  57% (83941/147264)Updating files:  58% (85414/147264)Updating files:  59% (86886/147264)Updating files:  60% (88359/147264)Updating files:  61% (89832/147264)Updating files:  62% (91304/147264)Updating files:  63% (92777/147264)Updating files:  64% (94249/147264)Updating files:  64% (94954/147264)Updating files:  65% (95722/147264)Updating files:  66% (97195/147264)Updating files:  67% (98667/147264)Updating files:  68% (100140/147264)Updating files:  69% (101613/147264)Updating files:  70% (103085/147264)Updating files:  71% (104558/147264)Updating files:  72% (106031/147264)Updating files:  73% (107503/147264)Updating files:  73% (108540/147264)Updating files:  74% (108976/147264)Updating files:  75% (110448/147264)Updating files:  76% (111921/147264)Updating files:  77% (113394/147264)Updating files:  78% (114866/147264)Updating files:  79% (116339/147264)Updating files:  80% (117812/147264)Updating files:  81% (119284/147264)Updating files:  82% (120757/147264)Updating files:  82% (121201/147264)Updating files:  83% (122230/147264)Updating files:  84% (123702/147264)Updating files:  85% (125175/147264)Updating files:  86% (126648/147264)Updating files:  87% (128120/147264)Updating files:  88% (129593/147264)Updating files:  89% (131065/147264)Updating files:  90% (132538/147264)Updating files:  91% (134011/147264)Updating files:  91% (134428/147264)Updating files:  92% (135483/147264)Updating files:  93% (136956/147264)Updating files:  94% (138429/147264)Updating files:  95% (139901/147264)Updating files:  96% (141374/147264)Updating files:  97% (142847/147264)Updating files:  98% (144319/147264)Updating files:  98% (145213/147264)Updating files:  98% (145534/147264)Updating files:  99% (145792/147264)Updating files: 100% (147264/147264)Updating files: 100% (147264/147264), done.
+Cloning into '/tmp/chatia_clone_904375'...
+Updating files:   1% (1777/147264)Updating files:   2% (2946/147264)Updating files:   3% (4418/147264)Updating files:   4% (5891/147264)Updating files:   5% (7364/147264)Updating files:   5% (7632/147264)Updating files:   6% (8836/147264)Updating files:   6% (10020/147264)Updating files:   7% (10309/147264)Updating files:   7% (11216/147264)Updating files:   8% (11782/147264)Updating files:   9% (13254/147264)Updating files:  10% (14727/147264)Updating files:  11% (16200/147264)Updating files:  12% (17672/147264)Updating files:  13% (19145/147264)Updating files:  14% (20617/147264)Updating files:  14% (20755/147264)Updating files:  15% (22090/147264)Updating files:  16% (23563/147264)Updating files:  17% (25035/147264)Updating files:  18% (26508/147264)Updating files:  18% (27503/147264)Updating files:  19% (27981/147264)Updating files:  20% (29453/147264)Updating files:  21% (30926/147264)Updating files:  22% (32399/147264)Updating files:  23% (33871/147264)Updating files:  24% (35344/147264)Updating files:  25% (36816/147264)Updating files:  26% (38289/147264)Updating files:  26% (39193/147264)Updating files:  27% (39762/147264)Updating files:  28% (41234/147264)Updating files:  29% (42707/147264)Updating files:  30% (44180/147264)Updating files:  31% (45652/147264)Updating files:  32% (47125/147264)Updating files:  33% (48598/147264)Updating files:  34% (50070/147264)Updating files:  34% (50984/147264)Updating files:  35% (51543/147264)Updating files:  36% (53016/147264)Updating files:  37% (54488/147264)Updating files:  38% (55961/147264)Updating files:  39% (57433/147264)Updating files:  40% (58906/147264)Updating files:  41% (60379/147264)Updating files:  42% (61851/147264)Updating files:  43% (63324/147264)Updating files:  43% (64366/147264)Updating files:  44% (64797/147264)Updating files:  45% (66269/147264)Updating files:  46% (67742/147264)Updating files:  47% (69215/147264)Updating files:  48% (70687/147264)Updating files:  49% (72160/147264)Updating files:  50% (73632/147264)Updating files:  51% (75105/147264)Updating files:  52% (76578/147264)Updating files:  52% (77287/147264)Updating files:  53% (78050/147264)Updating files:  54% (79523/147264)Updating files:  55% (80996/147264)Updating files:  56% (82468/147264)Updating files:  57% (83941/147264)Updating files:  58% (85414/147264)Updating files:  59% (86886/147264)Updating files:  60% (88359/147264)Updating files:  60% (89131/147264)Updating files:  61% (89832/147264)Updating files:  62% (91304/147264)Updating files:  63% (92777/147264)Updating files:  64% (94249/147264)Updating files:  65% (95722/147264)Updating files:  66% (97195/147264)Updating files:  67% (98667/147264)Updating files:  68% (100140/147264)Updating files:  68% (100866/147264)Updating files:  69% (101613/147264)Updating files:  70% (103085/147264)Updating files:  71% (104558/147264)Updating files:  72% (106031/147264)Updating files:  73% (107503/147264)Updating files:  74% (108976/147264)Updating files:  75% (110448/147264)Updating files:  76% (111921/147264)Updating files:  77% (113394/147264)Updating files:  77% (114579/147264)Updating files:  78% (114866/147264)Updating files:  79% (116339/147264)Updating files:  80% (117812/147264)Updating files:  81% (119284/147264)Updating files:  82% (120757/147264)Updating files:  83% (122230/147264)Updating files:  84% (123702/147264)Updating files:  85% (125175/147264)Updating files:  86% (126648/147264)Updating files:  86% (126772/147264)Updating files:  87% (128120/147264)Updating files:  88% (129593/147264)Updating files:  89% (131065/147264)Updating files:  90% (132538/147264)Updating files:  91% (134011/147264)Updating files:  92% (135483/147264)Updating files:  93% (136956/147264)Updating files:  94% (138429/147264)Updating files:  94% (139699/147264)Updating files:  95% (139901/147264)Updating files:  96% (141374/147264)Updating files:  97% (142847/147264)Updating files:  98% (144319/147264)Updating files:  98% (145375/147264)Updating files:  98% (145549/147264)Updating files:  99% (145792/147264)Updating files: 100% (147264/147264)Updating files: 100% (147264/147264), done.
 [K[0;37m• Configurando backend (.env)...[0m
 [K[0;37m• Preparando diretório cache pnpm...[0m
 [K[0;37m• Instalando backend deps...[0m
@@ -471,14 +471,15 @@ Lockfile is up to date, resolution step is skipped
 Progress: resolved 1, reused 0, downloaded 0, added 0
 Packages: +1337
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-Progress: resolved 1337, reused 73, downloaded 144, added 215
+Progress: resolved 1337, reused 73, downloaded 109, added 182
 Packages are hard linked from the content-addressable store to the virtual store.
   Content-addressable store is at: /home/deploy/.local/share/pnpm/store/v10
   Virtual store is at:             node_modules/.pnpm
-Progress: resolved 1337, reused 73, downloaded 375, added 448
-Progress: resolved 1337, reused 73, downloaded 590, added 619
-Progress: resolved 1337, reused 73, downloaded 793, added 864
-Progress: resolved 1337, reused 73, downloaded 1052, added 1125
+Progress: resolved 1337, reused 73, downloaded 278, added 351
+Progress: resolved 1337, reused 73, downloaded 549, added 603
+Progress: resolved 1337, reused 73, downloaded 673, added 741
+Progress: resolved 1337, reused 73, downloaded 866, added 938
+Progress: resolved 1337, reused 73, downloaded 1167, added 1233
 Progress: resolved 1337, reused 73, downloaded 1264, added 1337, done
 
 dependencies:
@@ -615,7 +616,7 @@ devDependencies:
 │                                                                              │
 ╰──────────────────────────────────────────────────────────────────────────────╯
 
-Done in 6.6s using pnpm v10.18.1
+Done in 7.8s using pnpm v10.18.1
 [K[0;37m• Instalando backend build...[0m
 [INFO] Fingerprint inexistente; build inicial necessária.
 [WARN] Diretório dist ausente ou vazio; build será executada.
@@ -631,28 +632,28 @@ Done in 6.6s using pnpm v10.18.1
 
 Loaded configuration file "dist/config/database.js".
 == 20200717133438-create-users: migrating =======
-== 20200717133438-create-users: migrated (0.010s)
+== 20200717133438-create-users: migrated (0.012s)
 
 == 20200717144403-create-contacts: migrating =======
 == 20200717144403-create-contacts: migrated (0.006s)
 
 == 20200717145643-create-tickets: migrating =======
-== 20200717145643-create-tickets: migrated (0.006s)
+== 20200717145643-create-tickets: migrated (0.007s)
 
 == 20200717151645-create-messages: migrating =======
-== 20200717151645-create-messages: migrated (0.005s)
+== 20200717151645-create-messages: migrated (0.007s)
 
 == 20200717170223-create-whatsapps: migrating =======
 == 20200717170223-create-whatsapps: migrated (0.006s)
 
 == 20200723200315-create-contacts-custom-fields: migrating =======
-== 20200723200315-create-contacts-custom-fields: migrated (0.004s)
+== 20200723200315-create-contacts-custom-fields: migrated (0.005s)
 
 == 20200723202116-add-email-field-to-contacts: migrating =======
-== 20200723202116-add-email-field-to-contacts: migrated (0.004s)
+== 20200723202116-add-email-field-to-contacts: migrated (0.005s)
 
 == 20200730153237-remove-user-association-from-messages: migrating =======
-== 20200730153237-remove-user-association-from-messages: migrated (0.003s)
+== 20200730153237-remove-user-association-from-messages: migrated (0.004s)
 
 == 20200730153545-add-fromMe-to-messages: migrating =======
 == 20200730153545-add-fromMe-to-messages: migrated (0.004s)
@@ -661,13 +662,13 @@ Loaded configuration file "dist/config/database.js".
 == 20200813114236-change-ticket-lastMessage-column-type: migrated (0.005s)
 
 == 20200901235509-add-profile-column-to-users: migrating =======
-== 20200901235509-add-profile-column-to-users: migrated (0.004s)
+== 20200901235509-add-profile-column-to-users: migrated (0.007s)
 
 == 20200903215941-create-settings: migrating =======
-== 20200903215941-create-settings: migrated (0.005s)
+== 20200903215941-create-settings: migrated (0.004s)
 
 == 20200904220257-add-name-to-whatsapp: migrating =======
-== 20200904220257-add-name-to-whatsapp: migrated (0.004s)
+== 20200904220257-add-name-to-whatsapp: migrated (0.003s)
 
 == 20200906122228-add-name-default-field-to-whatsapp: migrating =======
 == 20200906122228-add-name-default-field-to-whatsapp: migrated (0.004s)
@@ -676,19 +677,19 @@ Loaded configuration file "dist/config/database.js".
 == 20200906155658-add-whatsapp-field-to-tickets: migrated (0.004s)
 
 == 20200919124112-update-default-column-name-on-whatsappp: migrating =======
-== 20200919124112-update-default-column-name-on-whatsappp: migrated (0.015s)
+== 20200919124112-update-default-column-name-on-whatsappp: migrated (0.016s)
 
 == 20200927220708-add-isDeleted-column-to-messages: migrating =======
-== 20200927220708-add-isDeleted-column-to-messages: migrated (0.004s)
+== 20200927220708-add-isDeleted-column-to-messages: migrated (0.003s)
 
 == 20200929145451-add-user-tokenVersion-column: migrating =======
 == 20200929145451-add-user-tokenVersion-column: migrated (0.004s)
 
 == 20200930162323-add-isGroup-column-to-tickets: migrating =======
-== 20200930162323-add-isGroup-column-to-tickets: migrated (0.003s)
+== 20200930162323-add-isGroup-column-to-tickets: migrated (0.004s)
 
 == 20200930194808-add-isGroup-column-to-contacts: migrating =======
-== 20200930194808-add-isGroup-column-to-contacts: migrated (0.004s)
+== 20200930194808-add-isGroup-column-to-contacts: migrated (0.003s)
 
 == 20201004150008-add-contactId-column-to-messages: migrating =======
 == 20201004150008-add-contactId-column-to-messages: migrated (0.004s)
@@ -697,7 +698,7 @@ Loaded configuration file "dist/config/database.js".
 == 20201004155719-add-vcardContactId-column-to-messages: migrated (0.004s)
 
 == 20201004955719-remove-vcardContactId-column-to-messages: migrating =======
-== 20201004955719-remove-vcardContactId-column-to-messages: migrated (0.003s)
+== 20201004955719-remove-vcardContactId-column-to-messages: migrated (0.004s)
 
 == 20201026215410-add-retries-to-whatsapps: migrating =======
 == 20201026215410-add-retries-to-whatsapps: migrated (0.003s)
@@ -706,10 +707,10 @@ Loaded configuration file "dist/config/database.js".
 == 20201028124427-add-quoted-msg-to-messages: migrated (0.003s)
 
 == 20210108001431-add-unreadMessages-to-tickets: migrating =======
-== 20210108001431-add-unreadMessages-to-tickets: migrated (0.005s)
+== 20210108001431-add-unreadMessages-to-tickets: migrated (0.003s)
 
 == 20210108164404-create-queues: migrating =======
-== 20210108164404-create-queues: migrated (0.006s)
+== 20210108164404-create-queues: migrated (0.005s)
 
 == 20210108164504-add-queueId-to-tickets: migrating =======
 == 20210108164504-add-queueId-to-tickets: migrated (0.003s)
@@ -718,31 +719,31 @@ Loaded configuration file "dist/config/database.js".
 == 20210108174594-associate-whatsapp-queue: migrated (0.004s)
 
 == 20210108204708-associate-users-queue: migrating =======
-== 20210108204708-associate-users-queue: migrated (0.003s)
+== 20210108204708-associate-users-queue: migrated (0.005s)
 
 == 20210109192513-add-greetingMessage-to-whatsapp: migrating =======
-== 20210109192513-add-greetingMessage-to-whatsapp: migrated (0.008s)
+== 20210109192513-add-greetingMessage-to-whatsapp: migrated (0.004s)
 
 == 20210109192514-create-companies-table: migrating =======
 == 20210109192514-create-companies-table: migrated (0.005s)
 
 == 20210109192515-add-column-companyId-to-Settings-table: migrating =======
-== 20210109192515-add-column-companyId-to-Settings-table: migrated (0.003s)
+== 20210109192515-add-column-companyId-to-Settings-table: migrated (0.004s)
 
 == 20210109192516-add-column-companyId-to-Users-table: migrating =======
 == 20210109192516-add-column-companyId-to-Users-table: migrated (0.003s)
 
 == 20210109192517-add-column-companyId-to-Contacts-table: migrating =======
-== 20210109192517-add-column-companyId-to-Contacts-table: migrated (0.003s)
+== 20210109192517-add-column-companyId-to-Contacts-table: migrated (0.004s)
 
 == 20210109192518-add-column-companyId-to-Messages-table: migrating =======
-== 20210109192518-add-column-companyId-to-Messages-table: migrated (0.004s)
+== 20210109192518-add-column-companyId-to-Messages-table: migrated (0.003s)
 
 == 20210109192519-add-column-companyId-to-Queues-table: migrating =======
-== 20210109192519-add-column-companyId-to-Queues-table: migrated (0.003s)
+== 20210109192519-add-column-companyId-to-Queues-table: migrated (0.004s)
 
 == 20210109192520-add-column-companyId-to-Whatsapps-table: migrating =======
-== 20210109192520-add-column-companyId-to-Whatsapps-table: migrated (0.007s)
+== 20210109192520-add-column-companyId-to-Whatsapps-table: migrated (0.003s)
 
 == 20210109192521-add-column-companyId-to-Tickets-table: migrating =======
 == 20210109192521-add-column-companyId-to-Tickets-table: migrated (0.004s)
@@ -751,7 +752,7 @@ Loaded configuration file "dist/config/database.js".
 == 20210109192522-create-plans-table: migrated (0.004s)
 
 == 20210109192523-add-column-amount-to-Plan: migrating =======
-== 20210109192523-add-column-amount-to-Plan: migrated (0.004s)
+== 20210109192523-add-column-amount-to-Plan: migrated (0.003s)
 
 == 20210109192523-add-column-planId-to-Companies: migrating =======
 == 20210109192523-add-column-planId-to-Companies: migrated (0.004s)
@@ -763,49 +764,49 @@ Loaded configuration file "dist/config/database.js".
 == 20210109192523-create-ticket-notes: migrated (0.005s)
 
 == 20210109192524-create-quick-messages: migrating =======
-== 20210109192524-create-quick-messages: migrated (0.005s)
+== 20210109192524-create-quick-messages: migrated (0.004s)
 
 == 20210109192525-add-column-complationMessage-to-whatsapp: migrating =======
-== 20210109192525-add-column-complationMessage-to-whatsapp: migrated (0.003s)
+== 20210109192525-add-column-complationMessage-to-whatsapp: migrated (0.004s)
 
 == 20210109192526-add-column-outOfHoursMessage-to-whatsapp : migrating =======
 == 20210109192526-add-column-outOfHoursMessage-to-whatsapp : migrated (0.003s)
 
 == 20210109192527-add-column-super-to-Users-table: migrating =======
-== 20210109192527-add-column-super-to-Users-table: migrated (0.004s)
+== 20210109192527-add-column-super-to-Users-table: migrated (0.010s)
 
 == 20210109192528-change-column-message-to-quick-messages-table: migrating =======
 == 20210109192528-change-column-message-to-quick-messages-table: migrated (0.003s)
 
 == 20210109192529-create-helps: migrating =======
-== 20210109192529-create-helps: migrated (0.004s)
+== 20210109192529-create-helps: migrated (0.005s)
 
 == 20210109192531-create-TicketTracking-table: migrating =======
-== 20210109192531-create-TicketTracking-table: migrated (0.005s)
+== 20210109192531-create-TicketTracking-table: migrated (0.004s)
 
 == 20210109192532-add-column-online-to-Users-table: migrating =======
-== 20210109192532-add-column-online-to-Users-table: migrated (0.003s)
+== 20210109192532-add-column-online-to-Users-table: migrated (0.004s)
 
 == 20210109192533-create-UserRatings-table: migrating =======
-== 20210109192533-create-UserRatings-table: migrated (0.005s)
+== 20210109192533-create-UserRatings-table: migrated (0.004s)
 
 == 20210109192534-add-rated-to-TicketTraking: migrating =======
 == 20210109192534-add-rated-to-TicketTraking: migrated (0.006s)
 
 == 20210109192536-add-unique-constraint-to-Tickets-table: migrating =======
-== 20210109192536-add-unique-constraint-to-Tickets-table: migrated (0.005s)
+== 20210109192536-add-unique-constraint-to-Tickets-table: migrated (0.004s)
 
 == 20210818102606-add-uuid-to-tickets: migrating =======
-== 20210818102606-add-uuid-to-tickets: migrated (0.004s)
+== 20210818102606-add-uuid-to-tickets: migrated (0.003s)
 
 == 20210818102607-remove-unique-indexes-to-Queues-table: migrating =======
-== 20210818102607-remove-unique-indexes-to-Queues-table: migrated (0.007s)
+== 20210818102607-remove-unique-indexes-to-Queues-table: migrated (0.006s)
 
 == 20210818102608-add-unique-indexes-to-Queues-table: migrating =======
-== 20210818102608-add-unique-indexes-to-Queues-table: migrated (0.007s)
+== 20210818102608-add-unique-indexes-to-Queues-table: migrated (0.005s)
 
 == 20210818102609-add-token-to-Whatsapps: migrating =======
-== 20210818102609-add-token-to-Whatsapps: migrated (0.004s)
+== 20210818102609-add-token-to-Whatsapps: migrated (0.003s)
 
 == 20211017014719-create-chatbots: migrating =======
 == 20211017014719-create-chatbots: migrated (0.005s)
@@ -814,52 +815,52 @@ Loaded configuration file "dist/config/database.js".
 == 20211017014721-create-dialog-chatbot: migrated (0.005s)
 
 == 20211205164404-create-queue-options: migrating =======
-== 20211205164404-create-queue-options: migrated (0.007s)
+== 20211205164404-create-queue-options: migrated (0.005s)
 
 == 20211212125704-add-chatbot-to-tickets: migrating =======
-== 20211212125704-add-chatbot-to-tickets: migrated (0.004s)
+== 20211212125704-add-chatbot-to-tickets: migrated (0.005s)
 
 == 20211227010200-create-schedules: migrating =======
-== 20211227010200-create-schedules: migrated (0.007s)
+== 20211227010200-create-schedules: migrated (0.005s)
 
 == 20212016014719-add-bot-ticket: migrating =======
-== 20212016014719-add-bot-ticket: migrated (0.004s)
+== 20212016014719-add-bot-ticket: migrated (0.003s)
 
 == 20212016014719-add-queueId-dialog: migrating =======
-== 20212016014719-add-queueId-dialog: migrated (0.005s)
+== 20212016014719-add-queueId-dialog: migrated (0.004s)
 
 == 20220115114088-add-column-userId-to-QuickMessages-table: migrating =======
-== 20220115114088-add-column-userId-to-QuickMessages-table: migrated (0.007s)
+== 20220115114088-add-column-userId-to-QuickMessages-table: migrated (0.004s)
 
 == 20220117130000-create-tags: migrating =======
 == 20220117130000-create-tags: migrated (0.005s)
 
 == 20220117134400-associate-tickets-tags: migrating =======
-== 20220117134400-associate-tickets-tags: migrated (0.005s)
+== 20220117134400-associate-tickets-tags: migrated (0.004s)
 
 == 20220122160900-add-status-to-schedules: migrating =======
 == 20220122160900-add-status-to-schedules: migrated (0.004s)
 
 == 20220220014719-add-farewellMessage-to-whatsapp: migrating =======
-== 20220220014719-add-farewellMessage-to-whatsapp: migrated (0.003s)
+== 20220220014719-add-farewellMessage-to-whatsapp: migrated (0.004s)
 
 == 20220221014717-add-provider-whatsapp: migrating =======
-== 20220221014717-add-provider-whatsapp: migrated (0.004s)
+== 20220221014717-add-provider-whatsapp: migrated (0.003s)
 
 == 20220221014718-add-remoteJid-messages: migrating =======
-== 20220221014718-add-remoteJid-messages: migrated (0.004s)
+== 20220221014718-add-remoteJid-messages: migrated (0.003s)
 
 == 20220221014719-add-jsonMessage-messages: migrating =======
-== 20220221014719-add-jsonMessage-messages: migrated (0.004s)
+== 20220221014719-add-jsonMessage-messages: migrated (0.003s)
 
 == 20220221014720-add-participant-messages: migrating =======
-== 20220221014720-add-participant-messages: migrated (0.003s)
+== 20220221014720-add-participant-messages: migrated (0.004s)
 
 == 20220221014721-create-baileys: migrating =======
-== 20220221014721-create-baileys: migrated (0.005s)
+== 20220221014721-create-baileys: migrated (0.006s)
 
 == 20220315110000-create-ContactLists-table: migrating =======
-== 20220315110000-create-ContactLists-table: migrated (0.006s)
+== 20220315110000-create-ContactLists-table: migrated (0.005s)
 
 == 20220315110001-create-ContactListItems-table: migrating =======
 == 20220315110001-create-ContactListItems-table: migrated (0.005s)
@@ -868,49 +869,49 @@ Loaded configuration file "dist/config/database.js".
 == 20220315110002-create-Campaigns-table: migrated (0.006s)
 
 == 20220315110004-create-CampaignSettings-table: migrating =======
-== 20220315110004-create-CampaignSettings-table: migrated (0.004s)
+== 20220315110004-create-CampaignSettings-table: migrated (0.006s)
 
 == 20220315110005-remove-constraint-to-Settings: migrating =======
-== 20220315110005-remove-constraint-to-Settings: migrated (0.009s)
+== 20220315110005-remove-constraint-to-Settings: migrated (0.011s)
 
 == 20220321130000-create-CampaignShipping: migrating =======
 == 20220321130000-create-CampaignShipping: migrated (0.007s)
 
 == 20220404000000-add-column-queueId-to-Messages-table: migrating =======
-== 20220404000000-add-column-queueId-to-Messages-table: migrated (0.003s)
+== 20220404000000-add-column-queueId-to-Messages-table: migrated (0.004s)
 
 == 20220406000000-add-column-dueDate-to-Companies: migrating =======
-== 20220406000000-add-column-dueDate-to-Companies: migrated (0.003s)
+== 20220406000000-add-column-dueDate-to-Companies: migrated (0.004s)
 
 == 20220406000001-add-column-recurrence-to-Companies: migrating =======
-== 20220406000001-add-column-recurrence-to-Companies: migrated (0.003s)
+== 20220406000001-add-column-recurrence-to-Companies: migrated (0.005s)
 
 == 20220411000000-add-column-startTime-and-endTime-to-Queues: migrating =======
 == 20220411000000-add-column-startTime-and-endTime-to-Queues: migrated (0.006s)
 
 == 20220411000001-remove-column-startTime-and-endTime-to-Queues: migrating =======
-== 20220411000001-remove-column-startTime-and-endTime-to-Queues: migrated (0.004s)
+== 20220411000001-remove-column-startTime-and-endTime-to-Queues: migrated (0.005s)
 
 == 20220411000002-add-column-schedules-and-outOfHoursMessage-to-Queues: migrating =======
-== 20220411000002-add-column-schedules-and-outOfHoursMessage-to-Queues: migrated (0.004s)
+== 20220411000002-add-column-schedules-and-outOfHoursMessage-to-Queues: migrated (0.005s)
 
 == 20220411000003-create-table-Announcements: migrating =======
-== 20220411000003-create-table-Announcements: migrated (0.004s)
+== 20220411000003-create-table-Announcements: migrated (0.006s)
 
 == 20220425000000-create-table-Chats: migrating =======
-== 20220425000000-create-table-Chats: migrated (0.004s)
+== 20220425000000-create-table-Chats: migrated (0.005s)
 
 == 20220425000001-create-table-ChatUsers: migrating =======
 == 20220425000001-create-table-ChatUsers: migrated (0.004s)
 
 == 20220425000002-create-table-ChatMessages: migrating =======
-== 20220425000002-create-table-ChatMessages: migrated (0.004s)
+== 20220425000002-create-table-ChatMessages: migrated (0.005s)
 
 == 20220512000001-create-Indexes: migrating =======
-== 20220512000001-create-Indexes: migrated (0.010s)
+== 20220512000001-create-Indexes: migrated (0.012s)
 
 == 20220723000001-add-mediaPath-to-quickmessages: migrating =======
-== 20220723000001-add-mediaPath-to-quickmessages: migrated (0.006s)
+== 20220723000001-add-mediaPath-to-quickmessages: migrated (0.004s)
 
 == 20220723000002-add-mediaName-to-quickemessages: migrating =======
 == 20220723000002-add-mediaName-to-quickemessages: migrated (0.003s)
@@ -922,19 +923,19 @@ Loaded configuration file "dist/config/database.js".
 == 20221123155118-add-acceptAudioMessages-to-contact: migrated (0.003s)
 
 == 20221227164300-add-colunms-document-and-paymentMethod-to-companies-table: migrating =======
-== 20221227164300-add-colunms-document-and-paymentMethod-to-companies-table: migrated (0.005s)
+== 20221227164300-add-colunms-document-and-paymentMethod-to-companies-table: migrated (0.006s)
 
 == 20221229000000-add-column-number-to-Whatsapps: migrating =======
-== 20221229000000-add-column-number-to-Whatsapps: migrated (0.004s)
+== 20221229000000-add-column-number-to-Whatsapps: migrated (0.003s)
 
 == 20222016014719-add-channel-session: migrating =======
 == 20222016014719-add-channel-session: migrated (0.003s)
 
 == 20222016014719-add-channel-to-contacts: migrating =======
-== 20222016014719-add-channel-to-contacts: migrated (0.003s)
+== 20222016014719-add-channel-to-contacts: migrated (0.004s)
 
 == 20222016014719-add-channel-to-ticket: migrating =======
-== 20222016014719-add-channel-to-ticket: migrated (0.004s)
+== 20222016014719-add-channel-to-ticket: migrated (0.003s)
 
 == 20222016014719-add-channel-token: migrating =======
 == 20222016014719-add-channel-token: migrated (0.003s)
@@ -949,7 +950,7 @@ Loaded configuration file "dist/config/database.js".
 == 20222016014719-add-facebookUserId-whatsapp: migrated (0.003s)
 
 == 20222016014719-add-isAgent-chatbot: migrating =======
-== 20222016014719-add-isAgent-chatbot: migrated (0.004s)
+== 20222016014719-add-isAgent-chatbot: migrated (0.003s)
 
 == 20230105164900-add-useFacebook-Plans: migrating =======
 == 20230105164900-add-useFacebook-Plans: migrated (0.003s)
@@ -961,7 +962,7 @@ Loaded configuration file "dist/config/database.js".
 == 20230105164900-add-useWhatsapp-Plans: migrated (0.003s)
 
 == 20230106164900-add-useCampaigns-Plans: migrating =======
-== 20230106164900-add-useCampaigns-Plans: migrated (0.004s)
+== 20230106164900-add-useCampaigns-Plans: migrated (0.003s)
 
 == 20230106164900-add-useExternalApi-Plans: migrating =======
 == 20230106164900-add-useExternalApi-Plans: migrated (0.003s)
@@ -973,13 +974,13 @@ Loaded configuration file "dist/config/database.js".
 == 20230106164900-add-useSchedules-Plans: migrated (0.003s)
 
 == 20230110072000-create-integrations: migrating =======
-== 20230110072000-create-integrations: migrated (0.005s)
+== 20230110072000-create-integrations: migrated (0.006s)
 
 == 20230119000002-create-subscriptions: migrating =======
-== 20230119000002-create-subscriptions: migrated (0.006s)
+== 20230119000002-create-subscriptions: migrated (0.005s)
 
 == 20230119000003-create-invoices: migrating =======
-== 20230119000003-create-invoices: migrated (0.005s)
+== 20230119000003-create-invoices: migrated (0.006s)
 
 == 20230120000000-create-ApiUsage: migrating =======
 == 20230120000000-create-ApiUsage: migrated (0.005s)
@@ -994,19 +995,19 @@ Loaded configuration file "dist/config/database.js".
 == 20230124110200-add-startWork-Users: migrated (0.004s)
 
 == 20230127091500-add-column-active-to-Contacts: migrating =======
-== 20230127091500-add-column-active-to-Contacts: migrated (0.005s)
+== 20230127091500-add-column-active-to-Contacts: migrated (0.003s)
 
 == 20230216173900-add-uuid-extension: migrating =======
-== 20230216173900-add-uuid-extension: migrated (0.004s)
+== 20230216173900-add-uuid-extension: migrated (0.002s)
 
 == 20230301110200-add-color-Users: migrating =======
-== 20230301110200-add-color-Users: migrated (0.004s)
+== 20230301110200-add-color-Users: migrated (0.003s)
 
 == 20230301110201-add-farewellMessage-Users: migrating =======
-== 20230301110201-add-farewellMessage-Users: migrated (0.005s)
+== 20230301110201-add-farewellMessage-Users: migrated (0.002s)
 
 == 20230303223000-add-maxUseBotQueues-to-whatsapp copy: migrating =======
-== 20230303223000-add-maxUseBotQueues-to-whatsapp copy: migrated (0.004s)
+== 20230303223000-add-maxUseBotQueues-to-whatsapp copy: migrated (0.003s)
 
 == 20230303223001-add-amountUsedBotQueues-to-tickets: migrating =======
 == 20230303223001-add-amountUsedBotQueues-to-tickets: migrated (0.003s)
@@ -1015,10 +1016,10 @@ Loaded configuration file "dist/config/database.js".
 == 20230403193000-add-disable-bot-column-to-contacts: migrated (0.004s)
 
 == 20230403193000-add-expiresTicket-fields-to-whatsapp: migrating =======
-== 20230403193000-add-expiresTicket-fields-to-whatsapp: migrated (0.004s)
+== 20230403193000-add-expiresTicket-fields-to-whatsapp: migrated (0.003s)
 
 == 20230411131007-add-allowGroup-whatsapp: migrating =======
-== 20230411131007-add-allowGroup-whatsapp: migrated (0.004s)
+== 20230411131007-add-allowGroup-whatsapp: migrated (0.003s)
 
 == 20230505221007-add-closedAt-TicketTraking: migrating =======
 == 20230505221007-add-closedAt-TicketTraking: migrated (0.003s)
@@ -1033,10 +1034,10 @@ Loaded configuration file "dist/config/database.js".
 == 20230517221007-add-queueType-Chatbots: migrated (0.003s)
 
 == 20230603212335-create-QueueIntegrations: migrating =======
-== 20230603212335-create-QueueIntegrations: migrated (0.004s)
+== 20230603212335-create-QueueIntegrations: migrated (0.005s)
 
 == 20230603212337-add-QueueIntegrations-integrationId-Chatbots: migrating =======
-== 20230603212337-add-QueueIntegrations-integrationId-Chatbots: migrated (0.004s)
+== 20230603212337-add-QueueIntegrations-integrationId-Chatbots: migrated (0.003s)
 
 == 20230603212337-add-urlN8N-QueueIntegrations: migrating =======
 == 20230603212337-add-urlN8N-QueueIntegrations: migrated (0.003s)
@@ -1048,13 +1049,13 @@ Loaded configuration file "dist/config/database.js".
 == 20230623095932-add-whatsapp-to-user: migrated (0.003s)
 
 == 20230623113000-add-timeUseBotQueues-to-whatsapp: migrating =======
-== 20230623113000-add-timeUseBotQueues-to-whatsapp: migrated (0.004s)
+== 20230623113000-add-timeUseBotQueues-to-whatsapp: migrated (0.002s)
 
 == 20230623133903-add-chatbotAt-ticket-tracking: migrating =======
-== 20230623133903-add-chatbotAt-ticket-tracking: migrated (0.004s)
+== 20230623133903-add-chatbotAt-ticket-tracking: migrated (0.003s)
 
 == 20230626141100-add-column-ticketTrakingId-to-Messages-table: migrating =======
-== 20230626141100-add-column-ticketTrakingId-to-Messages-table: migrated (0.003s)
+== 20230626141100-add-column-ticketTrakingId-to-Messages-table: migrated (0.004s)
 
 == 20230628134807-add-orderQueue-Queue: migrating =======
 == 20230628134807-add-orderQueue-Queue: migrated (0.003s)
@@ -1063,43 +1064,43 @@ Loaded configuration file "dist/config/database.js".
 == 20230630150600-create-associate-contacttags: migrated (0.004s)
 
 == 20230703221100-add-column-queueId-to-TicketTraking-table: migrating =======
-== 20230703221100-add-column-queueId-to-TicketTraking-table: migrated (0.004s)
+== 20230703221100-add-column-queueId-to-TicketTraking-table: migrated (0.003s)
 
 == 20230704124428-update-messages: migrating =======
-== 20230704124428-update-messages: migrated (0.014s)
+== 20230704124428-update-messages: migrated (0.012s)
 
 == 20230707221100-add-column-isPrivate-to-Message-table: migrating =======
-== 20230707221100-add-column-isPrivate-to-Message-table: migrated (0.004s)
+== 20230707221100-add-column-isPrivate-to-Message-table: migrated (0.003s)
 
 == 20230708192530-add-unique-constraint-to-Contacts-table: migrating =======
-== 20230708192530-add-unique-constraint-to-Contacts-table: migrated (0.004s)
+== 20230708192530-add-unique-constraint-to-Contacts-table: migrated (0.003s)
 
 == 20230711080001-create-Index-Message-wid: migrating =======
-== 20230711080001-create-Index-Message-wid: migrated (0.004s)
+== 20230711080001-create-Index-Message-wid: migrated (0.005s)
 
 == 20230711094417-add-column-companyId-to-QueueIntegrations-table: migrating =======
-== 20230711094417-add-column-companyId-to-QueueIntegrations-table: migrated (0.004s)
+== 20230711094417-add-column-companyId-to-QueueIntegrations-table: migrated (0.003s)
 
 == 20230711111700-add-timeSendQueue-to-whatsapp: migrating =======
 == 20230711111700-add-timeSendQueue-to-whatsapp: migrated (0.003s)
 
 == 20230711111701-add-sendIdQueue-to-whatsapp: migrating =======
-== 20230711111701-add-sendIdQueue-to-whatsapp: migrated (0.003s)
+== 20230711111701-add-sendIdQueue-to-whatsapp: migrated (0.004s)
 
 == 20230713131510-add-tempoRoteador-Queue: migrating =======
-== 20230713131510-add-tempoRoteador-Queue: migrated (0.004s)
+== 20230713131510-add-tempoRoteador-Queue: migrated (0.003s)
 
 == 20230714113901-create-Files: migrating =======
 == 20230714113901-create-Files: migrated (0.005s)
 
 == 20230714113902-create-fileOptions: migrating =======
-== 20230714113902-create-fileOptions: migrated (0.004s)
+== 20230714113902-create-fileOptions: migrated (0.005s)
 
 == 20230716229907-add-ativaRoteador-Queue: migrating =======
 == 20230716229907-add-ativaRoteador-Queue: migrated (0.003s)
 
 == 20230717113705-add-isEdited-to-messages: migrating =======
-== 20230717113705-add-isEdited-to-messages: migrated (0.003s)
+== 20230717113705-add-isEdited-to-messages: migrated (0.004s)
 
 == 20230717221007-add-optFileId-chatbots: migrating =======
 == 20230717221007-add-optFileId-chatbots: migrated (0.004s)
@@ -1111,37 +1112,37 @@ Loaded configuration file "dist/config/database.js".
 == 20230724111007-add-collumns-whatsapp: migrated (0.010s)
 
 == 20230724192535-add-column-ratingMessage-to-whatsapp: migrating =======
-== 20230724192535-add-column-ratingMessage-to-whatsapp: migrated (0.003s)
+== 20230724192535-add-column-ratingMessage-to-whatsapp: migrated (0.004s)
 
 == 20230726203900-add-allTickets-user: migrating =======
 == 20230726203900-add-allTickets-user: migrated (0.004s)
 
 == 20230731214345-create-table-webhooks: migrating =======
-== 20230731214345-create-table-webhooks: migrated (0.006s)
+== 20230731214345-create-table-webhooks: migrated (0.007s)
 
 == 20230731224345-add-active-table-webhooks: migrating =======
-== 20230731224345-add-active-table-webhooks: migrated (0.005s)
+== 20230731224345-add-active-table-webhooks: migrated (0.006s)
 
 == 20230731331007-add-lgpdAccept-Contact: migrating =======
 == 20230731331007-add-lgpdAccept-Contact: migrated (0.003s)
 
 == 20230801081907-add-collumns-Ticket: migrating =======
-== 20230801081907-add-collumns-Ticket: migrated (0.004s)
+== 20230801081907-add-collumns-Ticket: migrated (0.005s)
 
 == 20230802214345-create-table-flowbuilder: migrating =======
-== 20230802214345-create-table-flowbuilder: migrated (0.005s)
+== 20230802214345-create-table-flowbuilder: migrated (0.004s)
 
 == 20230807081007-add-lgpdAccept-Ticket: migrating =======
-== 20230807081007-add-lgpdAccept-Ticket: migrated (0.004s)
+== 20230807081007-add-lgpdAccept-Ticket: migrated (0.003s)
 
 == 20230808120000-add-system-currency-setting: migrating =======
 == 20230808120000-add-system-currency-setting: migrated (0.004s)
 
 == 20230808135401-add-groupAsTicket-to-whatsapp: migrating =======
-== 20230808135401-add-groupAsTicket-to-whatsapp: migrated (0.003s)
+== 20230808135401-add-groupAsTicket-to-whatsapp: migrated (0.004s)
 
 == 20230808141907-add-collumns-Users: migrating =======
-== 20230808141907-add-collumns-Users: migrated (0.004s)
+== 20230808141907-add-collumns-Users: migrated (0.006s)
 
 == 20230809081007-add-import-old-messages-to-whatsapp: migrating =======
 == 20230809081007-add-import-old-messages-to-whatsapp: migrated (0.003s)
@@ -1156,7 +1157,7 @@ Loaded configuration file "dist/config/database.js".
 == 20230809081009-add-closed-tickets-post-imported-to-whatsapp: migrated (0.003s)
 
 == 20230809081010-add-import-old-messages-groups-to-whatsapp: migrating =======
-== 20230809081010-add-import-old-messages-groups-to-whatsapp: migrated (0.002s)
+== 20230809081010-add-import-old-messages-groups-to-whatsapp: migrated (0.003s)
 
 == 20230809081011-add-imported-to-tickets: migrating =======
 == 20230809081011-add-imported-to-tickets: migrated (0.003s)
@@ -1166,22 +1167,22 @@ A constraint Whatsapps_name_key foi removida da tabela Whatsapps.
 == 20230809081012-change-name-unique-false-to-whatsapp: migrated (0.006s)
 
 == 20230810224345-add-company-table-webhooks: migrating =======
-== 20230810224345-add-company-table-webhooks: migrated (0.004s)
+== 20230810224345-add-company-table-webhooks: migrated (0.003s)
 
 == 20230810234345-add-company-table-flowbuilder: migrating =======
-== 20230810234345-add-company-table-flowbuilder: migrated (0.004s)
+== 20230810234345-add-company-table-flowbuilder: migrated (0.003s)
 
 == 20230813114236-change-ticket-lastMessage-column-type: migrating =======
-== 20230813114236-change-ticket-lastMessage-column-type: migrated (0.005s)
+== 20230813114236-change-ticket-lastMessage-column-type: migrated (0.003s)
 
 == 20230816212401-add-timeCreateNewTicket-to-whatsapp: migrating =======
-== 20230816212401-add-timeCreateNewTicket-to-whatsapp: migrated (0.003s)
+== 20230816212401-add-timeCreateNewTicket-to-whatsapp: migrated (0.004s)
 
 == 20230823082607-add-urlPicture-Contact: migrating =======
-== 20230823082607-add-urlPicture-Contact: migrated (0.003s)
+== 20230823082607-add-urlPicture-Contact: migrated (0.004s)
 
 == 20230823114236-add-column-flow-and-location: migrating =======
-== 20230823114236-add-column-flow-and-location: migrated (0.004s)
+== 20230823114236-add-column-flow-and-location: migrated (0.005s)
 
 == 20230823124236-add-column-data: migrating =======
 == 20230823124236-add-column-data: migrated (0.003s)
@@ -1202,13 +1203,13 @@ A constraint Whatsapps_name_key foi removida da tabela Whatsapps.
 == 20230828143411-add-Integrations-to-tickets: migrated (0.005s)
 
 == 20230828143411-add-isOutOfHour-to-tickets: migrating =======
-== 20230828143411-add-isOutOfHour-to-tickets: migrated (0.002s)
+== 20230828143411-add-isOutOfHour-to-tickets: migrated (0.003s)
 
 == 20230828144000-create-prompts: migrating =======
 == 20230828144000-create-prompts: migrated (0.008s)
 
 == 20230828144100-add-column-promptid-into-whatsapps: migrating =======
-== 20230828144100-add-column-promptid-into-whatsapps: migrated (0.015s)
+== 20230828144100-add-column-promptid-into-whatsapps: migrated (0.016s)
 
 == 20230829214345-create-table-imgs-flow: migrating =======
 == 20230829214345-create-table-imgs-flow: migrated (0.004s)
@@ -1217,7 +1218,7 @@ A constraint Whatsapps_name_key foi removida da tabela Whatsapps.
 == 20230831093000-add-useKanban-Plans: migrated (0.004s)
 
 == 20230901101300-create-CompaniesSettings: migrating =======
-== 20230901101300-create-CompaniesSettings: migrated (0.005s)
+== 20230901101300-create-CompaniesSettings: migrated (0.004s)
 
 == 20230901214345-create-table-audios-flow: migrating =======
 == 20230901214345-create-table-audios-flow: migrated (0.004s)
@@ -1229,7 +1230,7 @@ A constraint Whatsapps_name_key foi removida da tabela Whatsapps.
 == 20230904214345-create-table-campaign-flow: migrated (0.004s)
 
 == 20230905114236-add-column-flow-now: migrating =======
-== 20230905114236-add-column-flow-now: migrated (0.004s)
+== 20230905114236-add-column-flow-now: migrated (0.002s)
 
 == 20230911113900-add-unaccent-extension: migrating =======
 == 20230911113900-add-unaccent-extension: migrated (0.003s)
@@ -1247,13 +1248,13 @@ A constraint Whatsapps_name_key foi removida da tabela Whatsapps.
 == 20230915212800-add-public-to-plans: migrated (0.003s)
 
 == 20230922212337-add-integrationId-Queues: migrating =======
-== 20230922212337-add-integrationId-Queues: migrated (0.004s)
+== 20230922212337-add-integrationId-Queues: migrated (0.005s)
 
 == 20230922214345-create-table-flow-default: migrating =======
-== 20230922214345-create-table-flow-default: migrated (0.005s)
+== 20230922214345-create-table-flow-default: migrated (0.004s)
 
 == 20230923000001-create-Indexes-new: migrating =======
-== 20230923000001-create-Indexes-new: migrated (0.004s)
+== 20230923000001-create-Indexes-new: migrated (0.003s)
 
 == 20230923124428-update-tickets: migrating =======
 == 20230923124428-update-tickets: migrated (0.005s)
@@ -1265,7 +1266,7 @@ A constraint Whatsapps_name_key foi removida da tabela Whatsapps.
 == 20230925112401-create-Indexes Tickets: migrated (0.004s)
 
 == 20230925212337-add-closeTicket-Queues-Chatbots: migrating =======
-== 20230925212337-add-closeTicket-Queues-Chatbots: migrated (0.003s)
+== 20230925212337-add-closeTicket-Queues-Chatbots: migrated (0.004s)
 
 == 20230926143705-add-isGroup-to-ContactListItems: migrating =======
 == 20230926143705-add-isGroup-to-ContactListItems: migrated (0.003s)
@@ -1280,13 +1281,13 @@ A constraint Whatsapps_name_key foi removida da tabela Whatsapps.
 == 20231019113637-add-columns-Campaign: migrated (0.004s)
 
 == 20231019113637-add-columns-Schedules: migrating =======
-== 20231019113637-add-columns-Schedules: migrated (0.006s)
+== 20231019113637-add-columns-Schedules: migrated (0.009s)
 
 == 20231020125000-add-columns-Plans: migrating =======
-== 20231020125000-add-columns-Plans: migrated (0.005s)
+== 20231020125000-add-columns-Plans: migrated (0.006s)
 
 == 20231103230445-change-collumn-expiresInactiveMessage: migrating =======
-== 20231103230445-change-collumn-expiresInactiveMessage: migrated (0.003s)
+== 20231103230445-change-collumn-expiresInactiveMessage: migrated (0.004s)
 
 == 20231105221305-add-visao-to-quickMessages: migrating =======
 == 20231105221305-add-visao-to-quickMessages: migrated (0.003s)
@@ -1304,22 +1305,22 @@ A constraint Whatsapps_name_key foi removida da tabela Whatsapps.
 == 20231117000001-add-mediaName-to-schedules: migrated (0.003s)
 
 == 20231117000001-add-mediaPath-to-schedules: migrating =======
-== 20231117000001-add-mediaPath-to-schedules: migrated (0.003s)
+== 20231117000001-add-mediaPath-to-schedules: migrated (0.004s)
 
 == 20231121143411-add-isActiveDemand-to-tickets: migrating =======
 == 20231121143411-add-isActiveDemand-to-tickets: migrated (0.003s)
 
 == 20231122193355-create-table-wallets-contact: migrating =======
-== 20231122193355-create-table-wallets-contact: migrated (0.004s)
+== 20231122193355-create-table-wallets-contact: migrated (0.005s)
 
 == 20231122223411-add-DirectTicketsToWallets-to-CompaniesSettings: migrating =======
-== 20231122223411-add-DirectTicketsToWallets-to-CompaniesSettings: migrated (0.003s)
+== 20231122223411-add-DirectTicketsToWallets-to-CompaniesSettings: migrated (0.004s)
 
 == 20231127113000-add-columns-Plans: migrating =======
 == 20231127113000-add-columns-Plans: migrated (0.003s)
 
 == 20231128123537-add-typebot-QueueIntegrations: migrating =======
-== 20231128123537-add-typebot-QueueIntegrations: migrated (0.005s)
+== 20231128123537-add-typebot-QueueIntegrations: migrated (0.004s)
 
 == 20231201123411-add-closeTicketOnTransfer-to-CompaniesSettings: migrating =======
 == 20231201123411-add-closeTicketOnTransfer-to-CompaniesSettings: migrated (0.003s)
@@ -1328,37 +1329,37 @@ A constraint Whatsapps_name_key foi removida da tabela Whatsapps.
 == 20231202143411-add-typebotSessionId-to-tickets: migrated (0.003s)
 
 == 20231207080337-add-typebotDelayMessage-QueueIntegrations: migrating =======
-== 20231207080337-add-typebotDelayMessage-QueueIntegrations: migrated (0.004s)
+== 20231207080337-add-typebotDelayMessage-QueueIntegrations: migrated (0.003s)
 
 == 20231207085011-add-typebotStatus-to-tickets: migrating =======
-== 20231207085011-add-typebotStatus-to-tickets: migrated (0.002s)
+== 20231207085011-add-typebotStatus-to-tickets: migrated (0.003s)
 
 == 20231213214537-add-permissions-users: migrating =======
-== 20231213214537-add-permissions-users: migrated (0.004s)
+== 20231213214537-add-permissions-users: migrated (0.003s)
 
 == 20231218160937-add-columns-QueueIntegrations: migrating =======
-== 20231218160937-add-columns-QueueIntegrations: migrated (0.004s)
+== 20231218160937-add-columns-QueueIntegrations: migrated (0.003s)
 
 == 20231220080937-add-columns-Whatsapps: migrating =======
-== 20231220080937-add-columns-Whatsapps: migrated (0.005s)
+== 20231220080937-add-columns-Whatsapps: migrated (0.009s)
 
 == 20231220223517-add-column-whatsappId-to-Contacts: migrating =======
-== 20231220223517-add-column-whatsappId-to-Contacts: migrated (0.003s)
+== 20231220223517-add-column-whatsappId-to-Contacts: migrated (0.005s)
 
 == 20231221080937-change-collectiveVacationMessage-Whatsapps: migrating =======
-== 20231221080937-change-collectiveVacationMessage-Whatsapps: migrated (0.003s)
+== 20231221080937-change-collectiveVacationMessage-Whatsapps: migrated (0.007s)
 
 == 20231229214537-add-defaultTicketsManagerWidth-Users: migrating =======
-== 20231229214537-add-defaultTicketsManagerWidth-Users: migrated (0.003s)
+== 20231229214537-add-defaultTicketsManagerWidth-Users: migrated (0.005s)
 
 == 20232010133900-create-Partners-table: migrating =======
 == 20232010133900-create-Partners-table: migrated (0.005s)
 
 == 20240102230240-create-ScheduledMessages: migrating =======
-== 20240102230240-create-ScheduledMessages: migrated (0.004s)
+== 20240102230240-create-ScheduledMessages: migrated (0.005s)
 
 == 20240102230240-create-ScheduledMessagesEnvio: migrating =======
-== 20240102230240-create-ScheduledMessagesEnvio: migrated (0.005s)
+== 20240102230240-create-ScheduledMessagesEnvio: migrated (0.009s)
 
 == 20240102230241-create-ContactGroup: migrating =======
 == 20240102230241-create-ContactGroup: migrated (0.004s)
@@ -1388,10 +1389,10 @@ A constraint Whatsapps_name_key foi removida da tabela Whatsapps.
 == 20240311125600-add-colunms-folderSize-to-companies-table: migrated (0.004s)
 
 == 20240322143411-add-queueIdImportMessage-to-whatsapps: migrating =======
-== 20240322143411-add-queueIdImportMessage-to-whatsapps: migrated (0.005s)
+== 20240322143411-add-queueIdImportMessage-to-whatsapps: migrated (0.004s)
 
 == 20240323220001-create-companyId-Index-Message: migrating =======
-== 20240323220001-create-companyId-Index-Message: migrated (0.003s)
+== 20240323220001-create-companyId-Index-Message: migrated (0.004s)
 
 == 20240422214537-add-permissions-users: migrating =======
 == 20240422214537-add-permissions-users: migrated (0.004s)
@@ -1400,25 +1401,25 @@ A constraint Whatsapps_name_key foi removida da tabela Whatsapps.
 == 20240425223411-add-showNotificationPending-to-CompaniesSettings: migrated (0.003s)
 
 == 20240425225011-add-typebotSsessionTime-to-tickets: migrating =======
-== 20240425225011-add-typebotSsessionTime-to-tickets: migrated (0.003s)
+== 20240425225011-add-typebotSsessionTime-to-tickets: migrated (0.005s)
 
 == 20240515221400-create-Versions: migrating =======
-== 20240515221400-create-Versions: migrated (0.004s)
+== 20240515221400-create-Versions: migrated (0.003s)
 
 == 20240516112028-insert-version: migrating =======
 == 20240516112028-insert-version: migrated (0.003s)
 
 == 20240523083535-create-index: migrating =======
-== 20240523083535-create-index: migrated (0.025s)
+== 20240523083535-create-index: migrated (0.022s)
 
 == 20240610083535-create-index: migrating =======
 == 20240610083535-create-index: migrated (0.015s)
 
 == 20240718030548-add-column-flowIdNotPhrase-to-whatsapp: migrating =======
-== 20240718030548-add-column-flowIdNotPhrase-to-whatsapp: migrated (0.003s)
+== 20240718030548-add-column-flowIdNotPhrase-to-whatsapp: migrated (0.004s)
 
 == 20240718084127-recriate-constraint-integracoes: migrating =======
-== 20240718084127-recriate-constraint-integracoes: migrated (0.005s)
+== 20240718084127-recriate-constraint-integracoes: migrated (0.006s)
 
 == 20240719130841-add-column-flowIdWelcome-to-whatsapp: migrating =======
 == 20240719130841-add-column-flowIdWelcome-to-whatsapp: migrated (0.003s)
@@ -1430,7 +1431,7 @@ A constraint Whatsapps_name_key foi removida da tabela Whatsapps.
 == 20240719174850-add-language-to-users: migrated (0.003s)
 
 == 20241029144450-add-reset-password-columns-to-users: migrating =======
-== 20241029144450-add-reset-password-columns-to-users: migrated (0.004s)
+== 20241029144450-add-reset-password-columns-to-users: migrated (0.003s)
 
 == 20250110154405-add-password-reset-fields-to-users: migrating =======
 == 20250110154405-add-password-reset-fields-to-users: migrated (0.003s)
@@ -1439,31 +1440,31 @@ A constraint Whatsapps_name_key foi removida da tabela Whatsapps.
 == 20250424173112-add-model-to-open-ai-settings: migrated (0.003s)
 
 == 20250827-add-canViewAllContacts-to-users: migrating =======
-== 20250827-add-canViewAllContacts-to-users: migrated (0.011s)
+== 20250827-add-canViewAllContacts-to-users: migrated (0.015s)
 
 == 20250828-add-closedAt-to-tickets: migrating =======
-== 20250828-add-closedAt-to-tickets: migrated (0.005s)
+== 20250828-add-closedAt-to-tickets: migrated (0.004s)
 
 == 20250829-add-lid-jid-and-unique-chatkey: migrating =======
 == 20250829-add-lid-jid-and-unique-chatkey: migrated (0.014s)
 
 == 20250905235823-add-transfer-settings-to-companies-settings: migrating =======
-== 20250905235823-add-transfer-settings-to-companies-settings: migrated (0.007s)
+== 20250905235823-add-transfer-settings-to-companies-settings: migrated (0.009s)
 
 == 202509171135-add-messageId-to-messages: migrating =======
-== 202509171135-add-messageId-to-messages: migrated (0.010s)
+== 202509171135-add-messageId-to-messages: migrated (0.009s)
 
 == 20250917190000-add-lid-jid-to-contacts: migrating =======
-== 20250917190000-add-lid-jid-to-contacts: migrated (0.006s)
+== 20250917190000-add-lid-jid-to-contacts: migrated (0.007s)
 
 == 20250926140000-add-timezone-fields: migrating =======
-== 20250926140000-add-timezone-fields: migrated (0.012s)
+== 20250926140000-add-timezone-fields: migrated (0.013s)
 
 == 20250926140001-add-override-timezone-to-companies-settings: migrating =======
-== 20250926140001-add-override-timezone-to-companies-settings: migrated (0.008s)
+== 20250926140001-add-override-timezone-to-companies-settings: migrated (0.009s)
 
 == 20250926140002-add-timezone-indexes: migrating =======
-== 20250926140002-add-timezone-indexes: migrated (0.007s)
+== 20250926140002-add-timezone-indexes: migrated (0.008s)
 
 [INFO] Executando seeds atualizados (fingerprint novo detectado).
 
@@ -1471,16 +1472,16 @@ A constraint Whatsapps_name_key foi removida da tabela Whatsapps.
 
 Loaded configuration file "dist/config/database.js".
 == 20200904070003-create-default-company: migrating =======
-== 20200904070003-create-default-company: migrated (0.021s)
+== 20200904070003-create-default-company: migrated (0.022s)
 
 == 20200904070004-create-default-settings: migrating =======
-== 20200904070004-create-default-settings: migrated (0.030s)
+== 20200904070004-create-default-settings: migrated (0.032s)
 
 == 20200904070006-create-default-user: migrating =======
-== 20200904070006-create-default-user: migrated (0.034s)
+== 20200904070006-create-default-user: migrated (0.033s)
 
 == 20230901093700-create-default-companiessettings: migrating =======
-== 20230901093700-create-default-companiessettings: migrated (0.004s)
+== 20230901093700-create-default-companiessettings: migrated (0.003s)
 
 == 20250101000000-ensure-super-admin: migrating =======
 ✅ Super Admin atualizado com sucesso!
@@ -1489,4 +1490,7 @@ Loaded configuration file "dist/config/database.js".
 == 20250101000000-ensure-super-admin: migrated (0.025s)
 
 [K[0;37m• Configurando company name...[0m
-instalador.sh: eval: line 360: unexpected EOF while looking for matching `"'
+[WARN] Nome atual indisponível; aplicando valor configurado.
+ERROR:  syntax error at or near "\"
+LINE 1: UPDATE \Companies\ SET name = 'Atuar Pay' WHERE id = 1;
+               ^

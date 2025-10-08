@@ -1188,24 +1188,23 @@ run_quiet "$(t configuring) database (migrations/seeds)..." "bash -lc '
   fi
 '"
 
-run_quiet "$(t configuring) company name..." "bash <<COMPANY_NAME_UPDATE
+run_quiet "$(t configuring) company name..." "empresa='${empresa}' nome_titulo='${nome_titulo}' bash -lc '
   set -Eeuo pipefail
-  DB_NAME=\"${empresa}\"
-  TARGET_NAME=\"${nome_titulo}\"
-  SAFE_NEW_NAME=\\\$(printf \"%s\" \"\\\$TARGET_NAME\" | sed \"s/'/''/g\")
-  CURRENT_NAME=\\\$(sudo -u postgres psql -At -d \"\\\$DB_NAME\" -c \"SELECT name FROM \\\\\\\"Companies\\\\\\\" WHERE id = 1;\" 2>/dev/null | tr -d \"\\\\\\r\" | head -n 1 | sed \"s/[[:space:]]*\\\$//\" || true)
-  if [ \"\\\$CURRENT_NAME\" = \"\\\$TARGET_NAME\" ]; then
-    printf \"[INFO] Nome da empresa já configurado para %s; nenhuma mudança necessária.\\\\n\" \"\\\$TARGET_NAME\"
+  DB_NAME=\"\$empresa\"
+  TARGET_NAME=\"\$nome_titulo\"
+  SAFE_NEW_NAME=\$(printf \"%s\" \"\$TARGET_NAME\" | sed \"s/'/''/g\")
+  CURRENT_NAME=\$(sudo -u postgres psql -At -d \"\$DB_NAME\" -c \"SELECT name FROM \\\"Companies\\\" WHERE id = 1;\" 2>/dev/null | tr -d \"\\r\" | head -n 1 | sed \"s/[[:space:]]*\$//\" || true)
+  if [ \"\$CURRENT_NAME\" = \"\$TARGET_NAME\" ]; then
+    printf \"[INFO] Nome da empresa já configurado para %s; nenhuma mudança necessária.\\n\" \"\$TARGET_NAME\"
   else
-    if [ -z \"\\\$CURRENT_NAME\" ]; then
-      printf \"[WARN] Nome atual indisponível; aplicando valor configurado.\\\\n\"
+    if [ -z \"\$CURRENT_NAME\" ]; then
+      printf \"[WARN] Nome atual indisponível; aplicando valor configurado.\\n\"
     else
-      printf \"[INFO] Atualizando nome da empresa de %s para %s.\\\\n\" \"\\\$CURRENT_NAME\" \"\\\$TARGET_NAME\"
+      printf \"[INFO] Atualizando nome da empresa de %s para %s.\\n\" \"\$CURRENT_NAME\" \"\$nome_titulo\"
     fi
-    sudo -u postgres psql -d \"\\\$DB_NAME\" -c \"UPDATE \\\\\\\"Companies\\\\\\\" SET name = '\\\$SAFE_NEW_NAME' WHERE id = 1;\" >/dev/null
+    sudo -u postgres psql -d \"\$DB_NAME\" -c \"UPDATE \\\"Companies\\\" SET name = '\$SAFE_NEW_NAME' WHERE id = 1;\" >/dev/null
   fi
-COMPANY_NAME_UPDATE
-"
+'"
 
 #------------------- ETAPA 17: Frontend .env -----------------------------------
 run_quiet "$(t configuring) frontend (.env)..." "bash -lc '
