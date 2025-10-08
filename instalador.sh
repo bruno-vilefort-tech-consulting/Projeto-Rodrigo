@@ -904,9 +904,10 @@ REDIS_OPT_LIMITER_MAX=1
 REDIS_OPT_LIMITER_DURATION=3000
 
 TIMEOUT_TO_IMPORT_MESSAGE=1000
+FFMPEG_PATH=/usr/bin/ffmpeg
 
-JWT_SECRET=${jwt_secret}
-JWT_REFRESH_SECRET=${jwt_refresh_secret}
+JWT_SECRET=${JWT_SECRET_VALUE}
+JWT_REFRESH_SECRET=${JWT_REFRESH_SECRET_VALUE}
 MASTER_KEY=${senha_master}
 
 VERIFY_TOKEN=whaticket
@@ -917,17 +918,30 @@ USE_WHATSAPP_OFICIAL=true
 TOKEN_API_OFICIAL=adminpro
 
 TRANSCRIBE_URL=http://localhost:4002
-ENVFILE'"
+ENVFILE
+
+if [ -f "$ENV_PATH" ] && cmp -s "$ENV_TMP" "$ENV_PATH"; then
+  rm -f "$ENV_TMP"
+  msg="Arquivo .env já atualizado; pulando reescrita."
+  log_info "$msg"
+  echo "[INFO] $msg" >> "$LOG_FILE"
+  progress_inc
+else
+  run_quiet "$(t configuring) backend (.env)..." "
+    set -e
+    install -d -m 0755 /home/deploy/${empresa}/backend
+    install -m 0640 -o deploy -g deploy \"$ENV_TMP\" \"$ENV_PATH\"
+  "
+  rm -f "$ENV_TMP"
+fi
 
 #------------------- PREPARAÇÃO: Cache pnpm (requer root) ----------------------
 run_quiet "Preparando diretório cache pnpm..." "mkdir -p /mnt/pnpm-cache && chown deploy:deploy /mnt/pnpm-cache && chmod 775 /mnt/pnpm-cache"
 
 #------------------- ETAPA 15: Backend deps/build ------------------------------
-run_quiet "$(t installing) backend deps..." "sudo -u deploy bash -lc 'set -e; export PNPM_HOME=\$HOME/.local/share/pnpm; export PATH=\$PNPM_HOME:\$PATH; export PUPPETEER_SKIP_DOWNLOAD=true; export PNPM_STORE_DIR=/mnt/pnpm-cache; cd /home/deploy/${empresa}/backend; rm -rf node_modules package-lock.json pnpm-lock.yaml; pnpm install; pnpm add puppeteer-core glob jimp@^1.6.0 lodash moment zod@^3.23.8 mime@2.6.0 form-data qs bluebird; pnpm add -D @types/lodash @types/qs @types/express-serve-static-core; if [ -f tsconfig.json ]; then cp tsconfig.json tsconfig.json.bak; printf \"%s\\n\" \"{\" \"  \\\"compilerOptions\\\": { \\\"target\\\": \\\"es2020\\\", \\\"module\\\": \\\"commonjs\\\", \\\"outDir\\\": \\\"./dist\\\", \\\"strict\\\": false, \\\"strictPropertyInitialization\\\": false, \\\"esModuleInterop\\\": true, \\\"experimentalDecorators\\\": true, \\\"emitDecoratorMetadata\\\": true, \\\"skipLibCheck\\\": true, \\\"forceConsistentCasingInFileNames\\\": true, \\\"moduleResolution\\\": \\\"node\\\", \\\"typeRoots\\\": [\\\"./src/@types\\\"] },\" \"  \\\"include\\\": [\\\"src/**/*.ts\\\", \\\"src/**/*.d.ts\\\"],\" \"  \\\"exclude\\\": [\\\"node_modules\\\", \\\"public\\\", \\\"dist\\\", \\\"src/**/*.spec.ts\\\", \\\"src/**/__tests__\\\"]\" \"}\" > tsconfig.json; fi'"
-run_quiet "$(t configuring) mime imports..." "sudo -u deploy bash -lc 'cd /home/deploy/${empresa}/backend && find src -name \"*.ts\" -type f -exec sed -i \"s/import mime from \\\"mime-types\\\"/import mime from \\\"mime\\\"/g; s/import mime from '\\''mime-types'\\''/import mime from '\\''mime'\\''/g\" {} \\; 2>/dev/null || true'"
-run_quiet "$(t configuring) mime fallback..." "sudo -u deploy bash -lc 'cd /home/deploy/${empresa}/backend && [ -f src/services/WbotServices/SendWhatsAppMediaFlow.ts ] && sed -i \"s/const mimetype = mime\\.lookup(media)\$/const mimetype = mime.lookup(media) || '\\''application\\/octet-stream'\\''/g\" src/services/WbotServices/SendWhatsAppMediaFlow.ts || true'"
+run_quiet "$(t installing) backend deps..." "sudo -u deploy bash -lc 'set -e; export PNPM_HOME=\$HOME/.local/share/pnpm; export PATH=\$PNPM_HOME:\$PATH; export PUPPETEER_SKIP_DOWNLOAD=true; export PNPM_STORE_DIR=/mnt/pnpm-cache; cd /home/deploy/${empresa}/backend; rm -rf node_modules package-lock.json; pnpm install --frozen-lockfile'"
 
-run_quiet "$(t installing) backend build..." "sudo -u deploy bash -lc 'export PNPM_HOME=\"\$HOME/.local/share/pnpm\"; export PATH=\"\$PNPM_HOME:\$PATH\"; cd /home/deploy/${empresa}/backend; pnpm run build; if [ -f node_modules/@ffmpeg-installer/ffmpeg/index.js ]; then sed -i \"s|npm3Binary = .*|npm3Binary = \\\"/usr/bin/ffmpeg\\\";|\" node_modules/@ffmpeg-installer/ffmpeg/index.js; fi; mkdir -p node_modules/@ffmpeg-installer/linux-x64/; echo \"{ \\\"version\\\": \\\"1.1.0\\\", \\\"name\\\": \\\"@ffmpeg-installer/linux-x64\\\" }\" > node_modules/@ffmpeg-installer/linux-x64/package.json'"
+run_quiet "$(t installing) backend build..." "sudo -u deploy bash -lc 'export PNPM_HOME=\"\$HOME/.local/share/pnpm\"; export PATH=\"\$PNPM_HOME:\$PATH\"; cd /home/deploy/${empresa}/backend; pnpm run build'"
 
 save_checkpoint "ETAPA_15_BACKEND_INSTALADO"
 
