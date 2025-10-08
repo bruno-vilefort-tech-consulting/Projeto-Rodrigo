@@ -896,7 +896,7 @@ run_quiet "$(t configuring) PostgreSQL..." "sudo -u postgres bash -lc \"ROLE_EXI
 
 #------------------- ETAPA 13: Código ------------------------------------------
 SOURCE_DIR="$(pwd)/chatia"; DEST_DIR="/home/deploy/${empresa}"
-run_quiet "$(t installing) ChatIA code..." "GITHUB_TOKEN='${github_token}' REPO_URL='${repo_url}' bash -lc '
+run_quiet "$(t installing) ChatIA code..." "GITHUB_TOKEN='${github_token}' REPO_URL='${repo_url}' GITHUB_BRANCH='${github_branch:-refactor/migrate-installer-patches}' bash -lc '
   set -e
   urlenc() { local s=\"\$1\" out=\"\" i c; for ((i=0;i<\${#s};i++)); do c=\"\${s:i:1}\"; case \"\$c\" in [a-zA-Z0-9._~-]) out+=\"\$c\" ;; *) printf -v hex \"%%%02X\" \"'\''\$c\"; out+=\"\$hex\" ;; esac; done; echo \"\$out\"; }
   tmpd=\"/tmp/chatia_clone_\$\$\"
@@ -905,7 +905,7 @@ run_quiet "$(t installing) ChatIA code..." "GITHUB_TOKEN='${github_token}' REPO_
     tok=\$(urlenc \"\$GITHUB_TOKEN\")
     clean=\${REPO_URL#http://}; clean=\${clean#https://}
     github_url=\"https://\$tok@\${clean}\"
-    git clone \"\$github_url\" \"\$tmpd\"
+    git clone --branch \"\$GITHUB_BRANCH\" --single-branch \"\$github_url\" \"\$tmpd\"
     mkdir -p \"$DEST_DIR\"
     if [ -d \"\$tmpd/Projeto-Rodrigo/chatia\" ]; then
       cp -r \"\$tmpd/Projeto-Rodrigo/chatia/backend\" \"$DEST_DIR/\"; cp -r \"\$tmpd/Projeto-Rodrigo/chatia/frontend\" \"$DEST_DIR/\"
