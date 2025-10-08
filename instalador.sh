@@ -907,7 +907,10 @@ run_quiet "$(t installing) ChatIA code..." "GITHUB_TOKEN='${github_token}' REPO_
     github_url=\"https://\$tok@\${clean}\"
     git clone \"\$github_url\" \"\$tmpd\"
     mkdir -p \"$DEST_DIR\"
-    if [ -d \"\$tmpd/chatia\" ]; then
+    if [ -d \"\$tmpd/Projeto-Rodrigo/chatia\" ]; then
+      cp -r \"\$tmpd/Projeto-Rodrigo/chatia/backend\" \"$DEST_DIR/\"; cp -r \"\$tmpd/Projeto-Rodrigo/chatia/frontend\" \"$DEST_DIR/\"
+      [ -f \"\$tmpd/Projeto-Rodrigo/chatia/ecosystem.config.js\" ] && cp \"\$tmpd/Projeto-Rodrigo/chatia/ecosystem.config.js\" \"$DEST_DIR/\"
+    elif [ -d \"\$tmpd/chatia\" ]; then
       cp -r \"\$tmpd/chatia/backend\" \"$DEST_DIR/\"; cp -r \"\$tmpd/chatia/frontend\" \"$DEST_DIR/\"
       [ -f \"\$tmpd/chatia/ecosystem.config.js\" ] && cp \"\$tmpd/chatia/ecosystem.config.js\" \"$DEST_DIR/\"
     elif [ -d \"\$tmpd/backend\" ] && [ -d \"\$tmpd/frontend\" ]; then
