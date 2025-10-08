@@ -20,7 +20,9 @@
     "double-esc-code-restore": 1,
     "continue": 1,
     "shift-tab": 1,
-    "image-paste": 1
+    "image-paste": 1,
+    "tab-toggle-thinking": 1,
+    "ultrathink-keyword": 1
   },
   "cachedStatsigGates": {
     "tengu_disable_bypass_permissions_mode": false
@@ -41,6 +43,14 @@
     "/root": {
       "allowedTools": [],
       "history": [
+        {
+          "display": "ultrathink faça uma nova análise e veja qual o novo erro dessa vez na etapa 71% sem mexer no código ainda scripts/chatia-install.log e instalador.sh",
+          "pastedContents": {}
+        },
+        {
+          "display": "ultrathink verifique se agora o instalador vai funcionar e passar da etapa 65%",
+          "pastedContents": {}
+        },
         {
           "display": "Ajuste para o código correto estar na branch main do github, inclusive faça o push do código para la. Depois ajuste para não ter o nome Projeto-Rodrigo/chatia no projeto, apenas chatia. Ajuste tudo e garanta que o instalador  irá funcionar",
           "pastedContents": {}
@@ -88,7 +98,7 @@
       "disabledMcpjsonServers": [],
       "hasTrustDialogAccepted": false,
       "ignorePatterns": [],
-      "projectOnboardingSeenCount": 1,
+      "projectOnboardingSeenCount": 2,
       "hasClaudeMdExternalIncludesApproved": false,
       "hasClaudeMdExternalIncludesWarningShown": false,
       "exampleFiles": [

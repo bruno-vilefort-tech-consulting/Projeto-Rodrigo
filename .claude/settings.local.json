@@ -50,7 +50,15 @@
       "Bash(git clone:*)",
       "Bash(git add:*)",
       "Bash(git checkout:*)",
-      "Bash(git merge:*)"
+      "Bash(git merge:*)",
+      "Bash(git fetch:*)",
+      "Bash(tmpd=\"/tmp/test-clone\")",
+      "Bash(if [ -d \"$tmpd/chatia\" ])",
+      "Bash(then)",
+      "Bash(elif [ -d \"$tmpd/backend\" ])",
+      "Bash([ -d \"$tmpd/frontend\" ])",
+      "Bash(else)",
+      "Bash(fi)"
     ],
     "deny": [],
     "ask": []
