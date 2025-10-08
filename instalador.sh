@@ -1005,13 +1005,11 @@ run_quiet "$(t installing) backend deps..." "sudo -H -u deploy bash -lc '
     printf \"[WARN] PNPM cache ausente ou corrompido; reconstruindo dependências.\\n\"
   fi
 
-  INSTALL_ARGS=\"--frozen-lockfile --prefer-offline\"
-  RETRY_ARGS=\"--frozen-lockfile\"
+  INSTALL_ARGS=\"--prefer-offline\"
+  RETRY_ARGS=\"\"
 
   if [ ! -f pnpm-lock.yaml ]; then
     printf \"[WARN] pnpm-lock.yaml não encontrado; instalando sem --frozen-lockfile.\\n\"
-    INSTALL_ARGS=\"--prefer-offline\"
-    RETRY_ARGS=\"\"
   elif [ \"\$HEALTHY_CACHE\" = 1 ]; then
     printf \"[INFO] Validando dependências existentes com pnpm --prefer-offline.\\n\"
   fi
@@ -1019,11 +1017,7 @@ run_quiet "$(t installing) backend deps..." "sudo -H -u deploy bash -lc '
   if ! pnpm install \$INSTALL_ARGS; then
     printf \"[WARN] Falha na validação pnpm; limpando node_modules e repetindo.\\n\"
     rm -rf node_modules
-    if [ -n \"\$RETRY_ARGS\" ]; then
-      pnpm install \$RETRY_ARGS
-    else
-      pnpm install
-    fi
+    pnpm install
   fi
 '"
 
@@ -1033,6 +1027,50 @@ run_quiet "$(t installing) backend build..." "sudo -H -u deploy bash -lc '
   export PATH=\"\$PNPM_HOME:\$PATH\"
   BACKEND_DIR=\"/home/deploy/${empresa}/backend\"
   cd \"\$BACKEND_DIR\"
+
+  ensure_tsconfig_type_roots() {
+    local file=\"tsconfig.json\"
+    if [ ! -f \"\$file\" ]; then
+      return
+    fi
+    if grep -q '\"./node_modules/@types\"' \"\$file\" 2>/dev/null; then
+      return
+    fi
+    if ! command -v python3 >/dev/null 2>&1; then
+      printf \"[WARN] python3 indisponível; não foi possível ajustar typeRoots em %s.\\n\" \"\$file\"
+      return
+    fi
+    if python3 - \"\$file\" <<'PY'
+import json, os, sys
+path = sys.argv[1]
+with open(path, encoding=\"utf-8\") as fh:
+    data = json.load(fh)
+compiler = data.setdefault(\"compilerOptions\", {})
+roots = compiler.get(\"typeRoots\")
+changed = False
+if isinstance(roots, list):
+    if \"./node_modules/@types\" not in roots:
+        roots.append(\"./node_modules/@types\")
+        changed = True
+elif roots is None:
+    compiler[\"typeRoots\"] = [\"./src/@types\", \"./node_modules/@types\"]
+    changed = True
+else:
+    compiler[\"typeRoots\"] = [\"./src/@types\", \"./node_modules/@types\"]
+    changed = True
+if changed:
+    tmp_path = path + \".tmp\"
+    with open(tmp_path, \"w\", encoding=\"utf-8\") as tmp:
+        json.dump(data, tmp, ensure_ascii=False, indent=2)
+        tmp.write(\"\\n\")
+    os.replace(tmp_path, path)
+PY
+    then
+      printf \"[INFO] typeRoots de %s atualizados para incluir node_modules/@types.\\n\" \"\$file\"
+    fi
+  }
+
+  ensure_tsconfig_type_roots
 
   calc_backend_hash() {
     local -a paths=()
