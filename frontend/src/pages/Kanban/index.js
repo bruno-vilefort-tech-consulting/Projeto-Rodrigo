@@ -1,14 +1,22 @@
 import React, { useState, useEffect, useContext } from "react";
 import { makeStyles, useTheme } from "@material-ui/core/styles";
 import { AuthContext } from "../../context/Auth/AuthContext";
-import Board from 'react-trello';
+import Board from "react-trello";
 import { i18n } from "../../translate/i18n";
-import { useHistory } from 'react-router-dom';
+import { useHistory } from "react-router-dom";
 import { Facebook, Instagram, WhatsApp } from "@material-ui/icons";
-import { Badge, Tooltip, Typography, Button, TextField, Box } from "@material-ui/core";
+import {
+  Badge,
+  Tooltip,
+  Typography,
+  Button,
+  TextField,
+  Box,
+} from "@material-ui/core";
 import { format, isSameDay, parseISO } from "date-fns";
 import { Can } from "../../components/Can";
 import BackdropLoading from "../../components/BackdropLoading";
+import { FEATURES } from "../../config/featureFlags";
 
 // Hooks customizados
 import useKanbanTags from "../../hooks/useKanbanTags";
@@ -16,7 +24,7 @@ import useKanbanTickets from "../../hooks/useKanbanTickets";
 import useSocketKanban from "../../hooks/useSocketKanban";
 import useMoveTicket from "../../hooks/useMoveTicket";
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles((theme) => ({
   root: {
     display: "flex",
     flexDirection: "column",
@@ -33,7 +41,7 @@ const useStyles = makeStyles(theme => ({
     color: "#FFF",
     marginRight: 1,
     padding: 1,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     borderRadius: 3,
     fontSize: "0.6em",
   },
@@ -50,7 +58,7 @@ const useStyles = makeStyles(theme => ({
     position: "relative",
     color: theme.palette.success.main,
     fontWeight: "bold",
-    marginLeft: "auto"
+    marginLeft: "auto",
   },
   cardButton: {
     marginRight: theme.spacing(1),
@@ -75,11 +83,16 @@ const Kanban = () => {
   const [startDate, setStartDate] = useState(format(new Date(), "yyyy-MM-dd"));
   const [endDate, setEndDate] = useState(format(new Date(), "yyyy-MM-dd"));
 
-  const jsonString = user.queues?.map(queue => queue.UserQueue?.queueId) || [];
+  const jsonString =
+    user.queues?.map((queue) => queue.UserQueue?.queueId) || [];
 
   // Hooks de data fetching
   const { tags, loading: tagsLoading, refetch: refetchTags } = useKanbanTags();
-  const { tickets, loading: ticketsLoading, refetch: refetchTickets } = useKanbanTickets(jsonString, startDate, endDate);
+  const {
+    tickets,
+    loading: ticketsLoading,
+    refetch: refetchTickets,
+  } = useKanbanTickets(jsonString, startDate, endDate);
   const { moveTicket, loading: moveLoading } = useMoveTicket();
 
   // Socket.IO real-time
@@ -102,33 +115,63 @@ const Kanban = () => {
   const IconChannel = (channel) => {
     switch (channel) {
       case "facebook":
-        return <Facebook style={{ color: "#3b5998", verticalAlign: "middle", fontSize: "16px" }} />;
+        return (
+          <Facebook
+            style={{
+              color: "#3b5998",
+              verticalAlign: "middle",
+              fontSize: "16px",
+            }}
+          />
+        );
       case "instagram":
-        return <Instagram style={{ color: "#e1306c", verticalAlign: "middle", fontSize: "16px" }} />;
+        return (
+          <Instagram
+            style={{
+              color: "#e1306c",
+              verticalAlign: "middle",
+              fontSize: "16px",
+            }}
+          />
+        );
       case "whatsapp":
-        return <WhatsApp style={{ color: "#25d366", verticalAlign: "middle", fontSize: "16px" }} />;
+        return (
+          <WhatsApp
+            style={{
+              color: "#25d366",
+              verticalAlign: "middle",
+              fontSize: "16px",
+            }}
+          />
+        );
       default:
         return i18n.t("kanban.iconChannelError");
     }
   };
 
   const popularCards = () => {
-    const filteredTickets = tickets.filter(ticket => ticket.tags?.length === 0);
+    const filteredTickets = tickets.filter(
+      (ticket) => ticket.tags?.length === 0,
+    );
 
     const lanes = [
       {
         id: "lane0",
         title: i18n.t("tagsKanban.laneDefault"),
         label: filteredTickets.length.toString(),
-        cards: filteredTickets.map(ticket => ({
+        cards: filteredTickets.map((ticket) => ({
           id: ticket.id.toString(),
           label: i18n.t("kanban.ticketNumber") + ticket.id.toString(),
           description: (
             <div>
-              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+              <div style={{ display: "flex", justifyContent: "space-between" }}>
                 <span>{ticket.contact?.number}</span>
                 <Typography
-                  className={Number(ticket.unreadMessages) > 0 ? classes.lastMessageTimeUnread : classes.lastMessageTime}
+                  className={
+                    Number(ticket.unreadMessages) > 0
+                      ? classes.lastMessageTimeUnread
+                      : classes.lastMessageTime
+                  }
                   component="span"
                   variant="body2"
                 >
@@ -139,16 +182,21 @@ const Kanban = () => {
                   )}
                 </Typography>
               </div>
-              <div style={{ textAlign: 'left' }}>{ticket.lastMessage || " "}</div>
+              <div style={{ textAlign: "left" }}>
+                {ticket.lastMessage || " "}
+              </div>
               <Button
                 className={`${classes.button} ${classes.cardButton}`}
                 onClick={() => handleCardClick(ticket.uuid)}
               >
                 {i18n.t("kanban.viewTicket")}
               </Button>
-              <span style={{ marginRight: '8px' }} />
+              <span style={{ marginRight: "8px" }} />
               {ticket?.user && (
-                <Badge style={{ backgroundColor: "#000000" }} className={classes.connectionTag}>
+                <Badge
+                  style={{ backgroundColor: "#000000" }}
+                  className={classes.connectionTag}
+                >
                   {ticket.user?.name.toUpperCase()}
                 </Badge>
               )}
@@ -158,16 +206,17 @@ const Kanban = () => {
             <>
               <Tooltip title={ticket.whatsapp?.name || ""}>
                 {IconChannel(ticket.channel)}
-              </Tooltip> {ticket.contact?.name}
+              </Tooltip>{" "}
+              {ticket.contact?.name}
             </>
           ),
           draggable: true,
           href: "/tickets/" + ticket.uuid,
         })),
       },
-      ...tags.map(tag => {
-        const filteredTickets = tickets.filter(ticket => {
-          const tagIds = ticket.tags?.map(t => t.id) || [];
+      ...tags.map((tag) => {
+        const filteredTickets = tickets.filter((ticket) => {
+          const tagIds = ticket.tags?.map((t) => t.id) || [];
           return tagIds.includes(tag.id);
         });
 
@@ -175,7 +224,7 @@ const Kanban = () => {
           id: tag.id.toString(),
           title: tag.name,
           label: filteredTickets?.length.toString(),
-          cards: filteredTickets.map(ticket => ({
+          cards: filteredTickets.map((ticket) => ({
             id: ticket.id.toString(),
             label: i18n.t("kanban.ticketNumber") + ticket.id.toString(),
             description: (
@@ -191,10 +240,13 @@ const Kanban = () => {
                 >
                   {i18n.t("kanban.viewTicket")}
                 </Button>
-                <span style={{ marginRight: '8px' }} />
+                <span style={{ marginRight: "8px" }} />
                 <p>
                   {ticket?.user && (
-                    <Badge style={{ backgroundColor: "#000000" }} className={classes.connectionTag}>
+                    <Badge
+                      style={{ backgroundColor: "#000000" }}
+                      className={classes.connectionTag}
+                    >
                       {ticket.user?.name.toUpperCase()}
                     </Badge>
                   )}
@@ -205,13 +257,14 @@ const Kanban = () => {
               <>
                 <Tooltip title={ticket.whatsapp?.name || ""}>
                   {IconChannel(ticket.channel)}
-                </Tooltip> {ticket.contact?.name}
+                </Tooltip>{" "}
+                {ticket.contact?.name}
               </>
             ),
             draggable: true,
             href: "/tickets/" + ticket.uuid,
           })),
-          style: { backgroundColor: tag.color, color: "white" }
+          style: { backgroundColor: tag.color, color: "white" },
         };
       }),
     ];
@@ -220,7 +273,7 @@ const Kanban = () => {
   };
 
   const handleCardClick = (uuid) => {
-    history.push('/tickets/' + uuid);
+    history.push("/tickets/" + uuid);
   };
 
   useEffect(() => {
@@ -250,7 +303,7 @@ const Kanban = () => {
   };
 
   const handleAddConnectionClick = () => {
-    history.push('/tagsKanban');
+    history.push("/tagsKanban");
   };
 
   // Loading state
@@ -260,8 +313,17 @@ const Kanban = () => {
 
   return (
     <div className={classes.root}>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px', width: '100%', maxWidth: '1200px' }}>
-        <div style={{ display: 'flex', alignItems: 'center' }}>
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          marginBottom: "20px",
+          width: "100%",
+          maxWidth: "1200px",
+        }}
+      >
+        <div style={{ display: "flex", alignItems: "center" }}>
           <TextField
             label={i18n.t("kanban.startDate")}
             type="date"
@@ -294,21 +356,27 @@ const Kanban = () => {
             {i18n.t("kanban.search")}
           </Button>
         </div>
-        <Can role={user.profile} perform="dashboard:view" yes={() => (
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={handleAddConnectionClick}
-          >
-            {i18n.t("kanban.addColumns")}
-          </Button>
-        )} />
+        {FEATURES.KANBAN_V2 && (
+          <Can
+            role={user.profile}
+            perform="dashboard:view"
+            yes={() => (
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={handleAddConnectionClick}
+              >
+                {i18n.t("kanban.addColumns")}
+              </Button>
+            )}
+          />
+        )}
       </div>
       <div className={classes.kanbanContainer}>
         <Board
           data={file}
           onCardMoveAcrossLanes={handleCardMove}
-          style={{ backgroundColor: 'rgba(252, 252, 252, 0.03)' }}
+          style={{ backgroundColor: "rgba(252, 252, 252, 0.03)" }}
           draggable={!moveLoading}
         />
       </div>
