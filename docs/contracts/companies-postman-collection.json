@@ -1,0 +1,536 @@
+{
+  "info": {
+    "name": "ChatIA Flow - Companies API",
+    "description": "Collection completa da API de Companies do ChatIA Flow.\n\n**Configuração:**\n1. Importar esta collection no Postman\n2. Configurar variáveis de ambiente:\n   - `base_url`: http://localhost:3000/api\n   - `token`: <seu_jwt_token>\n   - `companyId`: <id_da_sua_company>\n\n**Autenticação:**\nTodas as requisições usam JWT Bearer Token obtido no endpoint /auth/login.\n\n**RBAC:**\n- Super users: Acesso total\n- Users regulares: Acesso restrito à própria company",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "1"
+  },
+  "item": [
+    {
+      "name": "Companies",
+      "item": [
+        {
+          "name": "List Companies (Paginated)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/companies?searchParam=&pageNumber=1",
+              "host": ["{{base_url}}"],
+              "path": ["companies"],
+              "query": [
+                {
+                  "key": "searchParam",
+                  "value": "",
+                  "description": "Termo de busca (ATUALMENTE IGNORADO)"
+                },
+                {
+                  "key": "pageNumber",
+                  "value": "1",
+                  "description": "Número da página (limite: 20 companies)"
+                }
+              ]
+            },
+            "description": "Retorna lista paginada de companies.\n\n**IMPORTANTE:** O parâmetro `searchParam` é aceito mas IGNORADO na versão atual.\n\n**RBAC:**\n- Super users: Veem todas as companies\n- Users regulares: Veem apenas sua própria company"
+          },
+          "response": [
+            {
+              "name": "200 OK - Super User",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}/companies?pageNumber=1",
+                  "host": ["{{base_url}}"],
+                  "path": ["companies"],
+                  "query": [
+                    {
+                      "key": "pageNumber",
+                      "value": "1"
+                    }
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [],
+              "cookie": [],
+              "body": "{\n  \"companies\": [\n    {\n      \"id\": 1,\n      \"name\": \"Acme Corp\",\n      \"email\": \"contato@acme.com\",\n      \"phone\": \"11999999999\",\n      \"document\": \"12345678000190\",\n      \"paymentMethod\": \"credit_card\",\n      \"status\": true,\n      \"dueDate\": \"2025-12-31\",\n      \"recurrence\": \"monthly\",\n      \"planId\": 2,\n      \"createdAt\": \"2025-01-15T10:00:00.000Z\",\n      \"updatedAt\": \"2025-10-13T14:30:00.000Z\",\n      \"plan\": {\n        \"name\": \"Premium\"\n      }\n    }\n  ],\n  \"count\": 45,\n  \"hasMore\": true\n}"
+            },
+            {
+              "name": "200 OK - Regular User",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}/companies",
+                  "host": ["{{base_url}}"],
+                  "path": ["companies"]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [],
+              "cookie": [],
+              "body": "{\n  \"companies\": [\n    {\n      \"id\": 5,\n      \"name\": \"Minha Empresa\",\n      \"email\": \"contato@minhaempresa.com\",\n      \"phone\": \"11888887777\",\n      \"status\": true,\n      \"planId\": 1,\n      \"plan\": {\n        \"name\": \"Basic\"\n      }\n    }\n  ],\n  \"count\": 1,\n  \"hasMore\": false\n}"
+            }
+          ]
+        },
+        {
+          "name": "List All Companies (No Pagination)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/companies/list",
+              "host": ["{{base_url}}"],
+              "path": ["companies", "list"]
+            },
+            "description": "Retorna TODAS as companies sem paginação.\n\n**USO:** Hook `useCompanies` no frontend (CompaniesManager).\n\n**ATENÇÃO:** Para super users com muitas companies, pode ser lento."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Current Company",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/companies/current",
+              "host": ["{{base_url}}"],
+              "path": ["companies", "current"]
+            },
+            "description": "Retorna a company do usuário logado (extraída do JWT).\n\n**SEGURO POR DESIGN:** Sempre retorna a company do token."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Company by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/companies/{{companyId}}",
+              "host": ["{{base_url}}"],
+              "path": ["companies", "{{companyId}}"]
+            },
+            "description": "Busca company por ID.\n\n**RBAC:**\n- Super users: Podem buscar qualquer company\n- Users regulares: Só podem buscar a própria company (400 se tentar outra)"
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}/companies/123",
+                  "host": ["{{base_url}}"],
+                  "path": ["companies", "123"]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [],
+              "cookie": [],
+              "body": "{\n  \"id\": 123,\n  \"name\": \"Acme Corp\",\n  \"email\": \"contato@acme.com\",\n  \"phone\": \"11999999999\",\n  \"document\": \"12345678000190\",\n  \"paymentMethod\": \"credit_card\",\n  \"status\": true,\n  \"dueDate\": \"2025-12-31\",\n  \"recurrence\": \"monthly\",\n  \"planId\": 2,\n  \"schedules\": [],\n  \"timezone\": \"America/Sao_Paulo\",\n  \"createdAt\": \"2025-01-15T10:00:00.000Z\",\n  \"updatedAt\": \"2025-10-13T14:30:00.000Z\",\n  \"plan\": {\n    \"id\": 2,\n    \"name\": \"Premium\",\n    \"amount\": \"99.90\"\n  }\n}"
+            },
+            {
+              "name": "400 Bad Request - No Permission",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}/companies/456",
+                  "host": ["{{base_url}}"],
+                  "path": ["companies", "456"]
+                }
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "_postman_previewlanguage": "json",
+              "header": [],
+              "cookie": [],
+              "body": "{\n  \"error\": \"Você não possui permissão para acessar este recurso!\"\n}"
+            },
+            {
+              "name": "404 Not Found",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}/companies/99999",
+                  "host": ["{{base_url}}"],
+                  "path": ["companies", "99999"]
+                }
+              },
+              "status": "Not Found",
+              "code": 404,
+              "_postman_previewlanguage": "json",
+              "header": [],
+              "cookie": [],
+              "body": "{\n  \"error\": \"ERR_NO_COMPANY_FOUND\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Create Company",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Nova Empresa Ltda\",\n  \"email\": \"contato@novaempresa.com\",\n  \"phone\": \"11988887777\",\n  \"document\": \"98765432000123\",\n  \"password\": \"senha123\",\n  \"companyUserName\": \"Admin Nova Empresa\",\n  \"status\": true,\n  \"planId\": 1,\n  \"dueDate\": \"2026-01-31\",\n  \"recurrence\": \"monthly\",\n  \"paymentMethod\": \"boleto\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/companies",
+              "host": ["{{base_url}}"],
+              "path": ["companies"]
+            },
+            "description": "Cria nova company com transação atômica:\n1. Company\n2. User admin\n3. CompaniesSettings\n4. User demo (se habilitado)\n\n**Rollback:** Se qualquer etapa falhar, TUDO é revertido."
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "originalRequest": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"Nova Empresa Ltda\",\n  \"email\": \"contato@novaempresa.com\",\n  \"password\": \"senha123\",\n  \"planId\": 1\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{base_url}}/companies",
+                  "host": ["{{base_url}}"],
+                  "path": ["companies"]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [],
+              "cookie": [],
+              "body": "{\n  \"id\": 125,\n  \"name\": \"Nova Empresa Ltda\",\n  \"email\": \"contato@novaempresa.com\",\n  \"phone\": \"11988887777\",\n  \"document\": \"98765432000123\",\n  \"paymentMethod\": \"boleto\",\n  \"status\": true,\n  \"dueDate\": \"2026-01-31\",\n  \"recurrence\": \"monthly\",\n  \"planId\": 1,\n  \"createdAt\": \"2025-10-13T15:00:00.000Z\",\n  \"updatedAt\": \"2025-10-13T15:00:00.000Z\"\n}"
+            },
+            {
+              "name": "400 Bad Request - Validation",
+              "originalRequest": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"email\": \"teste@teste.com\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{base_url}}/companies",
+                  "host": ["{{base_url}}"],
+                  "path": ["companies"]
+                }
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "_postman_previewlanguage": "json",
+              "header": [],
+              "cookie": [],
+              "body": "{\n  \"error\": \"name is a required field\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Update Company",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Acme Corp Atualizada\",\n  \"email\": \"novo@acme.com\",\n  \"phone\": \"11977776666\",\n  \"status\": true,\n  \"planId\": 3,\n  \"dueDate\": \"2026-12-31\",\n  \"paymentMethod\": \"credit_card\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/companies/{{companyId}}",
+              "host": ["{{base_url}}"],
+              "path": ["companies", "{{companyId}}"]
+            },
+            "description": "Atualiza company existente.\n\n**IMPORTANTE:** Se email for alterado, o email do user admin também é atualizado.\n\n**RBAC:**\n- Super users: Podem atualizar qualquer company\n- Users regulares: Só podem atualizar a própria company"
+          },
+          "response": []
+        },
+        {
+          "name": "Update Company Schedules",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"schedules\": [\n    {\n      \"day\": 0,\n      \"label\": \"Domingo\",\n      \"hr1\": \"08:00\",\n      \"hr2\": \"12:00\",\n      \"hr3\": \"\",\n      \"hr4\": \"\"\n    },\n    {\n      \"day\": 1,\n      \"label\": \"Segunda\",\n      \"hr1\": \"08:00\",\n      \"hr2\": \"12:00\",\n      \"hr3\": \"13:00\",\n      \"hr4\": \"18:00\"\n    },\n    {\n      \"day\": 2,\n      \"label\": \"Terça\",\n      \"hr1\": \"08:00\",\n      \"hr2\": \"12:00\",\n      \"hr3\": \"13:00\",\n      \"hr4\": \"18:00\"\n    },\n    {\n      \"day\": 3,\n      \"label\": \"Quarta\",\n      \"hr1\": \"08:00\",\n      \"hr2\": \"12:00\",\n      \"hr3\": \"13:00\",\n      \"hr4\": \"18:00\"\n    },\n    {\n      \"day\": 4,\n      \"label\": \"Quinta\",\n      \"hr1\": \"08:00\",\n      \"hr2\": \"12:00\",\n      \"hr3\": \"13:00\",\n      \"hr4\": \"18:00\"\n    },\n    {\n      \"day\": 5,\n      \"label\": \"Sexta\",\n      \"hr1\": \"08:00\",\n      \"hr2\": \"12:00\",\n      \"hr3\": \"13:00\",\n      \"hr4\": \"18:00\"\n    },\n    {\n      \"day\": 6,\n      \"label\": \"Sábado\",\n      \"hr1\": \"09:00\",\n      \"hr2\": \"13:00\",\n      \"hr3\": \"\",\n      \"hr4\": \"\"\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/companies/{{companyId}}/schedules",
+              "host": ["{{base_url}}"],
+              "path": ["companies", "{{companyId}}", "schedules"]
+            },
+            "description": "Atualiza horários de funcionamento da company."
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Company (Super Only)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/companies/{{companyId}}",
+              "host": ["{{base_url}}"],
+              "path": ["companies", "{{companyId}}"]
+            },
+            "description": "Exclui company e TODOS os dados relacionados (CASCADE).\n\n**ATENÇÃO:** Operação IRREVERSÍVEL.\n\n**ACESSO:** Apenas super users.\n\n**CASCADE DELETE:**\n- Users\n- UserRatings\n- Queues\n- Whatsapps\n- Messages\n- Contacts\n- Settings\n- CompaniesSettings\n- Tickets\n- TicketTrakings\n- Invoices"
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "originalRequest": {
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}/companies/123",
+                  "host": ["{{base_url}}"],
+                  "path": ["companies", "123"]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [],
+              "cookie": [],
+              "body": "{\n  \"message\": \"Company deleted successfully\"\n}"
+            },
+            {
+              "name": "400 Bad Request - No Permission",
+              "originalRequest": {
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}/companies/123",
+                  "host": ["{{base_url}}"],
+                  "path": ["companies", "123"]
+                }
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "_postman_previewlanguage": "json",
+              "header": [],
+              "cookie": [],
+              "body": "{\n  \"error\": \"Você não possui permissão para acessar este recurso!\"\n}"
+            }
+          ]
+        }
+      ],
+      "description": "Endpoints CRUD para gerenciamento de empresas."
+    },
+    {
+      "name": "Plans",
+      "item": [
+        {
+          "name": "Get Company Plan",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/companies/listPlan/{{companyId}}",
+              "host": ["{{base_url}}"],
+              "path": ["companies", "listPlan", "{{companyId}}"]
+            },
+            "description": "Retorna informações do plano associado à company."
+          },
+          "response": []
+        },
+        {
+          "name": "List Companies Plan (Super Only)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/companiesPlan",
+              "host": ["{{base_url}}"],
+              "path": ["companiesPlan"]
+            },
+            "description": "Lista todas as companies com informações de planos.\n\n**ACESSO:** Apenas super users."
+          },
+          "response": []
+        }
+      ],
+      "description": "Endpoints relacionados a planos de empresas."
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// Pre-request script global",
+          "console.log('Sending request to:', pm.request.url.toString());",
+          "",
+          "// Verificar se token está definido",
+          "if (!pm.variables.get('token')) {",
+          "    console.warn('⚠️ Token não está definido! Configure a variável {{token}}');",
+          "}"
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// Test script global",
+          "",
+          "// Validar status code 2xx ou 4xx (não queremos 5xx)",
+          "pm.test('Status code is not 500', function () {",
+          "    pm.expect(pm.response.code).to.not.equal(500);",
+          "});",
+          "",
+          "// Validar response time < 2s",
+          "pm.test('Response time is less than 2000ms', function () {",
+          "    pm.expect(pm.response.responseTime).to.be.below(2000);",
+          "});",
+          "",
+          "// Validar Content-Type",
+          "pm.test('Content-Type is application/json', function () {",
+          "    pm.expect(pm.response.headers.get('Content-Type')).to.include('application/json');",
+          "});",
+          "",
+          "// Log do resultado",
+          "if (pm.response.code >= 200 && pm.response.code < 300) {",
+          "    console.log('✅ Request successful:', pm.response.code);",
+          "} else {",
+          "    console.warn('⚠️ Request failed:', pm.response.code, pm.response.json());",
+          "}"
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:3000/api",
+      "type": "string"
+    },
+    {
+      "key": "token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "companyId",
+      "value": "123",
+      "type": "string"
+    }
+  ]
+}

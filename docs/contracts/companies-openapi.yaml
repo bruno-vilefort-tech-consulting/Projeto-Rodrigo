@@ -1,0 +1,906 @@
+openapi: 3.0.3
+info:
+  title: ChatIA Flow - Companies API
+  description: |
+    API de gerenciamento de empresas (Companies) do ChatIA Flow.
+
+    **Autenticação:** JWT Bearer Token
+    **Multi-Tenant:** Isolamento baseado em RBAC (super users vs. users regulares)
+    **Retrocompatibilidade:** searchParam aceito mas atualmente ignorado
+
+    **Migração Futura:** Server-side search será implementado mantendo 100% de compatibilidade.
+  version: 1.0.0
+  contact:
+    name: ChatIA Flow Team
+    email: dev@chatiaflow.com
+  license:
+    name: Proprietary
+    url: https://chatiaflow.com/license
+
+servers:
+  - url: http://localhost:3000/api
+    description: Desenvolvimento local
+  - url: https://staging.chatiaflow.com/api
+    description: Staging
+  - url: https://app.chatiaflow.com/api
+    description: Produção
+
+tags:
+  - name: Companies
+    description: Gerenciamento de empresas (CRUD completo)
+  - name: Plans
+    description: Consulta de planos associados às empresas
+
+security:
+  - BearerAuth: []
+
+paths:
+  /companies:
+    get:
+      tags:
+        - Companies
+      summary: Listar companies (paginado)
+      description: |
+        Retorna lista paginada de companies.
+
+        **IMPORTANTE:** O parâmetro `searchParam` é aceito mas **IGNORADO** na versão atual.
+        O filtro será implementado no futuro mantendo retrocompatibilidade total.
+
+        **RBAC:**
+        - **Super users:** Veem todas as companies
+        - **Users regulares:** Veem apenas sua própria company (filtro forçado)
+      operationId: listCompanies
+      parameters:
+        - name: searchParam
+          in: query
+          description: |
+            Termo de busca (nome, email, documento, telefone).
+            **ATUALMENTE IGNORADO** - Cliente usa filtro client-side.
+          required: false
+          schema:
+            type: string
+            maxLength: 100
+            example: "acme"
+        - name: pageNumber
+          in: query
+          description: Número da página (limite de 20 companies por página)
+          required: false
+          schema:
+            type: string
+            pattern: '^\d+$'
+            default: "1"
+            example: "1"
+      responses:
+        '200':
+          description: Lista de companies retornada com sucesso
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  companies:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Company'
+                  count:
+                    type: integer
+                    description: Total de companies encontradas
+                    example: 45
+                  hasMore:
+                    type: boolean
+                    description: Indica se há mais páginas disponíveis
+                    example: true
+              examples:
+                superUser:
+                  summary: Resposta para super user
+                  value:
+                    companies:
+                      - id: 1
+                        name: "Acme Corp"
+                        email: "contato@acme.com"
+                        phone: "11999999999"
+                        document: "12345678000190"
+                        paymentMethod: "credit_card"
+                        status: true
+                        dueDate: "2025-12-31"
+                        recurrence: "monthly"
+                        planId: 2
+                        createdAt: "2025-01-15T10:00:00.000Z"
+                        updatedAt: "2025-10-13T14:30:00.000Z"
+                        plan:
+                          name: "Premium"
+                    count: 45
+                    hasMore: true
+                regularUser:
+                  summary: Resposta para user regular
+                  value:
+                    companies:
+                      - id: 5
+                        name: "Minha Empresa"
+                        email: "contato@minhaempresa.com"
+                        phone: "11888887777"
+                        status: true
+                        planId: 1
+                        plan:
+                          name: "Basic"
+                    count: 1
+                    hasMore: false
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+    post:
+      tags:
+        - Companies
+      summary: Criar nova company
+      description: |
+        Cria uma nova empresa com transação atômica:
+        1. Cria Company
+        2. Cria User admin associado
+        3. Cria CompaniesSettings com valores padrão
+        4. Cria User demo (se habilitado)
+
+        **Rollback:** Se qualquer etapa falhar, toda a operação é revertida.
+      operationId: createCompany
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CompanyInput'
+            examples:
+              minimal:
+                summary: Dados mínimos
+                value:
+                  name: "Nova Empresa Ltda"
+                  password: "senha123"
+              complete:
+                summary: Dados completos
+                value:
+                  name: "Nova Empresa Ltda"
+                  email: "contato@novaempresa.com"
+                  phone: "11988887777"
+                  document: "98765432000123"
+                  password: "senha123"
+                  companyUserName: "Admin Nova Empresa"
+                  status: true
+                  planId: 1
+                  dueDate: "2026-01-31"
+                  recurrence: "monthly"
+                  paymentMethod: "boleto"
+      responses:
+        '200':
+          description: Company criada com sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Company'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          description: Erro na transação
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Não foi possível criar a empresa!"
+
+  /companies/list:
+    get:
+      tags:
+        - Companies
+      summary: Listar todas companies (sem paginação)
+      description: |
+        Retorna TODAS as companies sem paginação.
+
+        **USO PRINCIPAL:** Hook `useCompanies` no frontend (CompaniesManager).
+
+        **ATENÇÃO:** Para super users com muitas companies, pode ser lento.
+        Considere migrar para `/companies` com paginação.
+
+        **RBAC:**
+        - **Super users:** Veem todas as companies
+        - **Users regulares:** Veem apenas sua própria company
+      operationId: listAllCompanies
+      responses:
+        '200':
+          description: Lista completa de companies
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CompanyDetailed'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /companies/current:
+    get:
+      tags:
+        - Companies
+      summary: Buscar company do usuário autenticado
+      description: |
+        Retorna a company do usuário logado (extraída do JWT token).
+
+        **SEGURO POR DESIGN:** Sempre retorna a company do token, sem parâmetros.
+
+        **USO RECOMENDADO:** Exibir dados da empresa no header/sidebar do frontend.
+      operationId: getCurrentCompany
+      responses:
+        '200':
+          description: Company do usuário retornada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CompanyDetailed'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /companies/{id}:
+    get:
+      tags:
+        - Companies
+      summary: Buscar company por ID
+      description: |
+        Retorna os dados de uma company específica.
+
+        **RBAC:**
+        - **Super users:** Podem buscar qualquer company
+        - **Users regulares:** Só podem buscar a própria company (retorna 400 se tentar outra)
+      operationId: getCompanyById
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID da company
+          schema:
+            type: integer
+            example: 123
+      responses:
+        '200':
+          description: Company encontrada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CompanyDetailed'
+        '400':
+          description: User regular tentando acessar outra company
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Você não possui permissão para acessar este recurso!"
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+    put:
+      tags:
+        - Companies
+      summary: Atualizar company
+      description: |
+        Atualiza os dados de uma company.
+
+        **IMPORTANTE:** Se o email for alterado, o email do user admin também é atualizado.
+
+        **RBAC:**
+        - **Super users:** Podem atualizar qualquer company
+        - **Users regulares:** Só podem atualizar a própria company
+      operationId: updateCompany
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID da company a atualizar
+          schema:
+            type: integer
+            example: 123
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CompanyUpdateInput'
+            examples:
+              partial:
+                summary: Atualização parcial
+                value:
+                  name: "Acme Corp Atualizada"
+                  planId: 3
+              complete:
+                summary: Atualização completa
+                value:
+                  name: "Acme Corp Atualizada"
+                  email: "novo@acme.com"
+                  phone: "11977776666"
+                  status: true
+                  planId: 3
+                  dueDate: "2026-12-31"
+                  paymentMethod: "credit_card"
+      responses:
+        '200':
+          description: Company atualizada com sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Company'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+    delete:
+      tags:
+        - Companies
+      summary: Excluir company (SUPER ONLY)
+      description: |
+        Exclui uma company e TODOS os dados relacionados (CASCADE).
+
+        **ATENÇÃO:** Operação IRREVERSÍVEL.
+
+        **ACESSO:** Apenas super users.
+
+        **CASCADE DELETE:**
+        - Users
+        - UserRatings
+        - Queues
+        - Whatsapps
+        - Messages
+        - Contacts
+        - Settings
+        - CompaniesSettings
+        - Tickets
+        - TicketTrakings
+        - Invoices
+      operationId: deleteCompany
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID da company a excluir
+          schema:
+            type: integer
+            example: 123
+      responses:
+        '200':
+          description: Company excluída com sucesso
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Company deleted successfully"
+        '400':
+          description: User regular tentando excluir company
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Você não possui permissão para acessar este recurso!"
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /companies/{id}/schedules:
+    put:
+      tags:
+        - Companies
+      summary: Atualizar horários de funcionamento
+      description: |
+        Atualiza os horários de funcionamento da company.
+
+        **RBAC:**
+        - **Super users:** Podem atualizar qualquer company
+        - **Users regulares:** Só podem atualizar a própria company
+      operationId: updateCompanySchedules
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID da company
+          schema:
+            type: integer
+            example: 123
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                schedules:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      day:
+                        type: integer
+                        description: Dia da semana (0-6, sendo 0=Domingo)
+                        example: 1
+                      label:
+                        type: string
+                        description: Nome do dia
+                        example: "Segunda"
+                      hr1:
+                        type: string
+                        description: Horário de início (período 1)
+                        example: "08:00"
+                      hr2:
+                        type: string
+                        description: Horário de término (período 1)
+                        example: "12:00"
+                      hr3:
+                        type: string
+                        description: Horário de início (período 2)
+                        example: "13:00"
+                      hr4:
+                        type: string
+                        description: Horário de término (período 2)
+                        example: "18:00"
+            example:
+              schedules:
+                - day: 0
+                  label: "Domingo"
+                  hr1: "08:00"
+                  hr2: "12:00"
+                  hr3: ""
+                  hr4: ""
+                - day: 1
+                  label: "Segunda"
+                  hr1: "08:00"
+                  hr2: "12:00"
+                  hr3: "13:00"
+                  hr4: "18:00"
+      responses:
+        '200':
+          description: Horários atualizados com sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Company'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /companies/listPlan/{id}:
+    get:
+      tags:
+        - Plans
+      summary: Buscar plano da company
+      description: |
+        Retorna informações do plano associado à company.
+
+        **RBAC:**
+        - **Super users:** Podem buscar plano de qualquer company
+        - **Users regulares:** Só podem buscar plano da própria company
+      operationId: getCompanyPlan
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID da company
+          schema:
+            type: integer
+            example: 123
+      responses:
+        '200':
+          description: Plano retornado com sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CompanyWithPlan'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /companiesPlan:
+    get:
+      tags:
+        - Plans
+      summary: Listar companies com planos (SUPER ONLY)
+      description: |
+        Lista todas as companies com informações de planos.
+
+        **ACESSO:** Apenas super users.
+      operationId: listCompaniesPlan
+      responses:
+        '200':
+          description: Lista de companies com planos
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  companies:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/CompanyWithPlan'
+        '400':
+          description: User regular sem permissão
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Você não possui permissão para acessar este recurso!"
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: |
+        JWT token obtido no endpoint `/auth/login`.
+
+        **Payload:**
+        ```json
+        {
+          "id": "user-id",
+          "username": "username",
+          "profile": "admin",
+          "companyId": 123,
+          "super": false,
+          "iat": 1697212800,
+          "exp": 1697299200
+        }
+        ```
+
+  schemas:
+    Company:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: ID único da company
+          example: 123
+        name:
+          type: string
+          description: Nome da empresa
+          example: "Acme Corp"
+        email:
+          type: string
+          format: email
+          description: Email da empresa
+          example: "contato@acme.com"
+        phone:
+          type: string
+          description: Telefone da empresa
+          example: "11999999999"
+        document:
+          type: string
+          description: CNPJ/CPF da empresa
+          example: "12345678000190"
+        paymentMethod:
+          type: string
+          description: Método de pagamento
+          enum:
+            - credit_card
+            - boleto
+            - pix
+          example: "credit_card"
+        status:
+          type: boolean
+          description: Status ativo/inativo
+          example: true
+        dueDate:
+          type: string
+          description: Data de vencimento
+          example: "2025-12-31"
+        recurrence:
+          type: string
+          description: Recorrência de pagamento
+          enum:
+            - monthly
+            - yearly
+          example: "monthly"
+        planId:
+          type: integer
+          description: ID do plano associado
+          example: 2
+        createdAt:
+          type: string
+          format: date-time
+          description: Data de criação
+          example: "2025-01-15T10:00:00.000Z"
+        updatedAt:
+          type: string
+          format: date-time
+          description: Data da última atualização
+          example: "2025-10-13T14:30:00.000Z"
+        plan:
+          type: object
+          description: Plano associado (incluso no GET)
+          properties:
+            name:
+              type: string
+              example: "Premium"
+
+    CompanyDetailed:
+      allOf:
+        - $ref: '#/components/schemas/Company'
+        - type: object
+          properties:
+            schedules:
+              type: array
+              description: Horários de funcionamento
+              items:
+                type: object
+            timezone:
+              type: string
+              description: Timezone da empresa
+              example: "America/Sao_Paulo"
+            folderSize:
+              type: string
+              description: Tamanho da pasta de arquivos
+              example: "0"
+            numberFileFolder:
+              type: string
+              description: Número de arquivos na pasta
+              example: "0"
+            updatedAtFolder:
+              type: string
+              nullable: true
+              description: Data da última atualização da pasta
+              example: null
+            plan:
+              type: object
+              properties:
+                id:
+                  type: integer
+                  example: 2
+                name:
+                  type: string
+                  example: "Premium"
+                amount:
+                  type: string
+                  example: "99.90"
+            settings:
+              type: array
+              description: Configurações da empresa
+              items:
+                type: object
+                properties:
+                  key:
+                    type: string
+                    example: "campaignsEnabled"
+                  value:
+                    type: string
+                    example: "true"
+
+    CompanyInput:
+      type: object
+      required:
+        - name
+        - password
+      properties:
+        name:
+          type: string
+          minLength: 2
+          description: Nome da empresa (obrigatório)
+          example: "Nova Empresa Ltda"
+        password:
+          type: string
+          minLength: 5
+          description: Senha do usuário admin (obrigatório)
+          example: "senha123"
+        email:
+          type: string
+          format: email
+          description: Email da empresa
+          example: "contato@novaempresa.com"
+        phone:
+          type: string
+          description: Telefone
+          example: "11988887777"
+        document:
+          type: string
+          description: CNPJ/CPF
+          example: "98765432000123"
+        companyUserName:
+          type: string
+          description: Nome do usuário admin (default = name)
+          example: "Admin Nova Empresa"
+        status:
+          type: boolean
+          description: Status ativo/inativo
+          example: true
+        planId:
+          type: integer
+          description: ID do plano
+          example: 1
+        dueDate:
+          type: string
+          description: Data de vencimento
+          example: "2026-01-31"
+        recurrence:
+          type: string
+          enum:
+            - monthly
+            - yearly
+          description: Recorrência de pagamento
+          example: "monthly"
+        paymentMethod:
+          type: string
+          enum:
+            - credit_card
+            - boleto
+            - pix
+          description: Método de pagamento
+          example: "boleto"
+
+    CompanyUpdateInput:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Novo nome da empresa
+          example: "Acme Corp Atualizada"
+        email:
+          type: string
+          format: email
+          description: Novo email (atualiza também o user admin)
+          example: "novo@acme.com"
+        phone:
+          type: string
+          description: Novo telefone
+          example: "11977776666"
+        status:
+          type: boolean
+          description: Status ativo/inativo
+          example: true
+        planId:
+          type: integer
+          description: Novo plano
+          example: 3
+        dueDate:
+          type: string
+          description: Nova data de vencimento
+          example: "2026-12-31"
+        recurrence:
+          type: string
+          enum:
+            - monthly
+            - yearly
+          description: Nova recorrência
+          example: "monthly"
+        document:
+          type: string
+          description: Novo documento
+          example: "98765432000123"
+        paymentMethod:
+          type: string
+          enum:
+            - credit_card
+            - boleto
+            - pix
+          description: Novo método de pagamento
+          example: "credit_card"
+        password:
+          type: string
+          minLength: 5
+          description: Nova senha (atualiza user admin)
+          example: "novasenha123"
+        campaignsEnabled:
+          type: boolean
+          description: Habilitar campanhas (cria/atualiza setting)
+          example: true
+
+    CompanyWithPlan:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: "Acme Corp"
+        planId:
+          type: integer
+          example: 2
+        plan:
+          type: object
+          properties:
+            id:
+              type: integer
+              example: 2
+            name:
+              type: string
+              example: "Premium"
+            amount:
+              type: string
+              example: "99.90"
+
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+          description: Mensagem de erro
+          example: "Erro ao processar requisição"
+
+  responses:
+    BadRequest:
+      description: Requisição inválida (validação falhou ou permissão negada)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          examples:
+            validation:
+              summary: Erro de validação
+              value:
+                error: "name is a required field"
+            permission:
+              summary: Permissão negada
+              value:
+                error: "Você não possui permissão para acessar este recurso!"
+
+    Unauthorized:
+      description: Token JWT inválido ou ausente
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: "Token inválido"
+
+    NotFound:
+      description: Recurso não encontrado
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: "ERR_NO_COMPANY_FOUND"
+
+    InternalServerError:
+      description: Erro interno do servidor
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: "Erro ao processar requisição"

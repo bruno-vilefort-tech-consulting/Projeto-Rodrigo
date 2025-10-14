@@ -1,0 +1,746 @@
+openapi: 3.1.0
+info:
+  title: ChatIA Flow - Kanban API
+  version: 1.0.0
+  description: |
+    API para visualização Kanban de tickets do ChatIA Flow.
+
+    ## Autenticação
+    Todos os endpoints requerem autenticação via JWT Bearer token.
+    O token deve conter o `companyId` para isolamento multi-tenant.
+
+    ## Multi-Tenant
+    Todos os recursos são isolados por empresa (companyId).
+    O companyId é extraído automaticamente do JWT token.
+
+    ## Socket.IO Real-time
+    Operações que modificam tickets emitem eventos Socket.IO:
+    - Namespace: `/{companyId}`
+    - Evento: `company-{companyId}-ticket`
+    - Payload: `{ action: "update", ticket: {...} }`
+  contact:
+    name: ChatIA Flow Support
+    email: support@chatiaflow.com
+  license:
+    name: Proprietary License
+    identifier: Proprietary
+
+servers:
+  - url: http://localhost:8080
+    description: Development server
+  - url: https://api.chatiaflow.com
+    description: Production server
+
+tags:
+  - name: Tags
+    description: Operações com tags Kanban
+  - name: Tickets
+    description: Operações com tickets Kanban
+  - name: Ticket Tags
+    description: Associação entre tickets e tags
+
+security:
+  - bearerAuth: []
+
+paths:
+  /tag/kanban:
+    get:
+      summary: Listar tags Kanban
+      description: |
+        Retorna todas as tags configuradas como colunas Kanban (kanban=1) da empresa.
+        Tags são ordenadas por ID ASC.
+      operationId: listKanbanTags
+      tags:
+        - Tags
+      responses:
+        '200':
+          description: Lista de tags Kanban
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - lista
+                properties:
+                  lista:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Tag'
+              examples:
+                success:
+                  summary: Lista de tags Kanban
+                  value:
+                    lista:
+                      - id: 1
+                        name: "Aguardando Atendimento"
+                        color: "#FF6B6B"
+                        kanban: 1
+                        companyId: 1
+                        timeLane: 3600
+                        nextLaneId: 2
+                        greetingMessageLane: "Olá! Em que posso ajudar?"
+                        rollbackLaneId: null
+                        createdAt: "2024-01-15T10:00:00.000Z"
+                        updatedAt: "2024-01-15T10:00:00.000Z"
+                      - id: 2
+                        name: "Em Atendimento"
+                        color: "#4CAF50"
+                        kanban: 1
+                        companyId: 1
+                        timeLane: 7200
+                        nextLaneId: 3
+                        greetingMessageLane: null
+                        rollbackLaneId: 1
+                        createdAt: "2024-01-15T10:05:00.000Z"
+                        updatedAt: "2024-01-15T10:05:00.000Z"
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /ticket/kanban:
+    get:
+      summary: Listar tickets Kanban
+      description: |
+        Retorna tickets filtrados para visualização Kanban.
+
+        **Filtros suportados:**
+        - Pesquisa por nome, número ou mensagens
+        - Filtro por período (dateStart/dateEnd)
+        - Filtro por tags (AND logic - ticket deve ter TODAS as tags)
+        - Filtro por filas
+        - Filtro por usuários
+
+        **Status fixo:** Apenas tickets com status 'pending' ou 'open' são retornados.
+
+        **Limite de paginação:** 400 tickets por página.
+      operationId: listKanbanTickets
+      tags:
+        - Tickets
+      parameters:
+        - name: searchParam
+          in: query
+          description: Busca em nome do contato, número ou mensagens
+          required: false
+          schema:
+            type: string
+          example: "João Silva"
+
+        - name: pageNumber
+          in: query
+          description: Número da página (default = 1)
+          required: false
+          schema:
+            type: string
+            pattern: '^\d+$'
+            default: "1"
+          example: "1"
+
+        - name: dateStart
+          in: query
+          description: Data inicial (ISO 8601)
+          required: false
+          schema:
+            type: string
+            format: date-time
+          example: "2024-01-15T00:00:00.000Z"
+
+        - name: dateEnd
+          in: query
+          description: Data final (ISO 8601)
+          required: false
+          schema:
+            type: string
+            format: date-time
+          example: "2024-01-20T23:59:59.999Z"
+
+        - name: tags
+          in: query
+          description: Array de IDs de tags (JSON stringified). AND logic - ticket deve ter todas as tags.
+          required: false
+          schema:
+            type: string
+          example: "[1,2]"
+
+        - name: queueIds
+          in: query
+          description: Array de IDs de filas (JSON stringified)
+          required: false
+          schema:
+            type: string
+          example: "[1,2,3]"
+
+        - name: users
+          in: query
+          description: Array de IDs de usuários (JSON stringified)
+          required: false
+          schema:
+            type: string
+          example: "[1,2]"
+
+        - name: showAll
+          in: query
+          description: Mostrar todos os tickets (ignora filtro de fila)
+          required: false
+          schema:
+            type: string
+            enum: ["true", "false"]
+          example: "true"
+
+        - name: withUnreadMessages
+          in: query
+          description: Filtrar apenas tickets com mensagens não lidas
+          required: false
+          schema:
+            type: string
+            enum: ["true", "false"]
+          example: "true"
+
+      responses:
+        '200':
+          description: Lista de tickets Kanban
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - tickets
+                  - count
+                  - hasMore
+                properties:
+                  tickets:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Ticket'
+                  count:
+                    type: integer
+                    description: Total de tickets que atendem ao filtro
+                    example: 50
+                  hasMore:
+                    type: boolean
+                    description: Indica se há mais páginas
+                    example: false
+              examples:
+                success:
+                  summary: Lista de tickets com filtros
+                  value:
+                    tickets:
+                      - id: 123
+                        status: "open"
+                        unreadMessages: 2
+                        companyId: 1
+                        queueId: 1
+                        userId: 2
+                        contactId: 45
+                        whatsappId: 1
+                        createdAt: "2024-01-15T10:30:00.000Z"
+                        updatedAt: "2024-01-15T11:00:00.000Z"
+                        contact:
+                          id: 45
+                          name: "João Silva"
+                          number: "5511999999999"
+                          email: "joao@example.com"
+                          companyId: 1
+                          urlPicture: "https://example.com/avatar.jpg"
+                        queue:
+                          id: 1
+                          name: "Suporte"
+                          color: "#4CAF50"
+                        user:
+                          id: 2
+                          name: "Maria Santos"
+                        tags:
+                          - id: 1
+                            name: "Aguardando"
+                            color: "#FF6B6B"
+                          - id: 5
+                            name: "Urgente"
+                            color: "#FF0000"
+                        whatsapp:
+                          name: "Principal"
+                    count: 1
+                    hasMore: false
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /ticket-tags/{ticketId}/{tagId}:
+    put:
+      summary: Adicionar tag a ticket
+      description: |
+        Adiciona uma tag Kanban a um ticket.
+
+        **Comportamento:**
+        - Cria registro na tabela TicketTags
+        - Emite evento Socket.IO com ticket atualizado
+        - Retorna objeto TicketTag criado
+
+        **Socket.IO Event:**
+        ```json
+        {
+          "action": "update",
+          "ticket": { /* ticket completo com tags atualizadas */ }
+        }
+        ```
+
+        **Namespace:** `/{companyId}`
+        **Evento:** `company-{companyId}-ticket`
+      operationId: addTicketTag
+      tags:
+        - Ticket Tags
+      parameters:
+        - name: ticketId
+          in: path
+          description: ID do ticket
+          required: true
+          schema:
+            type: integer
+          example: 123
+
+        - name: tagId
+          in: path
+          description: ID da tag Kanban
+          required: true
+          schema:
+            type: integer
+          example: 2
+
+      responses:
+        '201':
+          description: Tag adicionada com sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TicketTag'
+              examples:
+                success:
+                  summary: Tag adicionada
+                  value:
+                    ticketId: 123
+                    tagId: 2
+                    createdAt: "2024-01-15T11:00:00.000Z"
+                    updatedAt: "2024-01-15T11:00:00.000Z"
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          description: Ticket ou Tag não encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                notFound:
+                  summary: Ticket não encontrado
+                  value:
+                    error: "Ticket not found"
+        '500':
+          description: Erro ao adicionar tag
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                error:
+                  summary: Erro interno
+                  value:
+                    error: "Failed to store ticket tag."
+
+  /ticket-tags/{ticketId}:
+    delete:
+      summary: Remover tags Kanban de ticket
+      description: |
+        Remove TODAS as tags Kanban (kanban=1) de um ticket.
+
+        **IMPORTANTE:** Este endpoint remove apenas tags com `kanban=1`.
+        Tags de categorização (kanban=0) são preservadas.
+
+        **Comportamento:**
+        - Busca todas as tags do ticket
+        - Filtra apenas tags com kanban=1
+        - Remove apenas as tags Kanban
+        - Emite evento Socket.IO com ticket atualizado
+
+        **Use case:** Remover ticket de coluna Kanban antes de mover para outra.
+
+        **Socket.IO Event:**
+        ```json
+        {
+          "action": "update",
+          "ticket": { /* ticket sem tags Kanban */ }
+        }
+        ```
+
+        **Namespace:** `/{companyId}`
+        **Evento:** `company-{companyId}-ticket`
+      operationId: removeTicketTags
+      tags:
+        - Ticket Tags
+      parameters:
+        - name: ticketId
+          in: path
+          description: ID do ticket
+          required: true
+          schema:
+            type: integer
+          example: 123
+
+      responses:
+        '200':
+          description: Tags Kanban removidas com sucesso
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - message
+                properties:
+                  message:
+                    type: string
+              examples:
+                success:
+                  summary: Tags removidas
+                  value:
+                    message: "Ticket tags removed successfully."
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          description: Ticket não encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                notFound:
+                  summary: Ticket não encontrado
+                  value:
+                    error: "Ticket not found"
+        '500':
+          description: Erro ao remover tags
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                error:
+                  summary: Erro interno
+                  value:
+                    error: "Failed to remove ticket tags."
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: |
+        JWT token obtido via endpoint de autenticação.
+        O token deve conter os campos: id, profile, companyId.
+
+        Exemplo:
+        ```
+        Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+        ```
+
+  schemas:
+    Tag:
+      type: object
+      required:
+        - id
+        - name
+        - color
+        - kanban
+        - companyId
+        - createdAt
+        - updatedAt
+      properties:
+        id:
+          type: integer
+          description: ID único da tag
+          example: 1
+        name:
+          type: string
+          description: Nome da tag/coluna Kanban
+          example: "Aguardando Atendimento"
+        color:
+          type: string
+          description: Cor hexadecimal da tag
+          pattern: '^#[0-9A-Fa-f]{6}$'
+          example: "#FF6B6B"
+        kanban:
+          type: integer
+          description: Flag indicando se é tag Kanban (1) ou tag normal (0)
+          enum: [0, 1]
+          example: 1
+        companyId:
+          type: integer
+          description: ID da empresa (multi-tenant)
+          example: 1
+        timeLane:
+          type: integer
+          nullable: true
+          description: Tempo em segundos para SLA da lane
+          example: 3600
+        nextLaneId:
+          type: integer
+          nullable: true
+          description: ID da próxima lane (automação)
+          example: 2
+        greetingMessageLane:
+          type: string
+          nullable: true
+          description: Mensagem de boas-vindas ao entrar na lane
+          example: "Olá! Em que posso ajudar?"
+        rollbackLaneId:
+          type: integer
+          nullable: true
+          description: ID da lane para rollback (caso necessário)
+          example: 1
+        createdAt:
+          type: string
+          format: date-time
+          description: Data de criação
+          example: "2024-01-15T10:00:00.000Z"
+        updatedAt:
+          type: string
+          format: date-time
+          description: Data de última atualização
+          example: "2024-01-15T10:00:00.000Z"
+
+    Contact:
+      type: object
+      required:
+        - id
+        - name
+        - number
+        - companyId
+      properties:
+        id:
+          type: integer
+          example: 45
+        name:
+          type: string
+          example: "João Silva"
+        number:
+          type: string
+          example: "5511999999999"
+        email:
+          type: string
+          format: email
+          nullable: true
+          example: "joao@example.com"
+        companyId:
+          type: integer
+          example: 1
+        urlPicture:
+          type: string
+          format: uri
+          nullable: true
+          example: "https://example.com/avatar.jpg"
+
+    Queue:
+      type: object
+      required:
+        - id
+        - name
+        - color
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: "Suporte"
+        color:
+          type: string
+          pattern: '^#[0-9A-Fa-f]{6}$'
+          example: "#4CAF50"
+
+    User:
+      type: object
+      required:
+        - id
+        - name
+      properties:
+        id:
+          type: integer
+          example: 2
+        name:
+          type: string
+          example: "Maria Santos"
+
+    Whatsapp:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string
+          example: "Principal"
+
+    Ticket:
+      type: object
+      required:
+        - id
+        - status
+        - companyId
+        - createdAt
+        - updatedAt
+      properties:
+        id:
+          type: integer
+          description: ID único do ticket
+          example: 123
+        status:
+          type: string
+          enum: [pending, open, closed]
+          description: Status do ticket (Kanban mostra apenas pending/open)
+          example: "open"
+        unreadMessages:
+          type: integer
+          description: Número de mensagens não lidas
+          example: 2
+        companyId:
+          type: integer
+          description: ID da empresa (multi-tenant)
+          example: 1
+        queueId:
+          type: integer
+          nullable: true
+          description: ID da fila
+          example: 1
+        userId:
+          type: integer
+          nullable: true
+          description: ID do usuário responsável
+          example: 2
+        contactId:
+          type: integer
+          description: ID do contato
+          example: 45
+        whatsappId:
+          type: integer
+          nullable: true
+          description: ID da conexão WhatsApp
+          example: 1
+        createdAt:
+          type: string
+          format: date-time
+          description: Data de criação
+          example: "2024-01-15T10:30:00.000Z"
+        updatedAt:
+          type: string
+          format: date-time
+          description: Data de última atualização
+          example: "2024-01-15T11:00:00.000Z"
+        contact:
+          $ref: '#/components/schemas/Contact'
+        queue:
+          allOf:
+            - $ref: '#/components/schemas/Queue'
+            - nullable: true
+        user:
+          allOf:
+            - $ref: '#/components/schemas/User'
+            - nullable: true
+        tags:
+          type: array
+          description: Array de tags associadas ao ticket
+          items:
+            type: object
+            required:
+              - id
+              - name
+              - color
+            properties:
+              id:
+                type: integer
+                example: 1
+              name:
+                type: string
+                example: "Aguardando"
+              color:
+                type: string
+                pattern: '^#[0-9A-Fa-f]{6}$'
+                example: "#FF6B6B"
+        whatsapp:
+          allOf:
+            - $ref: '#/components/schemas/Whatsapp'
+            - nullable: true
+
+    TicketTag:
+      type: object
+      required:
+        - ticketId
+        - tagId
+        - createdAt
+        - updatedAt
+      properties:
+        ticketId:
+          type: integer
+          description: ID do ticket
+          example: 123
+        tagId:
+          type: integer
+          description: ID da tag
+          example: 2
+        createdAt:
+          type: string
+          format: date-time
+          description: Data de criação
+          example: "2024-01-15T11:00:00.000Z"
+        updatedAt:
+          type: string
+          format: date-time
+          description: Data de última atualização
+          example: "2024-01-15T11:00:00.000Z"
+
+    Error:
+      type: object
+      required:
+        - error
+      properties:
+        error:
+          type: string
+          description: Mensagem de erro
+          example: "Failed to process request"
+        message:
+          type: string
+          description: Mensagem detalhada (opcional)
+          example: "Database connection failed"
+        statusCode:
+          type: integer
+          description: Código HTTP do erro
+          example: 500
+
+  responses:
+    UnauthorizedError:
+      description: Token JWT ausente ou inválido
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          examples:
+            missingToken:
+              summary: Token ausente
+              value:
+                error: "ERR_SESSION_EXPIRED"
+                statusCode: 401
+            invalidToken:
+              summary: Token inválido
+              value:
+                error: "Invalid token. We'll try to assign a new one on next request"
+                statusCode: 403
+
+    InternalServerError:
+      description: Erro interno do servidor
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          examples:
+            generic:
+              summary: Erro genérico
+              value:
+                error: "Internal server error"
+                statusCode: 500
