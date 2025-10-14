@@ -119,9 +119,7 @@ const Routes = () => {
                 {/* <Route exact path="/files" component={Files} isPrivate /> */}
                 <Route exact path="/moments" component={ChatMoments} isPrivate />
                 <Route exact path="/kanban" component={Kanban} isPrivate />
-                {FEATURES.KANBAN_V2 && (
-                  <Route exact path="/tagsKanban" component={TagsKanban} isPrivate />
-                )}
+                <Route exact path="/tagsKanban" component={TagsKanban} isPrivate />
                 <Route exact path="/prompts" component={Prompts} isPrivate />
                 <Route exact path="/allConnections" component={AllConnections} isPrivate />
                 {showCampaigns && (

@@ -16,7 +16,6 @@ import {
 import { format, isSameDay, parseISO } from "date-fns";
 import { Can } from "../../components/Can";
 import BackdropLoading from "../../components/BackdropLoading";
-import { FEATURES } from "../../config/featureFlags";
 
 // Hooks customizados
 import useKanbanTags from "../../hooks/useKanbanTags";
@@ -356,21 +355,19 @@ const Kanban = () => {
             {i18n.t("kanban.search")}
           </Button>
         </div>
-        {FEATURES.KANBAN_V2 && (
-          <Can
-            role={user.profile}
-            perform="dashboard:view"
-            yes={() => (
-              <Button
-                variant="contained"
-                color="primary"
-                onClick={handleAddConnectionClick}
-              >
-                {i18n.t("kanban.addColumns")}
-              </Button>
-            )}
-          />
-        )}
+        <Can
+          role={user.profile}
+          perform="dashboard:view"
+          yes={() => (
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={handleAddConnectionClick}
+            >
+              {i18n.t("kanban.addColumns")}
+            </Button>
+          )}
+        />
       </div>
       <div className={classes.kanbanContainer}>
         <Board

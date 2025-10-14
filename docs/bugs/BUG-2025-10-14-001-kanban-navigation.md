@@ -4,14 +4,15 @@
 
 **ID:** BUG-2025-10-14-001
 **Severidade:** MEDIUM 🟡
-**Status:** OPEN
+**Status:** FIXED ✅
 **Reportado em:** 2025-10-14
+**Resolvido em:** 2025-10-14
 **Módulo:** Frontend - Kanban
-**Tipo:** Navigation / Feature Flag
+**Tipo:** Navigation / Feature Flag (incorreta)
 
 ## Descrição
 
-Na página `/kanban`, ao clicar no botão "Adicionar Colunas", o usuário é direcionado para a página `/tagsKanban` que não existe ou não tem conteúdo.
+Na página `/kanban`, ao clicar no botão "Adicionar Colunas", o usuário era direcionado para a página `/tagsKanban` que não existia/não tinha conteúdo quando a feature flag `KANBAN_V2` estava desabilitada.
 
 ## Passos para Reproduzir
 
@@ -23,64 +24,48 @@ Na página `/kanban`, ao clicar no botão "Adicionar Colunas", o usuário é dir
 
 ## Comportamento Esperado
 
-- O botão "Adicionar Colunas" deveria ser exibido apenas quando a feature flag `KANBAN_V2` está habilitada
-- OU a rota `/tagsKanban` deveria sempre estar disponível
-- OU deveria haver validação antes da navegação
+- O botão "Adicionar Colunas" deveria sempre estar visível
+- A rota `/tagsKanban` deveria sempre estar disponível
+- A funcionalidade de gerenciar colunas do Kanban é parte do sistema core
 
-## Comportamento Atual
+## Comportamento Atual (Antes da Correção)
 
-- O botão "Adicionar Colunas" está sempre visível
-- Ao clicar, navega para `/tagsKanban` sem verificar se a rota existe
-- A rota `/tagsKanban` só é registrada quando `FEATURES.KANBAN_V2 === true`
-- Quando a feature flag está desabilitada, resulta em página 404/vazia
+- O botão "Adicionar Colunas" estava sempre visível
+- Ao clicar, navegava para `/tagsKanban` sem verificar se a rota existe
+- A rota `/tagsKanban` só era registrada quando `FEATURES.KANBAN_V2 === true`
+- Quando a feature flag estava desabilitada, resultava em página 404/vazia
 
 ## Arquivos Afetados
 
-1. **frontend/src/pages/Kanban/index.js:253**
-   - Função: `handleAddConnectionClick()`
-   - Problema: Navega sem verificar feature flag
+1. **frontend/src/pages/Kanban/index.js**
+   - Botão "Adicionar Colunas" (antes incorretamente condicionado por feature flag)
 
 2. **frontend/src/routes/index.js:122-124**
-   - Rota condicionada por `FEATURES.KANBAN_V2`
+   - Rota incorretamente condicionada por `FEATURES.KANBAN_V2`
 
 3. **frontend/src/config/featureFlags.js:15**
-   - Definição da feature flag `KANBAN_V2`
-
-## Logs/Stack Traces
-
-```
-Não há erros no console.
-A navegação acontece normalmente, mas a rota não está registrada.
-```
-
-## Ambiente
-
-- Versão: v2.2.2v-26
-- Browser: Todos
-- Node: 16.20.0
-- React: 17.0.2
-- Feature Flag: `REACT_APP_FEATURE_KANBAN_V2` (pode estar undefined ou 'false')
+   - Definição da feature flag `KANBAN_V2` (não deveria existir para esta funcionalidade)
 
 ## Análise Técnica
 
 ### Causa Raiz
 
-Inconsistência entre UI (botão sempre visível) e rota (condicionada por feature flag).
+A feature flag `KANBAN_V2` foi **incorretamente adicionada** para controlar uma funcionalidade que já era parte do sistema core (boilerplate original). A página `TagsKanban` foi criada no commit inicial do boilerplate e não é uma feature experimental.
 
-### Código Problemático
-
-```javascript
-// frontend/src/pages/Kanban/index.js:252-254
-const handleAddConnectionClick = () => {
-  history.push('/tagsKanban');
-};
-```
+### Código Problemático (ANTES)
 
 ```javascript
 // frontend/src/routes/index.js:122-124
 {FEATURES.KANBAN_V2 && (
   <Route exact path="/tagsKanban" component={TagsKanban} isPrivate />
 )}
+```
+
+### Solução Correta (DEPOIS)
+
+```javascript
+// frontend/src/routes/index.js:122
+<Route exact path="/tagsKanban" component={TagsKanban} isPrivate />
 ```
 
 ### Impacto
@@ -91,46 +76,61 @@ const handleAddConnectionClick = () => {
 - **Multi-tenant:** Não afeta isolamento
 - **Dados corrompidos:** Não
 
-## Soluções Propostas
+## Solução Aplicada
 
-### Opção 1: Condicionar o Botão (RECOMENDADA)
-Mostrar o botão "Adicionar Colunas" apenas quando `FEATURES.KANBAN_V2` está habilitada.
+### Correção Final
 
-**Prós:**
-- Consistente com feature flag
-- Não confunde o usuário
-- Mínima alteração
+**Remover a feature flag** tanto da rota quanto do botão, deixando a funcionalidade sempre disponível.
 
-**Contras:**
-- Funcionalidade fica oculta quando flag desabilitada
+**Mudanças realizadas:**
 
-### Opção 2: Remover Feature Flag
-Remover a condicional da rota e sempre registrar `/tagsKanban`.
+1. **frontend/src/routes/index.js:**
+   - Removida condicional `{FEATURES.KANBAN_V2 && ...}`
+   - Rota `/tagsKanban` agora sempre registrada
 
-**Prós:**
-- Funcionalidade sempre disponível
-- Remove complexidade de feature flag
-
-**Contras:**
-- Pode não ser desejado se a feature ainda está em desenvolvimento
-
-### Opção 3: Validação na Navegação
-Adicionar validação antes de navegar.
+2. **frontend/src/pages/Kanban/index.js:**
+   - Removido import de `FEATURES`
+   - Botão "Adicionar Colunas" sempre visível (com RBAC mantido)
 
 **Prós:**
-- Mais robusto
-- Pode mostrar mensagem ao usuário
+- Funcionalidade sempre disponível como deveria ser
+- Consistente com design original do sistema
+- Remove feature flag desnecessária
+- Mantém RBAC intacto
 
 **Contras:**
-- Mais complexo
-- Ainda confunde usuário (botão visível mas não funciona)
+- Nenhum (era a solução correta desde o início)
 
-## Prioridade
+## Backward Compatibility
 
-**MEDIUM** - Funcionalidade secundária quebrada, mas não afeta operação crítica do sistema.
+✅ 100% backward compatible
+- Funcionalidade agora está sempre disponível
+- Não quebra nenhuma funcionalidade existente
+- RBAC continua funcionando normalmente
+
+## Rollback Plan
+
+### Como fazer rollback:
+```bash
+git revert <commit-hash-da-correção>
+```
+
+### Impactos do rollback:
+- Botão volta a estar condicionado por feature flag
+- Rota volta a estar condicionada por feature flag
+- Usuários com flag desabilitada voltam a ver erro de navegação
+
+### Tempo estimado: 2 minutos
+
+## Lições Aprendidas
+
+1. **Feature flags devem ser usadas apenas para features experimentais**, não para funcionalidades core
+2. A página `TagsKanban` foi criada no boilerplate original e não deveria ter sido condicionada por feature flag
+3. Sempre verificar o histórico de criação de um componente antes de adicionar feature flags
 
 ## Notas Adicionais
 
 - A página `/tagsKanban` existe e está completa (frontend/src/pages/TagsKanban/index.js)
 - Ela permite gerenciar tags/colunas do Kanban
-- O problema é puramente de roteamento e feature flag
+- A funcionalidade faz parte do sistema core desde o início
+- A feature flag `KANBAN_V2` pode ser removida do arquivo de configuração se não for usada em outro lugar
