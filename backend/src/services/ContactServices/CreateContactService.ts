@@ -17,7 +17,7 @@ interface Wallet {
 }
 interface Request {
   name: string;
-  number: string;
+  number: string | null;
   email?: string;
   profilePicUrl?: string;
   acceptAudioMessage?: boolean;
@@ -42,12 +42,16 @@ const CreateContactService = async ({
   try {
     logger.info(`[CreateContactService] Creating contact`, { name, number, companyId });
 
-    const numberExists = await Contact.findOne({
-      where: { number, companyId }
-    });
-    if (numberExists) {
-      logger.warn(`[CreateContactService] Contact already exists with number ${number} for company ${companyId}`);
-      throw new AppError("ERR_DUPLICATED_CONTACT", 409);
+    // Verificar duplicatas apenas se houver número
+    // Permite múltiplos contatos sem número
+    if (number && number.trim() !== "") {
+      const numberExists = await Contact.findOne({
+        where: { number, companyId }
+      });
+      if (numberExists) {
+        logger.warn(`[CreateContactService] Contact already exists with number ${number} for company ${companyId}`);
+        throw new AppError("ERR_DUPLICATED_CONTACT", 409);
+      }
     }
 
     const settings = await CompaniesSettings.findOne({

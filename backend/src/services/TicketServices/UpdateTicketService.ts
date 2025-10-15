@@ -154,9 +154,29 @@ const UpdateTicketService = async ({
       const result = await sequelize.transaction({
         isolationLevel: Transaction.ISOLATION_LEVELS.READ_COMMITTED
       }, async (t) => {
+        // ✅ FIX: Fazer lock APENAS na tabela principal (sem includes)
+        // PostgreSQL não permite FOR UPDATE em LEFT JOINs (nullable outer joins)
         const lockedTicket = await Ticket.findOne({
           where: { id: ticketId, companyId },
           lock: t.LOCK.UPDATE,
+          transaction: t
+          // SEM includes aqui para evitar "FOR UPDATE cannot be applied to the nullable side of an outer join"
+        });
+
+        if (!lockedTicket) {
+          throw new AppError("ERR_NO_TICKET_FOUND", 404);
+        }
+
+        // ✅ VALIDAÇÃO DE DOUBLE-ACCEPT: Previne dois agentes aceitarem o mesmo ticket
+        if (lockedTicket.userId !== null && lockedTicket.userId !== userId) {
+          throw new AppError("ERR_TICKET_ALREADY_ACCEPTED", 409);
+        }
+
+        // Atualiza o ticket dentro da transação
+        await lockedTicket.update({ status, userId, queueId }, { transaction: t });
+
+        // Recarrega com todas as associações necessárias DEPOIS do update
+        await lockedTicket.reload({
           transaction: t,
           include: [
             {
@@ -206,19 +226,6 @@ const UpdateTicketService = async ({
             }
           ]
         });
-
-        if (!lockedTicket) {
-          throw new AppError("ERR_NO_TICKET_FOUND", 404);
-        }
-
-        // ✅ VALIDAÇÃO DE DOUBLE-ACCEPT: Previne dois agentes aceitarem o mesmo ticket
-        if (lockedTicket.userId !== null && lockedTicket.userId !== userId) {
-          throw new AppError("ERR_TICKET_ALREADY_ACCEPTED", 409);
-        }
-
-        // Atualiza o ticket dentro da transação
-        await lockedTicket.update({ status, userId, queueId }, { transaction: t });
-        await lockedTicket.reload({ transaction: t });
 
         return lockedTicket;
       });
@@ -840,16 +847,24 @@ const UpdateTicketService = async ({
     return { ticket, oldStatus, oldUserId };
   } catch (err: any) {
     console.log(
-      "erro ao atualizar o ticket",
+      "❌ ERRO ao atualizar o ticket",
       ticketId,
       "ticketData",
       ticketData,
       "err:",
-      err?.message
+      err?.message,
+      "stack:",
+      err?.stack
     );
     Sentry.captureException(err);
-    // mantém a mesma semântica de erro
-    throw new AppError("ERR_UPDATE_TICKET", 404);
+
+    // Se o erro já é um AppError, propaga com o status code original
+    if (err instanceof AppError) {
+      throw err;
+    }
+
+    // Caso contrário, lança erro genérico com mais informações
+    throw new AppError(`ERR_UPDATE_TICKET: ${err?.message || 'Unknown error'}`, 500);
   }
 };
 

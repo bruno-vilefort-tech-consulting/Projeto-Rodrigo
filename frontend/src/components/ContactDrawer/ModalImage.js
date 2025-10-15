@@ -18,29 +18,83 @@ const ModalImageContatc = ({ imageUrl }) => {
   const classes = useStyles();
   const [fetching, setFetching] = useState(true);
   const [blobUrl, setBlobUrl] = useState("");
-  
+  const [error, setError] = useState(false);
+
+  // Função para corrigir URLs malformadas
+  const fixMalformedUrl = (url) => {
+    if (!url || typeof url !== 'string') return null;
+
+    // Corrige porta duplicada (ex: localhost:8080:8080 -> localhost:8080)
+    const fixedUrl = url.replace(/(:(\d+)):(\d+)/, ':$2');
+
+    return fixedUrl.trim();
+  };
 
   useEffect(() => {
-    if (!imageUrl) return;
-    const fetchImage = async () => {
-      const { data, headers } = await api.get(imageUrl, {
-        responseType: "blob",
-      });
-      const url = window.URL.createObjectURL(
-        new Blob([data], { type: headers["content-type"] })
-      );
-      setBlobUrl(url);
+    if (!imageUrl || typeof imageUrl !== 'string' || imageUrl.trim() === '') {
+      setError(true);
       setFetching(false);
+      return;
+    }
+
+    // Corrige URL malformada antes de usar
+    const fixedUrl = fixMalformedUrl(imageUrl);
+
+    if (!fixedUrl) {
+      setError(true);
+      setFetching(false);
+      return;
+    }
+
+    let isMounted = true; // Previne atualização de estado se componente desmontar
+
+    const fetchImage = async () => {
+      try {
+        const { data, headers } = await api.get(fixedUrl, {
+          responseType: "blob",
+        });
+
+        if (isMounted) {
+          const url = window.URL.createObjectURL(
+            new Blob([data], { type: headers["content-type"] })
+          );
+          setBlobUrl(url);
+          setFetching(false);
+          setError(false);
+        }
+      } catch (err) {
+        console.error("Error fetching image:", err);
+        if (isMounted) {
+          setError(true);
+          setFetching(false);
+        }
+      }
     };
+
     fetchImage();
+
+    // Cleanup function
+    return () => {
+      isMounted = false;
+    };
   }, [imageUrl]);
+
+  // Não renderiza se não houver URL válida
+  if (!imageUrl || error) {
+    return null;
+  }
+
+  // Não renderiza se ainda está carregando e não tem blobUrl
+  if (fetching && !blobUrl) {
+    return null;
+  }
 
   return (
     <ModalImage
       className={classes.messageMedia}
-      smallSrcSet={fetching ? imageUrl : blobUrl}
-      medium={fetching ? imageUrl : blobUrl}
-      large={fetching ? imageUrl : blobUrl}
+      smallSrcSet={blobUrl || fixMalformedUrl(imageUrl)}
+      medium={blobUrl || fixMalformedUrl(imageUrl)}
+      large={blobUrl || fixMalformedUrl(imageUrl)}
       showRotate="true"
       alt="image"
     />

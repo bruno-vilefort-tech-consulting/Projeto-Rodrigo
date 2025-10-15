@@ -98,9 +98,30 @@ const ContactSchema = Yup.object().shape({
 		.max(250, i18n.t("validation.tooLong"))
 		.required(i18n.t("validation.required")),
 	number: Yup.string()
-		.min(10, "Número muito curto (mínimo 10 dígitos)")
-		.max(15, "Número muito longo (máximo 15 dígitos)")
-		.matches(/^\+?\d{10,15}$/, "Formato de número inválido (use apenas dígitos, ex: +5511999999999 ou 5511999999999)"),
+		.nullable()
+		.transform((value, originalValue) => {
+			// Converte string vazia em null para permitir campo opcional
+			return originalValue === "" ? null : value;
+		})
+		.test(
+			"is-valid-number",
+			"Formato de número inválido (use apenas dígitos, ex: +5511999999999 ou 5511999999999)",
+			function(value) {
+				// Se for null ou vazio, é válido (campo opcional)
+				if (!value) return true;
+				// Se tiver valor, valida o formato
+				if (value.length < 10) {
+					return this.createError({ message: "Número muito curto (mínimo 10 dígitos)" });
+				}
+				if (value.length > 15) {
+					return this.createError({ message: "Número muito longo (máximo 15 dígitos)" });
+				}
+				if (!/^\+?\d{10,15}$/.test(value)) {
+					return this.createError({ message: "Formato de número inválido (use apenas dígitos)" });
+				}
+				return true;
+			}
+		),
 	email: Yup.string().email(i18n.t("validation.invalidEmail")),
 });
 

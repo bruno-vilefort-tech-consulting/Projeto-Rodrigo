@@ -40,8 +40,7 @@ class Contact extends Model<Contact> {
   @Column
   name: string;
 
-  @AllowNull(false)
-  @Unique
+  @AllowNull(true)
   @Column
   number: string;
 
@@ -143,10 +142,10 @@ class Contact extends Model<Contact> {
   @Column
   get urlPicture(): string | null {
     if (this.getDataValue("urlPicture")) {
-      
-      return this.getDataValue("urlPicture") === 'nopicture.png' ?   `${process.env.FRONTEND_URL}/nopicture.png` :
-      `${process.env.BACKEND_URL}${process.env.PROXY_PORT ?`:${process.env.PROXY_PORT}`:""}/public/company${this.companyId}/contacts/${this.getDataValue("urlPicture")}` 
-
+      // BACKEND_URL já inclui a porta, não precisa adicionar PROXY_PORT
+      return this.getDataValue("urlPicture") === 'nopicture.png' ?
+        `${process.env.FRONTEND_URL}/nopicture.png` :
+        `${process.env.BACKEND_URL}/public/company${this.companyId}/contacts/${this.getDataValue("urlPicture")}`;
     }
     return null;
   }
@@ -182,15 +181,15 @@ class Contact extends Model<Contact> {
       return;
     }
 
-    // Pular se número está vazio
+    // Pular se número está vazio (permite contatos sem número)
     if (!contact.number || contact.number.trim() === '') {
-      logger.error({
-        action: 'contact_normalization_failed',
+      logger.info({
+        action: 'contact_without_number',
         contactId: contact.id || 'new',
-        error: 'Empty number',
+        message: 'Contact created/updated without phone number',
         companyId: contact.companyId
       });
-      throw new AppError('ERR_CONTACT_NUMBER_REQUIRED', 400);
+      return; // Pular normalização, permitir contato sem número
     }
 
     // Salvar número original para log

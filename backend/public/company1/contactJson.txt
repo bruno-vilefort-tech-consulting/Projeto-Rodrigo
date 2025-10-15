@@ -2520,10 +2520,6 @@
     "name": "Corretor - Raul Forte"
   },
   {
-    "id": "557192777780@s.whatsapp.net",
-    "name": "Corretor - Jaira Ferreira"
-  },
-  {
     "id": "558585659888@s.whatsapp.net",
     "name": "Corretor - Francisco Helder"
   },
@@ -7698,10 +7694,6 @@
   {
     "id": "556181648986@s.whatsapp.net",
     "name": "Corretor - Joao Paulo"
-  },
-  {
-    "id": "558599650324@s.whatsapp.net",
-    "name": "Corretor - Cicera Mayara"
   },
   {
     "id": "557192469050@s.whatsapp.net",

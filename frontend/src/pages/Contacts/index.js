@@ -61,13 +61,19 @@ import { Menu, MenuItem } from "@material-ui/core";
 import ContactImportWpModal from "../../components/ContactImportWpModal";
 import useCompanySettings from "../../hooks/useSettings/companySettings";
 import { TicketsContext } from "../../context/Tickets/TicketsContext";
+import PhoneNumberDisplay from "../../components/PhoneNumberDisplay";
+import { filterValidContacts, isValidContact } from "../../utils/contactValidation";
 
 const reducer = (state, action) => {
     if (action.type === "LOAD_CONTACTS") {
         const contacts = action.payload;
+
+        // 🛡️ FILTRO CRÍTICO: Remover contatos fantasmas antes de adicionar ao estado
+        const validContacts = filterValidContacts(contacts);
+
         const newContacts = [];
 
-        contacts.forEach((contact) => {
+        validContacts.forEach((contact) => {
             const contactIndex = state.findIndex((c) => c.id === contact.id);
             if (contactIndex !== -1) {
                 state[contactIndex] = contact;
@@ -81,6 +87,17 @@ const reducer = (state, action) => {
 
     if (action.type === "UPDATE_CONTACTS") {
         const contact = action.payload;
+
+        // 🛡️ FILTRO CRÍTICO: Validar contato antes de adicionar/atualizar
+        if (!isValidContact(contact)) {
+            console.warn('🚫 Contato fantasma bloqueado (UPDATE_CONTACTS):', {
+                id: contact.id,
+                name: contact.name,
+                number: contact.number
+            });
+            return [...state]; // Retornar estado sem modificação
+        }
+
         const contactIndex = state.findIndex((c) => c.id === contact.id);
 
         if (contactIndex !== -1) {
@@ -220,14 +237,72 @@ const Contacts = () => {
         const companyId = user.companyId;
         const onContactEvent = (data) => {
             if (data.action === "update" || data.action === "create") {
-                dispatch({ type: "UPDATE_CONTACTS", payload: data.contact });
+                const contact = data.contact;
+
+                // 🛡️ FILTRO CRÍTICO #1: Validar se é um contato válido (não fantasma)
+                if (!isValidContact(contact)) {
+                    console.warn('🚫 Socket.IO: Contato fantasma bloqueado', {
+                        id: contact.id,
+                        name: contact.name,
+                        number: contact.number,
+                        reason: 'Número inválido'
+                    });
+                    return; // Bloquear contato fantasma
+                }
+
+                // 🛡️ FILTRO CRÍTICO #2: Validar filtro de busca
+                if (searchParam && searchParam.trim() !== "") {
+                    const contactName = contact.name?.toLowerCase() || "";
+                    const contactNumber = contact.number?.toLowerCase() || "";
+                    const contactEmail = contact.email?.toLowerCase() || "";
+
+                    const matchesSearch =
+                        contactName.includes(searchParam) ||
+                        contactNumber.includes(searchParam) ||
+                        contactEmail.includes(searchParam);
+
+                    if (!matchesSearch) {
+                        console.log("🚫 Socket.IO: Contato ignorado (não corresponde à busca)", {
+                            contactId: contact.id,
+                            contactName: contact.name,
+                            searchParam
+                        });
+                        return;
+                    }
+                }
+
+                // 🛡️ FILTRO CRÍTICO #3: Validar filtro de tags
+                if (selectedTags.length > 0) {
+                    const contactTagIds = contact.tags?.map(t => t.id) || [];
+                    const hasSelectedTags = selectedTags.some(tagId =>
+                        contactTagIds.includes(tagId)
+                    );
+
+                    if (!hasSelectedTags) {
+                        console.log("🚫 Socket.IO: Contato ignorado (sem tags selecionadas)", {
+                            contactId: contact.id,
+                            contactName: contact.name,
+                            contactTags: contactTagIds,
+                            selectedTags
+                        });
+                        return;
+                    }
+                }
+
+                // ✅ Contato passou em TODAS as validações
+                console.log("✅ Socket.IO: Contato adicionado/atualizado", {
+                    action: data.action,
+                    contactId: contact.id,
+                    contactName: contact.name
+                });
+
+                dispatch({ type: "UPDATE_CONTACTS", payload: contact });
             }
 
             if (data.action === "delete") {
                 dispatch({ type: "DELETE_CONTACT", payload: +data.contactId });
-                // Remover o contato deletado da lista de selecionados, se estiver lá
                 setSelectedContactIds((prevSelected) =>
-                    prevSelected.filter((id) => id !== +data.contactId) // Use +data.contactId para garantir que seja número
+                    prevSelected.filter((id) => id !== +data.contactId)
                 );
             }
         };
@@ -236,7 +311,7 @@ const Contacts = () => {
         return () => {
             socket.off(`company-${companyId}-contact`, onContactEvent);
         };
-    }, [socket]);
+    }, [socket, searchParam, selectedTags]);
 
     const handleSelectTicket = (ticket) => {
         const code = uuidv4();
@@ -616,10 +691,7 @@ const Contacts = () => {
                             <TableCell align="center">
                                 {i18n.t("contacts.table.email")}
                             </TableCell>
-                            <TableCell align="center">
-                                {i18n.t("contacts.table.whatsapp")}
-                            </TableCell>
-                            <TableCell align="center">{i18n.t("contactModal.form.status")}</TableCell>
+                            <TableCell align="center">{i18n.t("contacts.table.status")}</TableCell>
                             <TableCell align="center">
                                 {i18n.t("contacts.table.actions")}
                             </TableCell>
@@ -647,13 +719,12 @@ const Contacts = () => {
                                                 ? contact.number :
                                                 formatSerializedId(contact?.number) === null ? contact.number.slice(0, -6) + "**-**" + contact?.number.slice(-2) :
                                                     formatSerializedId(contact?.number)?.slice(0, -6) + "**-**" + contact?.number?.slice(-2) :
-                                                    contact.isGroup ? contact.number : formatSerializedId(contact?.number)
+                                            contact.isGroup ? contact.number : <PhoneNumberDisplay phoneNumber={contact?.number} />
                                         )}
                                     </TableCell>
                                     <TableCell align="center">
                                         {contact.email}
                                     </TableCell>
-                                    <TableCell>{contact?.whatsapp?.name}</TableCell>
                                     <TableCell align="center">
                                         {contact.active ? (
                                             <CheckCircleIcon
@@ -733,7 +804,7 @@ const Contacts = () => {
                                     </TableCell>
                                 </TableRow>
                             ))}
-                            {loading && <TableRowSkeleton avatar columns={6} />}
+                            {loading && <TableRowSkeleton avatar columns={5} />}
                         </>
                     </TableBody>
                 </Table>

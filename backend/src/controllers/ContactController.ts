@@ -56,7 +56,7 @@ interface ExtraInfo extends ContactCustomField {
 }
 interface ContactData {
   name: string;
-  number: string;
+  number: string | null;
   email?: string;
   extraInfo?: ExtraInfo[];
   disableBot?: boolean;
@@ -192,22 +192,41 @@ export const store = async (req: Request, res: Response): Promise<Response> => {
 
     logger.info(`[ContactController.store] Creating contact for company ${companyId}`, { newContact });
 
-    const findContact = await Contact.findOne({
-      where: {
-        number: newContact.number.replace("-", "").replace(" ", ""),
-        companyId
+    // Normalizar número (remover espaços e hífens) ou converter para null se vazio
+    const normalizedNumber = newContact.number && newContact.number.trim() !== ""
+      ? newContact.number.replace("-", "").replace(" ", "")
+      : null;
+
+    // Verificar duplicatas apenas se houver número
+    if (normalizedNumber) {
+      const findContact = await Contact.findOne({
+        where: {
+          number: normalizedNumber,
+          companyId
+        }
+      })
+      if (findContact) {
+        throw new AppError("ERR_DUPLICATED_CONTACT", 409);
       }
-    })
-    if (findContact) {
-      throw new AppError("ERR_DUPLICATED_CONTACT", 409);
     }
 
-    newContact.number = newContact.number.replace("-", "").replace(" ", "");
+    newContact.number = normalizedNumber as any;
 
     const schema = Yup.object().shape({
       name: Yup.string().required("Nome é obrigatório"),
       number: Yup.string()
-        .matches(/^\d+$/, "Formato de número inválido. Apenas números são permitidos.")
+        .nullable()
+        .transform((value) => value === "" ? null : value)
+        .test(
+          "is-valid-number",
+          "Formato de número inválido. Apenas números são permitidos.",
+          (value) => {
+            // Se for null ou vazio, é válido (campo opcional)
+            if (!value) return true;
+            // Se tiver valor, deve conter apenas dígitos
+            return /^\d+$/.test(value);
+          }
+        )
     });
 
     try {
@@ -218,7 +237,7 @@ export const store = async (req: Request, res: Response): Promise<Response> => {
     }
 
     // Validação de WhatsApp removida - número agora é opcional
-    const validNumber = newContact.number || "";
+    const validNumber = normalizedNumber || null;
 
     /**
      * Código desabilitado por demora no retorno
@@ -227,7 +246,7 @@ export const store = async (req: Request, res: Response): Promise<Response> => {
 
     const contact = await CreateContactService({
       ...newContact,
-      number: validNumber,
+      number: validNumber as any,
       // profilePicUrl,
       companyId
     });
@@ -316,11 +335,16 @@ export const remove = async (
   const { contactId } = req.params;
   const { companyId } = req.user;
 
+  console.log(`[ContactController.remove] DELETE contact ${contactId} for company ${companyId}`);
+
   try {
+    console.log(`[ContactController.remove] Calling ShowContactService...`);
     await ShowContactService(contactId, companyId);
 
+    console.log(`[ContactController.remove] Calling DeleteContactService...`);
     await DeleteContactService(contactId, companyId);
 
+    console.log(`[ContactController.remove] Contact deleted successfully, emitting socket event...`);
     const io = getIO();
     io.of(String(companyId))
       .emit(`company-${companyId}-contact`, {
@@ -328,14 +352,23 @@ export const remove = async (
         contactId
       });
 
+    console.log(`[ContactController.remove] Returning 200 response`);
     return res.status(200).json({ message: "Contact deleted" });
   } catch (error: any) {
+    console.log(`[ContactController.remove] ERROR in controller:`, {
+      message: error.message,
+      statusCode: error.statusCode,
+      isAppError: error instanceof AppError,
+      stack: error.stack
+    });
     logger.error(`Error deleting contact ${contactId}:`, error);
 
     if (error instanceof AppError) {
+      console.log(`[ContactController.remove] Returning AppError: ${error.statusCode} - ${error.message}`);
       return res.status(error.statusCode).json({ error: error.message });
     }
 
+    console.log(`[ContactController.remove] Returning generic 500 error`);
     return res.status(500).json({ error: "Erro ao excluir contato. Por favor, tente novamente." });
   }
 };

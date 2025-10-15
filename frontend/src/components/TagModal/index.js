@@ -72,6 +72,10 @@ const TagModal = ({ open, onClose, tagId, kanban }) => {
 	const [loading, setLoading] = useState(false);
 	const [selectedLane, setSelectedLane] = useState([]);
 	const [selectedRollbackLane, setSelectedRollbackLane] = useState([]);
+	const [timeDays, setTimeDays] = useState(0);
+	const [timeHours, setTimeHours] = useState(0);
+	const [timeMinutes, setTimeMinutes] = useState(0);
+	const [timeSeconds, setTimeSeconds] = useState(0);
 
 
 	const initialState = {
@@ -119,6 +123,14 @@ const TagModal = ({ open, onClose, tagId, kanban }) => {
 				if (data.rollbackLaneId) {
 					setSelectedRollbackLane(data.rollbackLaneId);
 				}
+				// Decompor timeLane em dias, horas, minutos e segundos
+				if (data.timeLane) {
+					const decomposed = decomposeHours(data.timeLane);
+					setTimeDays(decomposed.days);
+					setTimeHours(decomposed.hours);
+					setTimeMinutes(decomposed.minutes);
+					setTimeSeconds(decomposed.seconds);
+				}
 			})()
 		} catch (err) {
 			toastError(err);
@@ -128,11 +140,24 @@ const TagModal = ({ open, onClose, tagId, kanban }) => {
 	const handleClose = () => {
 		setTag(initialState);
 		setColorPickerModalOpen(false);
+		setTimeDays(0);
+		setTimeHours(0);
+		setTimeMinutes(0);
+		setTimeSeconds(0);
 		onClose();
 	};
 
 	const handleSaveTag = async values => {
-		const tagData = { ...values, userId: user?.id, kanban: kanban, nextLaneId: selectedLane || null, rollbackLaneId: selectedRollbackLane || null };
+		// Calcular o timeLane total a partir dos valores de dias, horas, minutos e segundos
+		const totalTimeLane = calculateTotalHours(timeDays, timeHours, timeMinutes, timeSeconds);
+		const tagData = {
+			...values,
+			userId: user?.id,
+			kanban: kanban,
+			nextLaneId: selectedLane || null,
+			rollbackLaneId: selectedRollbackLane || null,
+			timeLane: totalTimeLane
+		};
 
 		try {
 			if (tagId) {
@@ -159,6 +184,24 @@ const TagModal = ({ open, onClose, tagId, kanban }) => {
 
 		return hexColor;
 	}
+
+	// Calcular o total de horas a partir de dias, horas, minutos e segundos
+	const calculateTotalHours = (days, hours, minutes, seconds) => {
+		const totalHours = (parseInt(days) || 0) * 24 + (parseInt(hours) || 0) + (parseInt(minutes) || 0) / 60 + (parseInt(seconds) || 0) / 3600;
+		return totalHours;
+	};
+
+	// Decompor horas totais em dias, horas, minutos e segundos
+	const decomposeHours = (totalHours) => {
+		const hours = parseFloat(totalHours) || 0;
+		const days = Math.floor(hours / 24);
+		const remainingHours = Math.floor(hours % 24);
+		const fractionalHour = hours % 1;
+		const totalMinutes = fractionalHour * 60;
+		const minutes = Math.floor(totalMinutes);
+		const seconds = Math.round((totalMinutes % 1) * 60);
+		return { days, hours: remainingHours, minutes, seconds };
+	};
 
 	return (
 		<div className={classes.root}>
@@ -253,20 +296,55 @@ const TagModal = ({ open, onClose, tagId, kanban }) => {
 
 									{kanban === 1 && (
 										<>
-											<Grid item xs={12} md={6} xl={6}>
-												<Field
-													as={TextField}
-													label={i18n.t("tagModal.form.timeLane")}
-													name="timeLane"
-													error={touched.timeLane && Boolean(errors.timeLane)}
-													helperText={touched.timeLane && errors.timeLane}
+											<Grid item xs={12} md={3} xl={3}>
+												<TextField
+													label="Dias"
+													type="number"
+													value={timeDays}
 													variant="outlined"
 													margin="dense"
-													onChange={(e) => setTag(prev => ({ ...prev, timeLane: e.target.value }))}
+													onChange={(e) => setTimeDays(e.target.value)}
 													fullWidth
+													inputProps={{ min: 0 }}
 												/>
 											</Grid>
-											<Grid item xs={12} md={6} xl={6}>
+											<Grid item xs={12} md={3} xl={3}>
+												<TextField
+													label="Horas"
+													type="number"
+													value={timeHours}
+													variant="outlined"
+													margin="dense"
+													onChange={(e) => setTimeHours(e.target.value)}
+													fullWidth
+													inputProps={{ min: 0, max: 23 }}
+												/>
+											</Grid>
+											<Grid item xs={12} md={3} xl={3}>
+												<TextField
+													label="Minutos"
+													type="number"
+													value={timeMinutes}
+													variant="outlined"
+													margin="dense"
+													onChange={(e) => setTimeMinutes(e.target.value)}
+													fullWidth
+													inputProps={{ min: 0, max: 59 }}
+												/>
+											</Grid>
+											<Grid item xs={12} md={3} xl={3}>
+												<TextField
+													label="Segundos"
+													type="number"
+													value={timeSeconds}
+													variant="outlined"
+													margin="dense"
+													onChange={(e) => setTimeSeconds(e.target.value)}
+													fullWidth
+													inputProps={{ min: 0, max: 59 }}
+												/>
+											</Grid>
+											<Grid item xs={12} md={12} xl={12}>
 												<FormControl
 													variant="outlined"
 													margin="dense"

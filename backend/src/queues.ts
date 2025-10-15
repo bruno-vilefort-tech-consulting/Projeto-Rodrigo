@@ -1471,6 +1471,7 @@ async function handleRandomUser() {
 
 async function handleProcessLanes() {
   const job = new CronJob('*/1 * * * *', async () => {
+    logger.info("[KANBAN] Iniciando verificação de movimentação de lanes");
     const companies = await Company.findAll({
       include: [
         {
@@ -1483,10 +1484,12 @@ async function handleProcessLanes() {
         },
       ]
     });
+    logger.info(`[KANBAN] Empresas com kanban ativo: ${companies.length}`);
     companies.map(async c => {
 
       try {
         const companyId = c.id;
+        logger.info(`[KANBAN] Processando empresa ${companyId}`);
 
         const ticketTags = await TicketTag.findAll({
           include: [{
@@ -1508,10 +1511,14 @@ async function handleProcessLanes() {
           }]
         })
 
+        logger.info(`[KANBAN] Tickets encontrados para empresa ${companyId}: ${ticketTags.length}`);
+
         if (ticketTags.length > 0) {
           // ✅ CORREÇÃO: Usar Promise.all ao invés de map para evitar race conditions
           await Promise.all(ticketTags.map(async t => {
             try {
+              logger.info(`[KANBAN] Ticket ${t.ticketId} - TagID: ${t.tagId} - TimeLane: ${t.tag.timeLane}h - NextLaneId: ${t.tag.nextLaneId}`);
+
               if (!isNil(t?.tag.nextLaneId) && t?.tag.nextLaneId > 0 && t?.tag.timeLane > 0) {
                 // ✅ VALIDAÇÃO 1: Buscar nextTag e validar se pertence à mesma empresa
                 const nextTag = await Tag.findOne({
@@ -1523,13 +1530,15 @@ async function handleProcessLanes() {
 
                 // ✅ VALIDAÇÃO 2: Se nextTag não existir, logar e pular
                 if (!nextTag) {
-                  logger.error(`Process Lanes: nextTag ${t?.tag.nextLaneId} not found or doesn't belong to company ${companyId}`);
+                  logger.error(`[KANBAN] nextTag ${t?.tag.nextLaneId} not found or doesn't belong to company ${companyId}`);
                   return;
                 }
 
                 const dataLimite = new Date();
                 dataLimite.setHours(dataLimite.getHours() - Number(t.tag.timeLane));
                 const dataUltimaInteracaoChamado = new Date(t.ticket.updatedAt)
+
+                logger.info(`[KANBAN] Ticket ${t.ticketId} - UpdatedAt: ${dataUltimaInteracaoChamado.toISOString()} - Limite: ${dataLimite.toISOString()} - Deve mover: ${dataUltimaInteracaoChamado < dataLimite}`);
 
                 if (dataUltimaInteracaoChamado < dataLimite) {
                   // ✅ CORREÇÃO: Usar transação para garantir atomicidade
@@ -1573,24 +1582,32 @@ async function handleProcessLanes() {
                     )
                   }
 
-                  logger.info(`Process Lanes: Ticket ${t.ticketId} moved from tag ${t.tagId} to tag ${nextTag.id}`);
+                  logger.info(`[KANBAN] ✅ Ticket ${t.ticketId} movido da tag ${t.tagId} para tag ${nextTag.id}`);
+                } else {
+                  logger.info(`[KANBAN] ⏰ Ticket ${t.ticketId} ainda não atingiu o tempo limite`);
                 }
+              } else {
+                logger.info(`[KANBAN] ⚠️ Ticket ${t.ticketId} não tem configuração válida (nextLaneId: ${t?.tag.nextLaneId}, timeLane: ${t?.tag.timeLane})`);
               }
             } catch (error) {
               Sentry.captureException(error);
-              logger.error(`Process Lanes: Error moving ticket ${t.ticketId} from tag ${t.tagId}:`, error.message);
+              logger.error(`[KANBAN] ❌ Erro ao mover ticket ${t.ticketId} da tag ${t.tagId}:`, error.message);
             }
           }));
+        } else {
+          logger.info(`[KANBAN] Nenhum ticket com as condições necessárias para empresa ${companyId}`);
         }
       } catch (e: any) {
         Sentry.captureException(e);
-        logger.error("Process Lanes -> Verify: error", e.message);
+        logger.error("[KANBAN] Erro no processamento de lanes:", e.message);
         throw e;
       }
 
     });
+    logger.info("[KANBAN] Finalizado processamento de movimentação de lanes");
   });
   job.start()
+  logger.info("[KANBAN] Cron job de processamento de lanes iniciado (executa a cada 1 minuto)");
 }
 
 async function handleCloseTicketsAutomatic() {

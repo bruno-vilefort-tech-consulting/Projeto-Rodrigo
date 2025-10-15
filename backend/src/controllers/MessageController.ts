@@ -731,6 +731,12 @@ export const store = async (req: Request, res: Response): Promise<Response> => {
     await SetTicketMessagesAsRead(ticket);
   }
 
+  // ✅ VALIDAÇÃO: Ignora requisições vazias (sem mídia, sem texto, sem vCard)
+  if (!medias && !body && !vCard) {
+    console.log("⚠️ Requisição de mensagem vazia ignorada - ticketId:", ticketId);
+    return res.status(200).json({ message: "Nenhum conteúdo para enviar" });
+  }
+
   try {
     if (medias) {
       await Promise.all(

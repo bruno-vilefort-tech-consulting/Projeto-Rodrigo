@@ -2,10 +2,11 @@ import React, {
   useState,
   useEffect,
   useReducer,
+  useCallback,
   useContext,
 } from "react";
 import { toast } from "react-toastify";
-import { useHistory } from "react-router-dom";
+import { useHistory } from "react-router-dom"; // Importe o useHistory
 
 import { makeStyles } from "@material-ui/core/styles";
 import Paper from "@material-ui/core/Paper";
@@ -19,9 +20,9 @@ import IconButton from "@material-ui/core/IconButton";
 import SearchIcon from "@material-ui/icons/Search";
 import TextField from "@material-ui/core/TextField";
 import InputAdornment from "@material-ui/core/InputAdornment";
+
 import DeleteOutlineIcon from "@material-ui/icons/DeleteOutline";
 import EditIcon from "@material-ui/icons/Edit";
-import { Chip } from "@material-ui/core";
 
 import MainContainer from "../../components/MainContainer";
 import MainHeader from "../../components/MainHeader";
@@ -34,7 +35,10 @@ import TableRowSkeleton from "../../components/TableRowSkeleton";
 import TagModal from "../../components/TagModal";
 import ConfirmationModal from "../../components/ConfirmationModal";
 import toastError from "../../errors/toastError";
+import { Chip } from "@material-ui/core";
+// import { SocketContext } from "../../context/Socket/SocketContext";
 import { AuthContext } from "../../context/Auth/AuthContext";
+import { CheckCircle } from "@material-ui/icons";
 
 const reducer = (state, action) => {
   if (action.type === "LOAD_TAGS") {
@@ -89,10 +93,13 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const TagsKanban = () => {
+const Tags = () => {
   const classes = useStyles();
-  const history = useHistory();
+  const history = useHistory(); // Inicialize o useHistory
+
+  //   const socketManager = useContext(SocketContext);
   const { user, socket } = useContext(AuthContext);
+
 
   const [loading, setLoading] = useState(false);
   const [pageNumber, setPageNumber] = useState(1);
@@ -130,6 +137,8 @@ const TagsKanban = () => {
   }, [searchParam]);
 
   useEffect(() => {
+    // const socket = socketManager.GetSocket(user.companyId, user.id);
+
     const onTagsEvent = (data) => {
       if (data.action === "update" || data.action === "create") {
         dispatch({ type: "UPDATE_TAGS", payload: data.tag });
@@ -168,7 +177,7 @@ const TagsKanban = () => {
   const handleDeleteTag = async (tagId) => {
     try {
       await api.delete(`/tags/${tagId}`);
-      toast.success(i18n.t("tagsKanban.toasts.deleted"));
+      toast.success(i18n.t("tags.toasts.deleted"));
     } catch (err) {
       toastError(err);
     }
@@ -273,13 +282,7 @@ const TagsKanban = () => {
                       size="small"
                     />
                   </TableCell>
-                  <TableCell align="center">
-                    {tag?.ticketTags ? (
-                      <span>{tag?.ticketTags?.length}</span>
-                    ) : (
-                      <span>0</span>
-                    )}
-                  </TableCell>
+                  <TableCell align="center">{tag?.ticketTags ? (<span>{tag?.ticketTags?.length}</span>) : <span>0</span>}</TableCell>
                   <TableCell align="center">
                     <IconButton size="small" onClick={() => handleEditTag(tag)}>
                       <EditIcon />
@@ -297,7 +300,7 @@ const TagsKanban = () => {
                   </TableCell>
                 </TableRow>
               ))}
-              {loading && <TableRowSkeleton columns={3} />}
+              {loading && <TableRowSkeleton columns={4} />}
             </>
           </TableBody>
         </Table>
@@ -306,4 +309,4 @@ const TagsKanban = () => {
   );
 };
 
-export default TagsKanban;
+export default Tags;

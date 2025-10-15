@@ -152,6 +152,11 @@ const ListContactsService = async ({ searchParam = "",
         as: "tags",
         attributes: ["id", "name"]
       },
+      {
+        model: Whatsapp,
+        as: "whatsapp",
+        attributes: ["id", "name"]
+      }
     ],
     offset,
     order: [["name", "ASC"]]

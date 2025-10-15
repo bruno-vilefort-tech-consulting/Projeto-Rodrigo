@@ -339,6 +339,14 @@ export const update = async (
   const ticketData: TicketData = req.body;
   const { companyId } = req.user;
 
+  console.log("📝 UPDATE TICKET REQUEST:", {
+    ticketId,
+    ticketIdType: typeof ticketId,
+    companyId,
+    companyIdType: typeof companyId,
+    ticketData
+  });
+
   // ✅ Mutex removido: UpdateTicketService agora usa transação Sequelize com lock pessimístico
   const { ticket } = await UpdateTicketService({
     ticketData,
