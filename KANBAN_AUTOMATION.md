@@ -217,6 +217,40 @@ Para ativar a automação, configure os seguintes campos nas lanes (Tags com `ka
 
 5. **Ticket permanece na mesma lane indefinidamente**
 
+### Teste 4: Assinatura nas mensagens de saudação
+
+1. **Habilitar assinatura** nas configurações da empresa:
+   ```sql
+   UPDATE "CompaniesSettings"
+   SET "sendSignMessage" = 'enabled'
+   WHERE "companyId" = 1;
+   ```
+
+2. **Configurar lane com mensagem de saudação**:
+   ```sql
+   UPDATE "Tags" SET
+     "greetingMessageLane" = 'Olá! Como posso ajudá-lo?',
+     "timeLane" = 1,
+     "nextLaneId" = <outra_lane_id>
+   WHERE id = <sua_lane_id>;
+   ```
+
+3. **Atribuir um usuário ao ticket** (se não tiver)
+
+4. **Mover ticket para a lane** (ou deixar expirar timer)
+
+5. **Verificar logs**:
+   ```
+   ✍️ [MoveTicketLane] Adicionando assinatura "Super Admin" à mensagem
+   📨 [MoveTicketLane] Mensagem de saudação enviada para ticket X
+   ```
+
+6. **Verificar no chat**: A mensagem deve aparecer como:
+   ```
+   *Super Admin:*
+   Olá! Como posso ajudá-lo?
+   ```
+
 ## 📝 Campos do Banco de Dados
 
 ### Tabela `Tickets` (novos campos):
@@ -246,6 +280,7 @@ Ao testar, procure pelos seguintes logs no terminal do backend:
 - `⏰ [ProcessExpiredLaneTimers]`: Cron job executando
 - `🔄 [ProcessExpiredLaneTimers]`: Movendo ticket expirado
 - `✅ [MoveTicketLane]`: Ticket movido com sucesso
+- `✍️ [MoveTicketLane]`: Adicionando assinatura à mensagem
 - `📨 [MoveTicketLane]`: Mensagem de saudação enviada
 
 ## ⚠️ Considerações Importantes
@@ -264,6 +299,16 @@ Ao testar, procure pelos seguintes logs no terminal do backend:
 5. **Multi-tenant**: Todos os serviços validam `companyId`
 
 6. **Socket.IO**: Mudanças de lane emitem eventos para atualizar o frontend em tempo real
+
+7. **Assinatura Automática**:
+   - Se a configuração `sendSignMessage` estiver como `"enabled"` nas configurações da empresa
+   - E o ticket tiver um usuário atribuído
+   - As mensagens de saudação das lanes serão enviadas com assinatura no formato: `*Nome do Atendente:*\nMensagem`
+   - Exemplo:
+     ```
+     *Super Admin:*
+     Olá! Como posso ajudá-lo?
+     ```
 
 ## 🎉 Resultado Final
 

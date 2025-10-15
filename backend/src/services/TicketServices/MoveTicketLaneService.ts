@@ -5,6 +5,7 @@ import AppError from "../../errors/AppError";
 import ShowTicketService from "./ShowTicketService";
 import { getIO } from "../../libs/socket";
 import SendWhatsAppMessage from "../WbotServices/SendWhatsAppMessage";
+import CompaniesSettings from "../../models/CompaniesSettings";
 
 interface Request {
   ticketId: number;
@@ -78,8 +79,21 @@ const MoveTicketLaneService = async ({
   // Enviar mensagem de saudação se configurada e se sendGreeting for true
   if (sendGreeting && toLane.greetingMessageLane && toLane.greetingMessageLane.trim() !== "") {
     try {
+      // Verificar se assinatura está habilitada nas configurações da empresa
+      const companySettings = await CompaniesSettings.findOne({
+        where: { companyId }
+      });
+
+      let messageBody = toLane.greetingMessageLane;
+
+      // Se sendSignMessage está enabled e o ticket tem usuário, adicionar assinatura
+      if (companySettings?.sendSignMessage === "enabled" && ticket.user?.name) {
+        messageBody = `*${ticket.user.name}:*\n${toLane.greetingMessageLane}`;
+        console.log(`✍️ [MoveTicketLane] Adicionando assinatura "${ticket.user.name}" à mensagem`);
+      }
+
       await SendWhatsAppMessage({
-        body: toLane.greetingMessageLane,
+        body: messageBody,
         ticket,
         isForwarded: false
       });
