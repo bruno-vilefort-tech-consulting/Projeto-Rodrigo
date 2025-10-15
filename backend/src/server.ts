@@ -9,6 +9,7 @@ import Company from "./models/Company";
 import BullQueue from './libs/queue';
 
 import { startQueueProcess } from "./queues";
+import ProcessExpiredLaneTimersJob from "./services/TicketServices/ProcessExpiredLaneTimersJob";
 // import { ScheduledMessagesJob, ScheduleMessagesGenerateJob, ScheduleMessagesEnvioJob, ScheduleMessagesEnvioForaHorarioJob } from "./wbotScheduledMessages";
 
 // === AJUSTES PARA NOVA INSTALAÇÃO ===
@@ -79,6 +80,15 @@ process.on("unhandledRejection", (reason, p) => {
 //   }
 
 // });
+
+// 🎯 KANBAN: Processar timers de lane expirados a cada minuto
+cron.schedule("* * * * *", async () => {
+  try {
+    await ProcessExpiredLaneTimersJob();
+  } catch (error) {
+    logger.error("❌ [Cron] Erro ao executar ProcessExpiredLaneTimersJob:", error);
+  }
+});
 
 initIO(server);
 gracefulShutdown(server);

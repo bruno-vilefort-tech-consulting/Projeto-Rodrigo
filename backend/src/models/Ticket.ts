@@ -204,6 +204,12 @@ class Ticket extends Model<Ticket> {
 
   @Column
   typebotSessionTime: Date
+
+  @Column
+  laneTimerStartedAt: Date;
+
+  @Column
+  laneNextMoveAt: Date;
 }
 
 export default Ticket;

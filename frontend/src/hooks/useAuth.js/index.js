@@ -132,9 +132,18 @@ const useAuth = () => {
       let io;
       if (!Object.keys(socket).length) {
         io = socketConnection({ user });
-        setSocket(io)
+        setSocket(io);
+
+        // ✅ DEBUG: Expor socket globalmente
+        window.socket = io;
+        console.log("✅ [useAuth] Socket criado e exposto globalmente:", {
+          socketId: io.id,
+          connected: io.connected,
+          companyId: user.companyId
+        });
       } else {
-        io = socket
+        io = socket;
+        window.socket = io;
       }
 
       // User update events

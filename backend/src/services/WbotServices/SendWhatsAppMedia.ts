@@ -239,6 +239,32 @@ if (isPrivate === true) {
       imported: null
     });
 
+    // ✅ Salvar mensagem no banco e emitir evento Socket.IO
+    const baseType = media.mimetype?.split("/")[0] ?? "document";
+    const messageData = {
+      wid: sentMessage.key.id,
+      ticketId: ticket.id,
+      contactId: undefined,
+      body: bodyMedia,
+      fromMe: true,
+      mediaUrl: media.filename,
+      mediaType: baseType === "audio" ? "audioMessage" : baseType === "video" ? "videoMessage" : baseType === "image" ? "imageMessage" : "documentMessage",
+      read: true,
+      quotedMsgId: null,
+      ack: 1,
+      remoteJid: number,
+      participant: null,
+      dataJson: JSON.stringify(sentMessage),
+      ticketTrakingId: ticket.ticketTrakingId,
+      isPrivate: false,
+      isForwarded,
+      companyId: ticket.companyId,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+
+    await CreateMessageService({ messageData, companyId: ticket.companyId });
+
     return sentMessage;
   } catch (err) {
     console.log(`ERRO AO ENVIAR MIDIA ${ticket.id} media ${media.originalname}`);

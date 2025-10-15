@@ -181,7 +181,7 @@ const Ticket = () => {
         >
         </MessagesList>
         <MessageInput
-          ticketId={ticket.id}
+          ticketId={ticket.uuid || ticketId}
           ticketStatus={ticket.status}
           ticketChannel={ticket.channel}
           droppedFiles={dragDropFiles}

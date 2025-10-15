@@ -26,11 +26,19 @@ class SocketWorker {
     });
 
     this.socket.on("connect", () => {
-      console.log("Conectado ao servidor Socket.IO");
+      console.log("✅ [SocketWorker] Conectado ao servidor Socket.IO:", {
+        socketId: this.socket.id,
+        companyId: this.companyId,
+        userId: this.userId,
+        url: `${BACKEND_URL}/${this.companyId}`
+      });
+
+      // ✅ DEBUG: Expor socket real globalmente
+      window.socketReal = this.socket;
     });
 
     this.socket.on("disconnect", () => {
-      console.log("Desconectado do servidor Socket.IO");
+      console.log("❌ [SocketWorker] Desconectado do servidor Socket.IO");
       this.reconnectAfterDelay();
     });
   }
@@ -45,6 +53,13 @@ class SocketWorker {
       this.eventListeners[event] = [];
     }
     this.eventListeners[event].push(callback);
+
+    // ✅ DEBUG: Log quando registrar listener
+    console.log("🎧 [SocketWorker] Listener registrado:", {
+      event,
+      totalListeners: this.eventListeners[event].length,
+      allEvents: Object.keys(this.eventListeners)
+    });
   }
 
   // Emite um evento

@@ -15,6 +15,7 @@ import { isNil } from "lodash";
 import fs from "fs";
 
 import formatBody from "../../helpers/Mustache";
+import CreateMessageService from "../MessageServices/CreateMessageService";
 
 interface TemplateButton {
   index: number;
@@ -132,6 +133,30 @@ const SendWhatsAppMessage = async ({
         lastMessage: formatBody(vcard, ticket),
         imported: null,
       });
+
+      // ✅ Salvar mensagem no banco e emitir evento Socket.IO
+      const messageData = {
+        wid: sentMessage.key.id,
+        ticketId: ticket.id,
+        contactId: undefined,
+        body: vCard.name,
+        fromMe: true,
+        mediaType: "contactMessage",
+        read: true,
+        quotedMsgId: quotedMsg?.id || null,
+        ack: 1,
+        remoteJid: number,
+        participant: null,
+        dataJson: JSON.stringify(sentMessage),
+        ticketTrakingId: ticket.ticketTrakingId,
+        isPrivate: false,
+        companyId: ticket.companyId,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+
+      await CreateMessageService({ messageData, companyId: ticket.companyId });
+
       return sentMessage as WAMessage;
     } catch (err) {
       Sentry.captureException(err);
@@ -184,6 +209,30 @@ const SendWhatsAppMessage = async ({
       );
 
       await ticket.update({ lastMessage: formattedBody, imported: null });
+
+      // ✅ Salvar mensagem no banco e emitir evento Socket.IO
+      const dbMessageData = {
+        wid: sentMessage.key.id,
+        ticketId: ticket.id,
+        contactId: undefined,
+        body: formattedBody,
+        fromMe: true,
+        mediaType: imageUrl ? "imageMessage" : "extendedTextMessage",
+        read: true,
+        quotedMsgId: quotedMsg?.id || null,
+        ack: 1,
+        remoteJid: number,
+        participant: null,
+        dataJson: JSON.stringify(sentMessage),
+        ticketTrakingId: ticket.ticketTrakingId,
+        isPrivate: false,
+        companyId: ticket.companyId,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+
+      await CreateMessageService({ messageData: dbMessageData, companyId: ticket.companyId });
+
       return sentMessage as WAMessage;
     } catch (err) {
       console.log(
@@ -213,6 +262,31 @@ const SendWhatsAppMessage = async ({
         lastMessage: formatBody(body, ticket),
         imported: null,
       });
+
+      // ✅ Salvar mensagem no banco e emitir evento Socket.IO
+      const messageData = {
+        wid: sentMessage.key.id,
+        ticketId: ticket.id,
+        contactId: undefined,
+        body: formatBody(body, ticket),
+        fromMe: true,
+        mediaType: "extendedTextMessage",
+        read: true,
+        quotedMsgId: quotedMsg?.id || null,
+        ack: 1,
+        remoteJid: number,
+        participant: null,
+        dataJson: JSON.stringify(sentMessage),
+        ticketTrakingId: ticket.ticketTrakingId,
+        isPrivate: false,
+        isForwarded,
+        companyId: ticket.companyId,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+
+      await CreateMessageService({ messageData, companyId: ticket.companyId });
+
       return sentMessage as WAMessage;
     } catch (err) {
       Sentry.captureException(err);

@@ -14,11 +14,19 @@ const ShowTicketService = async (
   id: string | number,
   companyId: number
 ): Promise<Ticket> => {
+  // Determinar se é UUID ou numeric ID
+  const whereClause: any = { companyId };
+
+  if (!isNaN(Number(id))) {
+    // É um número, buscar por ID
+    whereClause.id = id;
+  } else {
+    // É uma string UUID, buscar por UUID
+    whereClause.uuid = id;
+  }
+
   const ticket = await Ticket.findOne({
-    where: {
-      id,
-      companyId
-    },
+    where: whereClause,
     attributes: [
       "id",
       "uuid",

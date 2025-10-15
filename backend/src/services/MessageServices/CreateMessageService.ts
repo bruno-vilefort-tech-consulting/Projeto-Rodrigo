@@ -6,6 +6,8 @@ import Tag from "../../models/Tag";
 import Ticket from "../../models/Ticket";
 import User from "../../models/User";
 import Whatsapp from "../../models/Whatsapp";
+import StartLaneTimerService from "../TicketServices/StartLaneTimerService";
+import HandleCustomerResponseService from "../TicketServices/HandleCustomerResponseService";
 
 export interface MessageData {
   wid: string;
@@ -45,6 +47,7 @@ const CreateMessageService = async ({
       {
         model: Ticket,
         as: "ticket",
+        attributes: ["id", "uuid", "status", "queueId", "contactId", "whatsappId", "userId", "isGroup", "companyId"],
         include: [
           {
             model: Contact,
@@ -103,6 +106,15 @@ const CreateMessageService = async ({
   const io = getIO();
 
   if (!messageData?.ticketImported) {
+    // Debug log para verificar o ticket UUID
+    console.log("🚀 [CreateMessageService] Emitindo evento Socket.IO:", {
+      ticketId: message.ticket?.id,
+      ticketUuid: message.ticket?.uuid,
+      hasTicket: !!message.ticket,
+      companyId,
+      channel: `company-${companyId}-appMessage`
+    });
+
     const payload = {
       action: "create",
       message,
@@ -111,9 +123,38 @@ const CreateMessageService = async ({
     };
 
     // Emissão ampla para atender diferentes listeners do frontend
+    // Emissão principal para o frontend que escuta company-${companyId}-appMessage
+    io.emit(`company-${companyId}-appMessage`, payload);
+
+    // Emissões adicionais para garantir compatibilidade
     io.of(String(companyId)).emit(`company-${companyId}-appMessage`, payload);
     io.of(String(companyId)).to(String(message.ticketId)).emit("appMessage", payload);
     io.of(String(companyId)).to(`company-${companyId}`).emit("appMessage", payload);
+
+    // Emitir também para o room do ticket específico
+    io.to(String(message.ticketId)).emit(`company-${companyId}-appMessage`, payload);
+  }
+
+  // 🎯 KANBAN LANE TIMER: Gerenciar movimento automático de cards
+  if (!messageData?.ticketImported && !message.isPrivate && message.ticketId) {
+    try {
+      if (message.fromMe) {
+        // Mensagem do atendente -> Iniciar timer para mover para nextLaneId
+        await StartLaneTimerService({
+          ticketId: message.ticketId,
+          companyId
+        });
+      } else {
+        // Mensagem do cliente -> Cancelar timer e mover para rollbackLaneId se configurado
+        await HandleCustomerResponseService({
+          ticketId: message.ticketId,
+          companyId
+        });
+      }
+    } catch (error) {
+      // Não bloqueia a criação da mensagem se houver erro no timer
+      console.error("❌ [CreateMessageService] Erro ao processar timer de lane:", error);
+    }
   }
 
   return message;

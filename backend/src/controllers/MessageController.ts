@@ -115,10 +115,23 @@ export const addReaction = async (req: Request, res: Response): Promise<Response
     });
 
     const io = getIO();
-    io.to(message.ticketId.toString()).emit(`company-${companyId}-appMessage`, {
+
+    // Recarregar ticket com uuid completo
+    await ticket.reload({
+      attributes: ["id", "uuid", "status"],
+      include: [{ model: Contact, as: "contact" }]
+    });
+
+    const payload = {
       action: "update",
       message,
-    });
+      ticket
+    };
+
+    // Emitir para múltiplos canais para garantir compatibilidade
+    io.emit(`company-${companyId}-appMessage`, payload);
+    io.to(message.ticketId.toString()).emit(`company-${companyId}-appMessage`, payload);
+    io.of(String(companyId)).emit(`company-${companyId}-appMessage`, payload);
 
     return res.status(200).json({
       message: "Reação adicionada com sucesso!",
@@ -720,10 +733,24 @@ function obterNomeEExtensaoDoArquivo(url: string): string {
 
 // Armazenar mensagem
 export const store = async (req: Request, res: Response): Promise<Response> => {
-  const { ticketId } = req.params;
+  let { ticketId } = req.params;
   const { body, quotedMsg, vCard, isPrivate = "false" }: MessageData = req.body;
   const medias = req.files as Express.Multer.File[];
   const { companyId } = req.user;
+
+  // Converter numeric ID para UUID se necessário
+  if (!isNaN(Number(ticketId))) {
+    const ticketWithUuid = await Ticket.findOne({
+      where: {
+        id: ticketId,
+        companyId
+      },
+      attributes: ["uuid"]
+    });
+    if (ticketWithUuid) {
+      ticketId = ticketWithUuid.uuid;
+    }
+  }
 
   const ticket = await ShowTicketService(ticketId, companyId);
 
@@ -921,18 +948,30 @@ export const remove = async (req: Request, res: Response): Promise<Response> => 
   const message = await DeleteWhatsAppMessage(messageId, companyId);
   const io = getIO();
 
+  // Buscar ticket completo com uuid
+  const ticketWithUuid = await Ticket.findByPk(message.ticketId, {
+    attributes: ["id", "uuid", "status"],
+    include: [{ model: Contact, as: "contact" }]
+  });
+
   if (message.isPrivate) {
     await Message.destroy({ where: { id: message.id } });
-    io.of(String(companyId)).emit(`company-${companyId}-appMessage`, {
+    const deletePayload = {
       action: "delete",
       message,
-    });
+      ticket: ticketWithUuid
+    };
+    io.emit(`company-${companyId}-appMessage`, deletePayload);
+    io.of(String(companyId)).emit(`company-${companyId}-appMessage`, deletePayload);
   }
 
-  io.of(String(companyId)).emit(`company-${companyId}-appMessage`, {
+  const updatePayload = {
     action: "update",
     message,
-  });
+    ticket: ticketWithUuid
+  };
+  io.emit(`company-${companyId}-appMessage`, updatePayload);
+  io.of(String(companyId)).emit(`company-${companyId}-appMessage`, updatePayload);
 
   return res.status(200).json({ message: "Mensagem removida com sucesso" });
 };
@@ -1039,15 +1078,27 @@ export const edit = async (req: Request, res: Response): Promise<Response> => {
     const { ticket, message } = await EditWhatsAppMessage({ messageId, body });
 
     const io = getIO();
-    io.of(String(companyId)).emit(`company-${companyId}-appMessage`, {
-      action: "update",
-      message,
+
+    // Recarregar ticket com uuid
+    await ticket.reload({
+      attributes: ["id", "uuid", "status"],
+      include: [{ model: Contact, as: "contact" }]
     });
 
-    io.of(String(companyId)).emit(`company-${companyId}-ticket`, {
+    const messagePayload = {
       action: "update",
-      ticket,
-    });
+      message,
+      ticket
+    };
+
+    // Emitir para múltiplos canais
+    io.emit(`company-${companyId}-appMessage`, messagePayload);
+    io.of(String(companyId)).emit(`company-${companyId}-appMessage`, messagePayload);
+    io.to(String(ticket.id)).emit(`company-${companyId}-appMessage`, messagePayload);
+
+    // Também emitir update do ticket
+    io.emit(`company-${companyId}-ticket`, { action: "update", ticket });
+    io.of(String(companyId)).emit(`company-${companyId}-ticket`, { action: "update", ticket });
 
     return res.status(200).json({ message: "Mensagem editada com sucesso" });
   } catch (error) {

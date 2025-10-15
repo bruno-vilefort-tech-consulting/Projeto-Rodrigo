@@ -385,6 +385,9 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const reducer = (state, action) => {
+  console.log("🔄 [MessagesList Reducer] Ação recebida:", action.type, "Payload:", action.payload);
+  console.log("🔄 [MessagesList Reducer] Estado atual tem", state.length, "mensagens");
+
   if (action.type === "LOAD_MESSAGES") {
     const messages = action.payload;
     const newMessages = [];
@@ -399,7 +402,9 @@ const reducer = (state, action) => {
       }
     });
 
-    return [...newMessages, ...state];
+    const newState = [...newMessages, ...state];
+    console.log("✅ [MessagesList Reducer] LOAD_MESSAGES completado. Novo estado tem", newState.length, "mensagens");
+    return newState;
   }
 
   if (action.type === "ADD_MESSAGE") {
@@ -412,6 +417,7 @@ const reducer = (state, action) => {
       state.push(newMessage);
     }
 
+    console.log("✅ [MessagesList Reducer] ADD_MESSAGE completado. Novo estado tem", state.length, "mensagens");
     return [...state];
   }
 
@@ -423,10 +429,19 @@ const reducer = (state, action) => {
       state[messageIndex] = messageToUpdate;
     }
 
+    console.log("✅ [MessagesList Reducer] UPDATE_MESSAGE completado");
     return [...state];
   }
 
+  if (action.type === "DELETE_MESSAGE") {
+    const messageId = action.payload;
+    const newState = state.filter((m) => m.id !== messageId);
+    console.log("✅ [MessagesList Reducer] DELETE_MESSAGE completado. Removeu", state.length - newState.length, "mensagem(ns)");
+    return newState;
+  }
+
   if (action.type === "RESET") {
+    console.log("🔄 [MessagesList Reducer] RESET completado. Estado zerado.");
     return [];
   }
 };
@@ -496,30 +511,46 @@ const MessagesList = ({
   }, [ticketId, selectedQueuesMessage]);
 
   useEffect(() => {
+    console.log("🔍 [MessagesList] useEffect disparado - ticketId:", ticketId, "pageNumber:", pageNumber);
     setLoading(true);
     const delayDebounceFn = setTimeout(() => {
       const fetchMessages = async () => {
         if (ticketId === "undefined") {
+          console.log("⚠️ [MessagesList] ticketId é 'undefined', redirecionando...");
           history.push("/tickets");
           return;
         }
-        if (isNil(ticketId)) return;
+        if (isNil(ticketId)) {
+          console.log("⚠️ [MessagesList] ticketId é nil/null, abortando...");
+          return;
+        }
         try {
+          console.log("📡 [MessagesList] Fazendo requisição para:", "/messages/" + ticketId);
           const { data } = await api.get("/messages/" + ticketId, {
             params: { pageNumber, selectedQueues: JSON.stringify(selectedQueuesMessage) },
           });
 
+          console.log("✅ [MessagesList] Resposta recebida:", {
+            messagesCount: data.messages?.length,
+            hasMore: data.hasMore,
+            ticketInfo: data.ticket
+          });
+
           if (currentTicketId.current === ticketId) {
+            console.log("📥 [MessagesList] Despachando LOAD_MESSAGES com", data.messages?.length, "mensagens");
             dispatch({ type: "LOAD_MESSAGES", payload: data.messages });
             setHasMore(data.hasMore);
             setLoading(false);
             setLoadingMore(false);
+          } else {
+            console.log("⚠️ [MessagesList] ticketId mudou, ignorando resposta");
           }
 
           if (pageNumber === 1 && data.messages.length > 1) {
             scrollToBottom();
           }
         } catch (err) {
+          console.error("❌ [MessagesList] Erro ao buscar mensagens:", err);
           setLoading(false);
           toastError(err);
           setLoadingMore(false);
@@ -546,16 +577,35 @@ const MessagesList = ({
     }
 
     const onAppMessageMessagesList = (data) => {
-      if (data.action === "create" && data.ticket.uuid === ticketId) {
+      console.log("📥 [MessagesList] Mensagem recebida via Socket.IO:", {
+        action: data.action,
+        ticketUuid: data.ticket?.uuid,
+        messageTicketUuid: data.message?.ticket?.uuid,
+        currentTicketId: ticketId,
+        matchCreate: data.action === "create" && data.ticket?.uuid === ticketId,
+        matchUpdate: data.action === "update" && data?.message?.ticket?.uuid === ticketId,
+        matchDelete: data.action === "delete" && data.message?.ticket?.uuid === ticketId
+      });
+
+      if (data.action === "create" && data.ticket?.uuid === ticketId) {
+        console.log("✅ [MessagesList] ADD_MESSAGE - Validação passou, adicionando mensagem");
         dispatch({ type: "ADD_MESSAGE", payload: data.message });
         scrollToBottom();
+      } else if (data.action === "create") {
+        console.warn("⚠️ [MessagesList] ADD_MESSAGE - Validação falhou:", {
+          dataTicketUuid: data.ticket?.uuid,
+          expectedTicketId: ticketId,
+          areEqual: data.ticket?.uuid === ticketId
+        });
       }
 
       if (data.action === "update" && data?.message?.ticket?.uuid === ticketId) {
+        console.log("✅ [MessagesList] UPDATE_MESSAGE - Validação passou");
         dispatch({ type: "UPDATE_MESSAGE", payload: data.message });
       }
 
       if (data.action == "delete" && data.message.ticket?.uuid === ticketId) {
+        console.log("✅ [MessagesList] DELETE_MESSAGE - Validação passou");
         dispatch({ type: "DELETE_MESSAGE", payload: data.messageId });
       }
     }
@@ -929,8 +979,10 @@ const formatXml = (xmlString) => {
 };
 
 const renderMessages = () => {
+  console.log("🎨 [MessagesList] renderMessages chamado. messagesList.length:", messagesList.length);
 
   if (messagesList.length > 0) {
+    console.log("🎨 [MessagesList] Renderizando", messagesList.length, "mensagens");
     const viewMessagesList = messagesList.map((message, index) => {
       if (message.mediaType === "call_log") {
         return (
