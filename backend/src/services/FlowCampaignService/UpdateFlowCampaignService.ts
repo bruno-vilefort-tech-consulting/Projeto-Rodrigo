@@ -10,6 +10,7 @@ interface Request {
   phrase:string
   id: number
   status: boolean
+  matchType?: string;
 }
 
 const UpdateFlowCampaignService = async ({
@@ -18,11 +19,12 @@ const UpdateFlowCampaignService = async ({
   flowId,
   phrase,
   id,
-  status
+  status,
+  matchType
 }: Request): Promise<String> => {
   try {
 
-    const flow = await FlowCampaignModel.update({ name, phrase, flowId, status }, {
+    const flow = await FlowCampaignModel.update({ name, phrase, flowId, status, matchType }, {
       where: {id: id}
     });
 

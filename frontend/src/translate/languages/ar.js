@@ -546,6 +546,7 @@ const messages = {
           status: "الحالة",
           active: "نشط",
           inactive: "غير نشط",
+          empty: "لم يتم العثور على حملات عبارات",
         },
         modal: {
           editTitle: "تحرير حملة تدفق بالعبارة",
@@ -555,6 +556,10 @@ const messages = {
           flowPlaceholder: "اختر تدفقًا",
           connectionPlaceholder: "اختر اتصالًا",
           phraseLabel: "أي عبارة تشغل التدفق؟",
+          matchTypeLabel: "نوع المطابقة",
+          matchTypeExact: "مطابقة تامة",
+          matchTypeContains: "يحتوي على الكلمة",
+          matchTypeTooltip: "تامة: يجب أن تطابق الرسالة الكلمة تمامًا. يحتوي: يمكن أن تظهر الكلمة في أي مكان في الرسالة",
           statusLabel: "الحالة",
           cancelButton: "إلغاء",
           saveButton: "حفظ الحملة",

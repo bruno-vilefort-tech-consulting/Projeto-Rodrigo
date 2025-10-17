@@ -37,7 +37,7 @@ import {
 } from "@material-ui/core";
 import { AuthContext } from "../../context/Auth/AuthContext";
 import ConfirmationModal from "../ConfirmationModal";
-import { Autocomplete, Checkbox, Chip, Stack } from "@mui/material";
+import { Autocomplete, Checkbox, Chip, Stack, RadioGroup, FormControlLabel, Radio } from "@mui/material";
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -90,7 +90,9 @@ const CampaignModalPhrase = ({ open, onClose, FlowCampaignId, onSave, defaultWha
     phrase: false
   });
 
-  const [flowSelected, setFlowSelected] = useState();
+  const [matchType, setMatchType] = useState("contains");
+
+  const [flowSelected, setFlowSelected] = useState(null);
   const [flowsData, setFlowsData] = useState([]);
   const [flowsDataComplete, setFlowsDataComplete] = useState([]);
 
@@ -130,6 +132,7 @@ const CampaignModalPhrase = ({ open, onClose, FlowCampaignId, onSave, defaultWha
         name: res.data.details.name,
         phrase: res.data.details.phrase
       });
+      setMatchType(res.data.details.matchType || "exact");
       setActive(res.data.details.status)
       const nameFlow = flows.filter(
         itemFlows => itemFlows.id === res.data.details.flowId
@@ -194,14 +197,14 @@ const CampaignModalPhrase = ({ open, onClose, FlowCampaignId, onSave, defaultWha
   };
 
   const clearData = () => {
-    setFlowSelected();
+    setFlowSelected(null);
     setDataItem({
       name: "",
       phrase: ""
     });
   };
 
-  const applicationSaveAndEdit = () => {
+  const applicationSaveAndEdit = async () => {
     let error = 0;
     if (dataItem.name === "" || dataItem.name.length === 0) {
       setDataItemError(old => ({ ...old, name: true }));
@@ -229,30 +232,35 @@ const CampaignModalPhrase = ({ open, onClose, FlowCampaignId, onSave, defaultWha
 
     const whatsappId = selectedWhatsapp !== "" ? selectedWhatsapp : null
 
-    if (FlowCampaignId) {
-      api.put("/flowcampaign", {
-        id: FlowCampaignId,
-        name: dataItem.name,
-        flowId: idFlow,
-        whatsappId: whatsappId,
-        phrase: dataItem.phrase,
-        status: active
-      })
+    try {
+      if (FlowCampaignId) {
+        await api.put("/flowcampaign", {
+          id: FlowCampaignId,
+          name: dataItem.name,
+          flowId: idFlow,
+          whatsappId: whatsappId,
+          phrase: dataItem.phrase,
+          status: active,
+          matchType: matchType
+        });
+        toast.success(i18n.t("campaignsPhrase.phraseUpdated"));
+      } else {
+        await api.post("/flowcampaign", {
+          name: dataItem.name,
+          flowId: idFlow,
+          whatsappId: whatsappId,
+          phrase: dataItem.phrase,
+          status: active,
+          matchType: matchType
+        });
+        toast.success(i18n.t("campaignsPhrase.phraseCreated"));
+      }
+
       onClose();
-      onSave('ok');
-      toast.success(i18n.t("campaignsPhrase.phraseUpdated"));
       clearData();
-    } else {
-      api.post("/flowcampaign", {
-        name: dataItem.name,
-        flowId: idFlow,
-        whatsappId: whatsappId,
-        phrase: dataItem.phrase
-      });
-      onClose();
       onSave('ok');
-      toast.success(i18n.t("campaignsPhrase.phraseCreated"));
-      clearData();
+    } catch (err) {
+      toastError(err);
     }
   };
 
@@ -288,7 +296,7 @@ const CampaignModalPhrase = ({ open, onClose, FlowCampaignId, onSave, defaultWha
                   label={""}
                   name="text"
                   variant="outlined"
-                  error={dataItemError.name}
+                  error={dataItemError.name || undefined}
                   defaultValue={dataItem.name}
                   margin="dense"
                   onChange={e => {
@@ -307,9 +315,7 @@ const CampaignModalPhrase = ({ open, onClose, FlowCampaignId, onSave, defaultWha
                 <Autocomplete
                   disablePortal
                   id="combo-box-demo"
-                  value={flowSelected}
-                  error={dataItemError.flowId}
-                  defaultValue={flowSelected}
+                  value={flowSelected || null}
                   options={flowsData}
                   onChange={(event, newValue) => {
                     setFlowSelected(newValue);
@@ -318,7 +324,7 @@ const CampaignModalPhrase = ({ open, onClose, FlowCampaignId, onSave, defaultWha
                   renderInput={params => (
                     <TextField
                       {...params}
-                      error={dataItemError.flowId}
+                      error={dataItemError.flowId || undefined}
                       variant="outlined"
                       style={{ width: "100%" }}
                       placeholder={i18n.t("campaignsPhrase.modal.flowPlaceholder")}
@@ -389,7 +395,7 @@ const CampaignModalPhrase = ({ open, onClose, FlowCampaignId, onSave, defaultWha
                   label={""}
                   name="text"
                   variant="outlined"
-                  error={dataItemError.phrase}
+                  error={dataItemError.phrase || undefined}
                   defaultValue={dataItem.phrase}
                   margin="dense"
                   onChange={e => {
@@ -402,6 +408,27 @@ const CampaignModalPhrase = ({ open, onClose, FlowCampaignId, onSave, defaultWha
                   className={classes.textField}
                   style={{ width: "100%" }}
                 />
+              </Stack>
+              <Stack gap={1}>
+                <Typography>{i18n.t("campaignsPhrase.modal.matchTypeLabel")}</Typography>
+                <RadioGroup
+                  value={matchType}
+                  onChange={(e) => setMatchType(e.target.value)}
+                >
+                  <FormControlLabel
+                    value="exact"
+                    control={<Radio />}
+                    label={i18n.t("campaignsPhrase.modal.matchTypeExact")}
+                  />
+                  <FormControlLabel
+                    value="contains"
+                    control={<Radio />}
+                    label={i18n.t("campaignsPhrase.modal.matchTypeContains")}
+                  />
+                </RadioGroup>
+                <Typography variant="caption" color="textSecondary">
+                  {i18n.t("campaignsPhrase.modal.matchTypeTooltip")}
+                </Typography>
               </Stack>
               <Stack direction={'row'} gap={2}>
                 <Stack justifyContent={'center'}>

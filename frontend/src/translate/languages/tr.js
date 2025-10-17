@@ -1986,6 +1986,7 @@ const messages = {
           status: "Durum",
           active: "Aktif",
           inactive: "Devre Dışı",
+          empty: "Kelime kampanyası bulunamadı",
         },
         modal: {
           editTitle: "Kelime akışlı kampanyayı düzenle",
@@ -1995,6 +1996,10 @@ const messages = {
           flowPlaceholder: "Bir akış seçin",
           connectionPlaceholder: "Bir Bağlantı Seçin",
           phraseLabel: "Hangi kelime akışı tetikler?",
+          matchTypeLabel: "Eşleşme türü",
+          matchTypeExact: "Tam Eşleşme",
+          matchTypeContains: "Kelimeyi içerir",
+          matchTypeTooltip: "Tam: mesaj kelimeyle tam olarak eşleşmeli. İçerir: kelime mesajın herhangi bir yerinde görünebilir",
           statusLabel: "Durum",
           cancelButton: "İptal",
           saveButton: "Kampanyayı kaydet",

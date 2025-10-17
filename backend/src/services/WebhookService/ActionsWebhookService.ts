@@ -197,6 +197,13 @@ export const ActionsWebhookService = async (
       let nodeSelected: any;
       let ticketInit: Ticket;
 
+      // ✅ Carregar ticket se idTicket fornecido e ticket ainda é null
+      if (idTicket && !ticket) {
+        ticket = await Ticket.findOne({
+          where: { id: idTicket, whatsappId, companyId }
+        });
+      }
+
       if (pressKey) {
         console.log("UPDATE2...");
         if (pressKey === "parar") {
@@ -355,6 +362,7 @@ export const ActionsWebhookService = async (
         await ticket.update({
           userId: null,
           companyId: companyId,
+          flowWebhook: false,                     // ✅ CRITICAL: Permite múltiplas perguntas
           lastFlowId: nodeSelected.id,
           hashFlowId: hashWebhookId,
           flowStopped: idFlowDb.toString()

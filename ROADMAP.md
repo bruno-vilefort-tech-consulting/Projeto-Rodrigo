@@ -1,377 +1,159 @@
-# 🗺️ ROADMAP - Debug Kanban: Movimento Indevido para Lane "Retorno"
+# DEBUG SESSION - FlowBuilder Multiple Questions
 
-**Data:** 2025-10-17
-**Problema:** Tickets movem IMEDIATAMENTE para lane "Retorno" após admin enviar mensagem, ao invés de seguir fluxo configurado (timeLane → nextLaneId)
-
----
-
-## 📋 HISTÓRICO DE TENTATIVAS
-
-### **Tentativa 1: Implementar Flag allowAutomaticMove**
-**Objetivo:** Prevenir movimento automático quando cliente responde
-
-**Implementação:**
-- ✅ Migration: Adicionado campo `allowAutomaticMove` boolean (default: true)
-- ✅ Model Ticket: Campo adicionado
-- ✅ StartLaneTimerService: Define `allowAutomaticMove = true` quando admin envia
-- ✅ HandleCustomerResponseService: Define `allowAutomaticMove = false` quando cliente responde
-- ✅ ProcessExpiredLaneTimersJob: Filtra por `allowAutomaticMove = true`
-- ✅ MoveTicketLaneService: Reseta `allowAutomaticMove = true` após movimento
-
-**Status:** ✅ Implementado mas problema persiste
+## Status Atual
+**Data:** 2025-10-17 11:27
+**Problema:** Sistema envia primeira pergunta 2x ao inves de segunda pergunta
+**Causa:** Resposta "Teste 2" e tratada como palavra-chave de nova campanha
 
 ---
 
-### **Tentativa 2: Debug Logs Completos**
-**Objetivo:** Identificar onde ocorre a falha no fluxo
+## Analise dos Logs
 
-**Implementação:**
-- ✅ Logs detalhados em CreateMessageService
-- ✅ Logs detalhados em StartLaneTimerService
-- ✅ Logs detalhados em HandleCustomerResponseService
-- ✅ ROADMAP de debug criado
+### Fluxo Atual (INCORRETO)
 
-**Descoberta 1 - Duplicação de Mensagens:**
-```
-║ Message ID: 677 (12:36:35.193) ← PRIMEIRA CHAMADA
-║ Message ID: 678 (12:36:35.000) ← SEGUNDA CHAMADA (MESMO WID!)
-```
+1. OK - Usuario envia "Teste"
+2. OK - Sistema identifica como palavra-chave
+3. OK - Campanha disparada, primeira pergunta enviada: "Teste"
+4. ERRO - Usuario responde "Teste 2"
+5. ERRO - Sistema identifica "Teste 2" como palavra-chave
+6. ERRO - Nova campanha disparada (ao inves de processar resposta)
+7. ERRO - Primeira pergunta "Teste" enviada novamente
 
-**Descoberta 2 - Timer Muito Curto:**
-```
-timeLane: 0.004166666666666667 minutos = 0.25 SEGUNDOS!
-```
+### Logs Criticos
 
-**Status:** 🔍 Problemas identificados
+```
+[FLOW] Mensagem "Teste 2" e palavra-chave de campanha, pulando processamento de pergunta
+[FLOW CAMPAIGN] Nova campanha disparada por frase "Teste 2"
+```
 
 ---
 
-### **Tentativa 3: Corrigir Duplicação e Valores de timeLane**
-**Objetivo:** Eliminar duplicação de mensagens e corrigir timers
+## Causa Raiz
 
-**Implementação:**
-- ✅ CreateMessageService: Verificação anti-duplicação antes de upsert
-- ✅ Banco: Índice UNIQUE em (wid, companyId)
-- ✅ Banco: 11 mensagens duplicadas removidas
-- ✅ Banco: timeLane corrigido (Start: 1440min, Dia 01: 1440min, Dia 2: 1440min)
+O problema esta na ordem de verificacao dentro do bloco `isQuestion`:
 
-**SQL Executado:**
-```sql
--- Anti-duplicação
-CREATE UNIQUE INDEX "Messages_wid_companyId_unique"
-ON "Messages" (wid, "companyId");
-
--- Correção timeLane
-UPDATE "Tags"
-SET "timeLane" = CASE
-  WHEN name = 'Start' THEN 1440
-  WHEN name = 'Dia 01' THEN 1440
-  WHEN name = 'Dia 2' THEN 1440
-  ELSE "timeLane"
-END
-WHERE "companyId" = 1 AND kanban = 1;
-```
-
-**Status:** ✅ Executado, duplicação resolvida, mas movimento para Retorno persiste
-
----
-
-## 🚨 ANÁLISE LOGS - TENTATIVA 3
-
-### **Log do Admin Enviando Mensagem (12:49:58):**
-
-```
-╔════════════════════════════════════════════════════════════
-║ 🔍 KANBAN DEBUG - CreateMessageService
-║ Message ID:       679
-║ Ticket ID:        84
-║ fromMe:           true ✅
-║ Decisão: StartLaneTimerService ✅
-╚════════════════════════════════════════════════════════════
-
-╔════════════════════════════════════════════════════════════
-║ ⏰ START LANE TIMER
-║ Ticket ID:        84
-║ Lane:             Start (ID: 2) ✅
-║ timeLane:         1440 minutos ✅
-║ nextLaneId:       3 ✅
-║ rollbackLaneId:   5
-║ Timer:
-║   - Iniciado em:  2025-10-17T12:49:58.101Z
-║   - Moverá em:    2025-10-18T12:49:58.101Z (24h depois) ✅
-║ allowAutomaticMove: true ✅
-╚════════════════════════════════════════════════════════════
-
-✅ Anti-duplicação funcionando:
-⚠️ [CreateMessageService] Mensagem já existe (wid: 3EB0BCF22B8AE51594507A, id: 679), retornando existente
-```
-
-**✅ Tudo correto até aqui!**
-
-### **Log do Cron (12:50:00 - 2 SEGUNDOS DEPOIS):**
-
-```
-INFO [17-10-2025 09:50:00]: [KANBAN] Tickets encontrados para empresa 1: 1
-INFO [17-10-2025 09:50:00]: [KANBAN] Ticket 84 - TagID: 5 - TimeLane: 0h - NextLaneId: null
-INFO [17-10-2025 09:50:00]: [KANBAN] ⚠️ Ticket 84 não tem configuração válida
-```
-
-**❌ TICKET JÁ ESTÁ NA LANE 5 (RETORNO)!**
-
----
-
-## 🔎 HIPÓTESE 4: Movimento IMEDIATO entre StartLaneTimer e Cron
-
-**Timeline:**
-1. **12:49:58.101** - StartLaneTimer define: lane Start (ID: 2), timer 24h
-2. **??? ALGO ACONTECE ???**
-3. **12:50:00** - Ticket já está em lane Retorno (ID: 5)
-
-**Possíveis Causas:**
-
-### **A) wbotMessageListener está movendo o ticket**
-- Após processar a mensagem, há algum código que move ticket?
-- Há listeners de Socket.IO que disparam movimento?
-
-### **B) Evento duplicado está chamando HandleCustomerResponseService**
-- Segunda chamada CreateMessageService pode estar processando como "cliente respondeu"?
-- Logs mostram apenas StartLaneTimer, mas pode haver chamada oculta
-
-### **C) MoveTicketLaneService sendo chamado diretamente**
-- Algum código frontend ou backend está movendo ticket para Retorno?
-- Há webhook ou integração externa disparando movimento?
-
-### **D) TicketTag está sendo atualizado fora do fluxo**
-- Algum código atualiza TicketTag diretamente sem passar por MoveTicketLaneService?
-
----
-
-## 🛠️ TENTATIVA 4: Investigação Profunda
-
-### **Ação 1: Adicionar Logs de Movimento de Ticket**
-
-Vamos adicionar logs em **MoveTicketLaneService** para rastrear QUEM e QUANDO move o ticket:
-
-**Arquivo:** `backend/src/services/TicketServices/MoveTicketLaneService.ts`
-
+**Codigo Atual (linha 4727-4748):**
 ```typescript
-// Log no início do serviço
-console.log(`
-╔════════════════════════════════════════════════════════════
-║ 🔄 MOVE TICKET LANE
-╠════════════════════════════════════════════════════════════
-║ Timestamp:        ${new Date().toISOString()}
-║ Ticket ID:        ${ticketId}
-║ From Lane:        ${currentLane?.name || 'N/A'} (ID: ${currentLane?.id || 'N/A'})
-║ To Lane ID:       ${toLaneId}
-║ Send Greeting:    ${sendGreeting}
-║
-║ 📍 STACK TRACE:
-║ ${new Error().stack?.split('\n').slice(1, 6).join('\n║ ')}
-╚════════════════════════════════════════════════════════════
-`);
-```
+if (!isNil(flow) && isQuestion && !msg.key.fromMe) {
+  const body = getBodyMessage(msg);
 
-### **Ação 2: Verificar Chamadas Diretas a TicketTag.update**
+  // Busca campanhas
+  const listPhraseForCheck = await FlowCampaignModel.findAll({...});
 
-Buscar no código por atualizações diretas de TicketTag que não passam por MoveTicketLaneService:
+  // Verifica se e palavra-chave
+  const isCampaignKeyword = listPhraseForCheck.filter(...).length > 0;
 
-```bash
-grep -r "TicketTag.*update" backend/src --include="*.ts" | grep -v "MoveTicketLaneService"
-```
-
-### **Ação 3: Verificar HandleCustomerResponseService sendo chamado incorretamente**
-
-Adicionar log ANTES da condição em CreateMessageService:
-
-```typescript
-// Antes do if (message.fromMe)
-console.log(`🔍 [CreateMessageService] ANTES DE DECIDIR:`, {
-  messageId: message.id,
-  fromMe: message.fromMe,
-  ticketImported: messageData?.ticketImported,
-  isPrivate: message.isPrivate,
-  willProcessKanban: !messageData?.ticketImported && !message.isPrivate && message.ticketId
-});
-```
-
-### **Ação 4: Verificar Eventos Socket.IO que Disparam Movimento**
-
-Buscar por listeners Socket.IO no backend que podem mover tickets:
-
-```bash
-grep -r "socket.*on\|io.*on" backend/src --include="*.ts" | grep -i "ticket\|lane\|tag"
-```
-
----
-
-## 📊 PRÓXIMOS PASSOS
-
-### **Executar Agora:**
-1. ✅ Criar este ROADMAP.md
-2. 🔄 Adicionar logs em MoveTicketLaneService
-3. 🔄 Buscar chamadas diretas a TicketTag
-4. 🔄 Verificar eventos Socket.IO
-5. 🔄 Reproduzir problema e analisar novos logs
-
-### **Critérios de Sucesso:**
-- [ ] Identificar EXATAMENTE quem chama o movimento para Retorno
-- [ ] Ver stack trace completo da chamada
-- [ ] Entender POR QUE está sendo chamado 2s após StartLaneTimer
-- [ ] Corrigir a origem do problema
-
----
-
-## 📝 CONFIGURAÇÃO ATUAL
-
-### **Lanes Configuradas:**
-```
-ID: 2 | Start       | timeLane: 1440min | nextLaneId: 3 | rollbackLaneId: 5
-ID: 3 | Dia 01      | timeLane: 1440min | nextLaneId: 4 | rollbackLaneId: 5
-ID: 4 | Dia 2       | timeLane: 1440min | nextLaneId: 6 | rollbackLaneId: 5
-ID: 5 | Retorno     | timeLane: 0       | nextLaneId: - | rollbackLaneId: -
-ID: 6 | Remarketing | timeLane: 0       | nextLaneId: - | rollbackLaneId: -
-```
-
-### **Fluxo Esperado:**
-```
-Admin envia → Start (24h timer) → Dia 01 (24h timer) → Dia 2 (24h timer) → Remarketing
-                ↓ se cliente responde
-              Retorno (sem auto-move)
-```
-
-### **Fluxo Atual (BUG):**
-```
-Admin envia → Start → ??? ALGO ??? → Retorno (IMEDIATO!)
-```
-
----
-
-## 🔧 ARQUIVOS MODIFICADOS ATÉ AGORA
-
-### **Backend:**
-- `src/database/migrations/20251017091834-add-allowAutomaticMove-to-Tickets.ts` ✅
-- `src/models/Ticket.ts` ✅
-- `src/services/TicketServices/StartLaneTimerService.ts` ✅
-- `src/services/TicketServices/HandleCustomerResponseService.ts` ✅
-- `src/services/TicketServices/ProcessExpiredLaneTimersJob.ts` ✅
-- `src/services/TicketServices/MoveTicketLaneService.ts` ✅
-- `src/services/MessageServices/CreateMessageService.ts` ✅
-
-### **Database:**
-- Migration `allowAutomaticMove` executada ✅
-- Índice UNIQUE `Messages_wid_companyId_unique` criado ✅
-- 11 mensagens duplicadas removidas ✅
-- timeLane corrigido (Start: 1440, Dia 01: 1440, Dia 2: 1440) ✅
-
----
-
----
-
-## 🛠️ TENTATIVA 4: Investigação Profunda e Solução
-
-### **Ação 1: Stack Trace em MoveTicketLaneService**
-**Status:** ✅ Implementado
-
-Adicionado log com stack trace completo no início de MoveTicketLaneService para rastrear origem das chamadas.
-
-### **Ação 2: Buscar Chamadas Diretas a TicketTag**
-**Status:** ✅ Executado
-
-Descoberto múltiplas manipulações diretas de TicketTag:
-- `queues.ts`
-- `TicketTagController.ts`
-- **`wbotMessageListener.ts` ← PROBLEMA ENCONTRADO!**
-
-### **Ação 3: Análise de wbotMessageListener.ts**
-**Status:** ✅ CAUSA RAIZ IDENTIFICADA
-
-**Código Problemático (linhas 4368-4391):**
-```typescript
-if (
-  rollbackTag &&
-  formatBody(bodyNextTag, ticket) !== bodyMessage &&
-  formatBody(bodyRollbackTag, ticket) !== bodyMessage
-) {
-  // ❌ Move DIRETO para rollbackTag sem passar por MoveTicketLaneService!
-  await TicketTag.destroy({...});
-  await TicketTag.create({
-    ticketId: ticket.id,
-    tagId: rollbackTag.id  // <- MOVE PARA RETORNO IMEDIATAMENTE!
-  });
+  if (isCampaignKeyword) {
+    console.log(`Mensagem e palavra-chave de campanha, pulando`);
+    // NAO processar como resposta <-- AQUI ESTA O ERRO
+  }
 }
 ```
 
-**Explicação do Bug:**
-1. Admin envia mensagem → StartLaneTimer inicia (lane Start, timer 24h) ✅
-2. `wbotMessageListener` recebe a MESMA mensagem
-3. Verifica condições:
-   - Tem rollbackTag? **SIM** (ID: 5 - Retorno)
-   - Mensagem não é greeting de nextTag? **SIM**
-   - Mensagem não é greeting de rollbackTag? **SIM**
-4. **MOVE DIRETO PARA ROLLBACKTAG (Retorno)!** ❌
-
-**Conflito:** Código antigo competindo com novo sistema de automação (StartLaneTimer/HandleCustomerResponse)
-
-### **Solução Aplicada:**
-✅ Desabilitado código antigo em `wbotMessageListener.ts` (linhas 4368-4393)
-✅ Adicionado log explicativo
-✅ Sistema agora usa APENAS StartLaneTimerService/HandleCustomerResponseService
+**Problema:**
+- Sistema verifica se mensagem e palavra-chave DENTRO do bloco isQuestion
+- Se for palavra-chave, pula processamento
+- Depois cai no bloco de Campaign (linha 3780) e dispara NOVA campanha
+- Resultado: Resposta a pergunta e tratada como novo disparo
 
 ---
 
-## 🆘 STATUS ATUAL
+## Solucao
 
-**Problema:** ✅ **RESOLVIDO!**
+### Opcao 1: Priorizar Contexto de Pergunta
+Se ticket esta em contexto de pergunta (`isQuestion = true`), **SEMPRE** processar como resposta, **NUNCA** como palavra-chave.
 
-**Causa Raiz:** Código antigo em `wbotMessageListener.ts` movia tickets para rollbackTag imediatamente, conflitando com novo sistema de automação baseado em timers.
+**Logica correta:**
+- Se `isQuestion = true` E `lastFlowId != null` → SEMPRE e resposta, mesmo que seja palavra-chave
+- Palavra-chave so deve disparar quando NAO esta em contexto de pergunta
 
-**Solução:** Desabilitado lógica antiga, usando apenas novo sistema (StartLaneTimer/HandleCustomerResponse).
-
-**Próximo Passo:** Testar fluxo completo e validar funcionamento correto.
+### Opcao 2: Remover Verificacao de Palavra-Chave do Bloco isQuestion
+Simplesmente processar como resposta quando esta em isQuestion, sem verificar palavra-chave.
 
 ---
 
-## 🧪 TESTE FINAL
+## Correcao a Aplicar
 
-### **Como Testar:**
-1. Reiniciar backend: `npm run dev`
-2. Mover ticket para lane "Start"
-3. Admin envia mensagem
-4. Verificar logs:
-   - ✅ StartLaneTimer deve iniciar (1440 min)
-   - ✅ Ticket deve PERMANECER em "Start"
-   - ✅ Log: "Lógica antiga de rollbackTag DESABILITADA"
-5. Aguardar timer expirar (ou ajustar para 1 min para teste)
-6. Ticket deve mover: Start → Dia 01 → Dia 2 → Remarketing
-7. Se cliente responder: mover para Retorno e bloquear auto-move
+**Remover verificacao de palavra-chave do bloco isQuestion:**
 
-### **Logs Esperados:**
-```
-╔════════════════════════════════════════════════════════════
-║ ⏰ START LANE TIMER
-║ Lane:             Start (ID: 2)
-║ timeLane:         1440 minutos
-║ nextLaneId:       3
-║ allowAutomaticMove: true ✅
-╚════════════════════════════════════════════════════════════
+```typescript
+if (!isNil(flow) && isQuestion && !msg.key.fromMe) {
+  const body = getBodyMessage(msg);
 
-🔇 [wbotMessageListener] Lógica antiga de rollbackTag DESABILITADA
+  // NAO verificar palavra-chave aqui!
+  // Se esta em isQuestion, SEMPRE e resposta
+
+  console.log("|============= QUESTION =============|", JSON.stringify(flow, null, 4));
+
+  if (body) {
+    // Processar resposta normalmente...
+  }
+}
 ```
 
 ---
 
-## 📊 ARQUIVOS MODIFICADOS - TENTATIVA 4
+## Plano de Acao
 
-### **Backend:**
-- ✅ `src/services/WbotServices/wbotMessageListener.ts` (linhas 4368-4395)
-  - Desabilitado lógica antiga de movimento para rollbackTag
-  - Adicionado log explicativo
-
-- ✅ `src/services/TicketServices/MoveTicketLaneService.ts` (linhas 26-54)
-  - Adicionado log com stack trace completo
-  - Rastreamento de origem das chamadas
+- [x] Remover verificacao de palavra-chave do bloco isQuestion (linha 4736-4745) ✅
+- [x] Simplificar: Se isQuestion = true, sempre processar como resposta ✅
+- [ ] Testar: "Teste" -> responder "Teste 2" -> deve avancar para segunda pergunta
+- [ ] Validar que palavra-chave so dispara quando NAO esta em pergunta
 
 ---
 
-_Última atualização: 2025-10-17 12:52:00_
+## Correcao Aplicada
+
+**Arquivo:** wbotMessageListener.ts linha 4727-4739
+
+**Mudanca:**
+- Removido bloco de verificacao de palavra-chave (linhas 4730-4757)
+- Simplificada logica: Se isQuestion = true, SEMPRE processar como resposta
+- Nunca verificar se resposta e palavra-chave quando em contexto de pergunta
+
+**Codigo Novo:**
+```typescript
+if (!isNil(flow) && isQuestion && !msg.key.fromMe) {
+  const body = getBodyMessage(msg);
+
+  // SEMPRE processar como resposta quando em contexto de pergunta
+  console.log("|============= QUESTION =============|", JSON.stringify(flow, null, 4));
+
+  if (body) {
+    // Processar resposta normalmente...
+  }
+}
+```
+
+---
+
+## Proximos Passos
+
+1. ✅ Editar wbotMessageListener.ts linha 4727
+2. ✅ Remover bloco de verificacao isCampaignKeyword
+3. ✅ Processar SEMPRE como resposta quando isQuestion = true
+4. ✅ Corrigir ReferenceError: isCampaignKeyword linha 4833
+5. ✅ Corrigir TypeError: Cannot read properties of null - ticket nao carregado
+6. ⏳ Reiniciar backend e testar fluxo completo
+
+---
+
+## Erros Corrigidos
+
+### Erro 1: ReferenceError: isCampaignKeyword is not defined
+**Arquivo:** wbotMessageListener.ts linha 4833
+**Problema:** Referencia restante a variavel removida
+**Solucao:** Removido if (!isCampaignKeyword) e substituido por return direto
+
+### Erro 2: TypeError: Cannot read properties of null (reading 'id')
+**Arquivo:** ActionsWebhookService.ts linha 342
+**Problema:** Variavel ticket inicializada como null e nunca carregada quando idTicket fornecido
+**Solucao:** Adicionado carregamento de ticket no inicio do loop:
+```typescript
+// Linha 200-205
+if (idTicket && !ticket) {
+  ticket = await Ticket.findOne({
+    where: { id: idTicket, whatsappId, companyId }
+  });
+}
+```

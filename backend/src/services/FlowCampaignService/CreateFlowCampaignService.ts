@@ -10,6 +10,8 @@ interface Request {
   flowId: number;
   phrase: string;
   whatsappId: string;
+  matchType?: string;
+  status?: boolean;
 }
 
 const CreateFlowCampaignService = async ({
@@ -18,24 +20,22 @@ const CreateFlowCampaignService = async ({
   companyId,
   phrase,
   whatsappId,
-  flowId
+  flowId,
+  matchType = "contains",
+  status = true
 }: Request): Promise<FlowCampaignModel> => {
-  try {
-    const flow = await FlowCampaignModel.create({
-      userId: userId,
-      companyId: companyId,
-      name: name,
-      phrase: phrase,
-      flowId: flowId,
-      whatsappId: whatsappId
-    });
+  const flow = await FlowCampaignModel.create({
+    userId: userId,
+    companyId: companyId,
+    name: name,
+    phrase: phrase,
+    flowId: flowId,
+    whatsappId: whatsappId,
+    matchType: matchType,
+    status: status
+  });
 
-    return flow;
-  } catch (error) {
-    console.error("Erro ao inserir o usuário:", error);
-
-    return error
-  }
+  return flow;
 };
 
 export default CreateFlowCampaignService;

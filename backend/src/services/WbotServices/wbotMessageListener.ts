@@ -124,6 +124,19 @@ function emitAppMessage(companyId: number, ticketId: number, payload: any) {
   console.log("✅ [wbotMessageListener] Evento emitido com sucesso para namespace /workspace-" + companyId);
 }
 
+// Helper function para matching de frases em campanhas
+const matchPhrase = (phrase: string, body: string, matchType: string = 'exact'): boolean => {
+  const normalizedPhrase = phrase.trim();
+  const normalizedBody = body.trim();
+
+  if (matchType === 'exact') {
+    return normalizedPhrase === normalizedBody;
+  } else if (matchType === 'contains') {
+    return normalizedBody.toLowerCase().includes(normalizedPhrase.toLowerCase());
+  }
+
+  return false;
+};
 
 const HAS_MESSAGE_ID = !!(Message as any)?.rawAttributes?.messageId;
 
@@ -3669,7 +3682,7 @@ if (!fromMe && ticket && chatbotEnabled /* && isFirstContact */) {
 
   if (
     !isFirstMsg &&
-    listPhrase.filter(item => item.phrase === body).length === 0
+    listPhrase.filter(item => matchPhrase(item.phrase, body, item.matchType || 'exact')).length === 0
   ) {
     const flow = await FlowBuilderModel.findOne({
       where: {
@@ -3724,7 +3737,7 @@ if (!fromMe && ticket && chatbotEnabled /* && isFirstContact */) {
   const seisHorasEmMilissegundos = 1000;
 
   if (
-    listPhrase.filter(item => item.phrase === body).length === 0 &&
+    listPhrase.filter(item => matchPhrase(item.phrase, body, item.matchType || 'exact')).length === 0 &&
     diferencaEmMilissegundos >= seisHorasEmMilissegundos &&
     isFirstMsg
   ) {
@@ -3765,8 +3778,8 @@ if (!fromMe && ticket && chatbotEnabled /* && isFirstContact */) {
   }
 
   // Campaign fluxo
-  if (listPhrase.filter(item => item.phrase === body).length !== 0) {
-    const flowDispar = listPhrase.filter(item => item.phrase === body)[0];
+  if (listPhrase.filter(item => matchPhrase(item.phrase, body, item.matchType || 'exact')).length !== 0) {
+    const flowDispar = listPhrase.filter(item => matchPhrase(item.phrase, body, item.matchType || 'exact'))[0];
     const flow = await FlowBuilderModel.findOne({
       where: {
         id: flowDispar.flowId
@@ -3780,6 +3793,25 @@ if (!fromMe && ticket && chatbotEnabled /* && isFirstContact */) {
       name: contact.name,
       email: contact.email
     };
+
+    // ========================================================================
+    // ✅ CORREÇÃO BUG 4: Resetar ticket ao disparar nova campanha por frase
+    // Garante que o fluxo comece limpo, sem dados de execução anterior
+    // ========================================================================
+    await ticket.update({
+      lastFlowId: null,
+      flowWebhook: false,
+      flowStopped: flowDispar.flowId.toString(),
+      dataWebhook: { variables: {} },
+      hashFlowId: null
+    });
+
+    console.log(`[FLOW CAMPAIGN] Nova campanha disparada por frase "${body}":`, {
+      ticketId: ticket.id,
+      flowId: flowDispar.flowId,
+      flowName: flow.name,
+      startNodeId: flow.flow["nodes"][0].id
+    });
 
     //const worker = new Worker("./src/services/WebhookService/WorkerAction.ts");
 
@@ -4693,11 +4725,17 @@ const handleMessage = async (
     }
 
     if (!isNil(flow) && isQuestion && !msg.key.fromMe) {
+      const body = getBodyMessage(msg);
+
+      // ========================================================================
+      // ✅ CORREÇÃO: Quando está em contexto de pergunta (isQuestion = true),
+      // SEMPRE processar como resposta, NUNCA como palavra-chave de campanha
+      // ========================================================================
       console.log(
         "|============= QUESTION =============|",
         JSON.stringify(flow, null, 4)
       );
-      const body = getBodyMessage(msg);
+
       if (body) {
         const nodes: INodes[] = flow.flow["nodes"];
         const nodeSelected = flow.flow["nodes"].find(
@@ -4744,8 +4782,13 @@ const handleMessage = async (
         // ========================================================================
         // ✅ CORREÇÃO BUG 2: Merge de variáveis (preserva valores anteriores)
         // ========================================================================
+        // ========================================================================
+        // ✅ CORREÇÃO BUG 3: flowWebhook false para múltiplas perguntas
+        // Garante que próxima mensagem seja processada como pergunta, não menu
+        // ========================================================================
         await ticket.update({
           lastFlowId: lastFlowId,
+          flowWebhook: false,                     // ✅ CRITICAL: Permite múltiplas perguntas
           dataWebhook: {
             ...oldDataWebhook,                    // ✅ Preserva dados anteriores
             flowWebhook: nodeSelected.data?.id,
@@ -4786,6 +4829,7 @@ const handleMessage = async (
         );
       }
 
+      // ✅ Sempre retornar após processar pergunta (nunca cair no bloco de Campaign)
       return;
     }
 

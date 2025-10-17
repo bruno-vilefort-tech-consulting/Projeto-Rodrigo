@@ -139,10 +139,15 @@ const CampaignsPhrase = () => {
 
   const getCampaigns =  async() => {
     setLoading(true);
-    await api.get("/flowcampaign").then(res => {
-      setCampaignFlows(res.data.flow);
+    try {
+      const res = await api.get("/flowcampaign");
+      setCampaignFlows(res.data.flow || []);
       setLoading(false);
-    });
+    } catch (err) {
+      console.error("Error fetching campaigns:", err);
+      setCampaignFlows([]);
+      setLoading(false);
+    }
   };
 
   const onSaveModal = () => {
@@ -243,7 +248,7 @@ const CampaignsPhrase = () => {
             </Grid>
           </Grid>
           <>
-            {!loading &&
+            {!loading && Array.isArray(campaignflows) &&
               campaignflows.map(flow => (
                 <Grid
                   container
@@ -314,6 +319,16 @@ const CampaignsPhrase = () => {
                 minHeight={"50vh"}
               >
                 <CircularProgress />
+              </Stack>
+            )}
+            {!loading && (!campaignflows || campaignflows.length === 0) && (
+              <Stack
+                justifyContent={"center"}
+                alignItems={"center"}
+                minHeight={"30vh"}
+                style={{ color: colorTopTable() }}
+              >
+                {i18n.t("campaignsPhrase.table.empty")}
               </Stack>
             )}
           </>

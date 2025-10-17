@@ -24,20 +24,37 @@ export const createFlowCampaign = async (
   req: Request,
   res: Response
 ): Promise<Response> => {
-  const { name, flowId, phrase, whatsappId } = req.body;
-  const userId = parseInt(req.user.id);
-  const { companyId } = req.user;
+  try {
+    const { name, flowId, phrase, whatsappId, matchType, status } = req.body;
+    const userId = parseInt(req.user.id);
+    const { companyId } = req.user;
 
-  const flow = await CreateFlowCampaignService({
-    userId,
-    name,
-    companyId,
-    flowId,
-    whatsappId,
-    phrase
-  });
+    console.log("Creating FlowCampaign with data:", {
+      name, flowId, phrase, whatsappId, matchType, status, userId, companyId
+    });
 
-  return res.status(200).json(flow);
+    const flow = await CreateFlowCampaignService({
+      userId,
+      name,
+      companyId,
+      flowId,
+      whatsappId,
+      phrase,
+      matchType,
+      status
+    });
+
+    console.log("FlowCampaign created successfully:", flow.id);
+
+    return res.status(200).json(flow);
+  } catch (error) {
+    console.error("Error creating FlowCampaign:", error);
+    return res.status(500).json({
+      error: "Erro ao criar campanha",
+      message: error.message,
+      details: error
+    });
+  }
 };
 
 export const flowCampaigns = async (
@@ -77,9 +94,9 @@ export const updateFlowCampaign = async (
   res: Response
 ): Promise<Response> => {
   const { companyId } = req.user;
-  const { flowId, name, phrase, id, status } = req.body;
+  const { flowId, name, phrase, id, status, matchType } = req.body;
 
-  const flow = await UpdateFlowCampaignService({ companyId, name, flowId, phrase, id, status });
+  const flow = await UpdateFlowCampaignService({ companyId, name, flowId, phrase, id, status, matchType });
 
   return res.status(200).json(flow);
 };

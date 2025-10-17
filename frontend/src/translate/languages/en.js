@@ -2023,6 +2023,7 @@ const messages = {
           status: "Status",
           active: "Active",
           inactive: "Inactive",
+          empty: "No phrase campaigns found",
         },
         modal: {
           editTitle: "Edit phrase flow campaign",
@@ -2032,6 +2033,10 @@ const messages = {
           flowPlaceholder: "Choose a flow",
           connectionPlaceholder: "Select a Connection",
           phraseLabel: "Which phrase triggers the flow?",
+          matchTypeLabel: "Match type",
+          matchTypeExact: "Exact Match",
+          matchTypeContains: "Contains word",
+          matchTypeTooltip: "Exact: message must exactly match the word. Contains: word can appear anywhere in the message",
           statusLabel: "Status",
           cancelButton: "Cancel",
           saveButton: "Save campaign",

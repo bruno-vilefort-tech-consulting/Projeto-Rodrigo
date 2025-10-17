@@ -1993,6 +1993,7 @@ const messages = {
           status: "Estado",
           active: "Activo",
           inactive: "Desactivado",
+          empty: "No se encontraron campañas por frase",
         },
         modal: {
           editTitle: "Editar campaña con flujo por frase",
@@ -2002,6 +2003,10 @@ const messages = {
           flowPlaceholder: "Elige un flujo",
           connectionPlaceholder: "Selecciona una Conexión",
           phraseLabel: "¿Qué frase dispara el flujo?",
+          matchTypeLabel: "Tipo de coincidencia",
+          matchTypeExact: "Coincidencia Exacta",
+          matchTypeContains: "Contiene la palabra",
+          matchTypeTooltip: "Exacta: el mensaje debe ser igual a la palabra. Contiene: la palabra puede aparecer en cualquier parte del mensaje",
           statusLabel: "Estado",
           cancelButton: "Cancelar",
           saveButton: "Guardar campaña",

@@ -36,6 +36,9 @@ export class FlowCampaignModel extends Model<FlowCampaignModel> {
   @Column
   phrase: string;
 
+  @Column(DataType.STRING(20))
+  matchType: string;
+
   @ForeignKey(() => Whatsapp)
   @Column
   whatsappId: number;

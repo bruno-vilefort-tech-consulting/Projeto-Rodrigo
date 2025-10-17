@@ -14,16 +14,16 @@ interface Response {
 const FlowsCampaignGetDataService = async ({
   companyId,
 }: Request): Promise<Response> => {
-  
+
     try {
-    
+
         // Realiza a consulta com paginação usando findAndCountAll
         const { count, rows } = await FlowCampaignModel.findAndCountAll({
           where: {
             companyId: companyId,
           }
         });
-        
+
         const flowResult = []
         rows.forEach((flow) => {
           flowResult.push(flow.toJSON());
@@ -34,6 +34,9 @@ const FlowsCampaignGetDataService = async ({
         }
       } catch (error) {
         console.error('Erro ao consultar Fluxo:', error);
+        return {
+          flow: []
+        };
       }
 };
 

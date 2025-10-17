@@ -2006,6 +2006,7 @@ const messages = {
           status: "Status",
           active: "Ativo",
           inactive: "Desativado",
+          empty: "Nenhuma campanha por frase encontrada",
         },
         modal: {
           editTitle: "Editar campanha com fluxo por frase",
@@ -2015,6 +2016,10 @@ const messages = {
           flowPlaceholder: "Escolha um fluxo",
           connectionPlaceholder: "Selecione uma Conexão",
           phraseLabel: "Qual frase dispara o fluxo?",
+          matchTypeLabel: "Tipo de correspondência",
+          matchTypeExact: "Correspondência Exata",
+          matchTypeContains: "Contém a palavra",
+          matchTypeTooltip: "Exata: mensagem deve ser igual à palavra. Contém: palavra pode aparecer em qualquer parte da mensagem",
           statusLabel: "Status",
           cancelButton: "Cancelar",
           saveButton: "Salvar campanha",
