@@ -28,9 +28,8 @@ module.exports = {
       // Verifica se empresa padrão (id=1) existe
       const companyExists = await queryInterface.rawSelect(
         "Companies",
-        { where: { id: 1 } },
-        ["id"],
-        { transaction: t }
+        { where: { id: 1 }, transaction: t },
+        ["id"]
       );
 
       if (!companyExists) {
@@ -41,7 +40,7 @@ module.exports = {
       // Verifica se já existem tags Kanban para esta empresa
       const existingKanbanTags = await queryInterface.sequelize.query(
         `SELECT COUNT(*) as count FROM "Tags" WHERE "companyId" = 1 AND "kanban" IS NOT NULL`,
-        { transaction: t, type: queryInterface.sequelize.QueryTypes.SELECT }
+        { transaction: t, type: (queryInterface.sequelize as any).QueryTypes.SELECT }
       );
 
       const count = (existingKanbanTags[0] as any).count;
@@ -116,10 +115,10 @@ module.exports = {
         `SELECT id, name, kanban FROM "Tags"
          WHERE "companyId" = 1 AND "kanban" IS NOT NULL
          ORDER BY "kanban" ASC`,
-        { transaction: t, type: queryInterface.sequelize.QueryTypes.SELECT }
+        { transaction: t, type: (queryInterface.sequelize as any).QueryTypes.SELECT }
       );
 
-      if (tagsCreated.length === 4) {
+      if (tagsCreated.length >= 4) {
         const [novo, emAndamento, aguardando, concluido] = tagsCreated as any[];
 
         // Atualiza nextLaneId para fluxo sequencial

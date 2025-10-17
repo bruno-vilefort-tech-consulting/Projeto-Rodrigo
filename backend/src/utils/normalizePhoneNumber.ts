@@ -32,8 +32,8 @@ export const normalizePhoneNumber = (rawNumber: string, defaultCountry: string =
     }
 
     // Validar com libphonenumber-js
-    if (isValidPhoneNumber(cleaned, defaultCountry)) {
-      const parsed = parsePhoneNumber(cleaned, defaultCountry);
+    if (isValidPhoneNumber(cleaned, defaultCountry as any)) {
+      const parsed = parsePhoneNumber(cleaned, defaultCountry as any);
       return parsed.number; // Retorna E.164 puro (ex: +5511999999999)
     }
 
