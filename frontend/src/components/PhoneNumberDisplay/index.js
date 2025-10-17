@@ -122,8 +122,7 @@ const PhoneNumberDisplay = ({ phoneNumber, style = {} }) => {
                 <Box
                     display="flex"
                     alignItems="center"
-                    gap={1}
-                    style={style}
+                    style={{ ...style, gap: '8px' }}
                 >
                     <ReactCountryFlag
                         countryCode={countryCode}

@@ -210,6 +210,10 @@ class Ticket extends Model<Ticket> {
 
   @Column
   laneNextMoveAt: Date;
+
+  @Default(true)
+  @Column
+  allowAutomaticMove: boolean;
 }
 
 export default Ticket;

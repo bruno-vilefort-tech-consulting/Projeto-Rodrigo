@@ -116,6 +116,14 @@ const useAuth = () => {
           api.defaults.headers.Authorization = `Bearer ${data.token}`;
           setIsAuth(true);
           setUser(data.user);
+
+          // ✅ CORREÇÃO: Salvar user no localStorage para acesso do Socket
+          localStorage.setItem("user", JSON.stringify(data.user));
+
+          console.log("✅ [useAuth] User carregado e salvo no localStorage:", {
+            userId: data.user.id,
+            companyId: data.user.companyId
+          });
         } catch (err) {
           if (!isLoggingOutRef.current) {
             toastError(err);
@@ -223,6 +231,8 @@ const useAuth = () => {
 
       if (before === true) {
         localStorage.setItem("token", data.token);
+        // ✅ CORREÇÃO: Salvar user no localStorage
+        localStorage.setItem("user", JSON.stringify(data.user));
         // localStorage.setItem("public-token", JSON.stringify(data.user.token));
         // localStorage.setItem("companyId", companyId);
         // localStorage.setItem("userId", id);
@@ -231,6 +241,11 @@ const useAuth = () => {
         setUser(data.user);
         setIsAuth(true);
         toast.success(i18n.t("auth.toasts.success"));
+
+        console.log("✅ [useAuth] Login bem-sucedido, user salvo:", {
+          userId: data.user.id,
+          companyId: data.user.companyId
+        });
         if (Math.round(dias) < 5) {
           toast.warn(`Sua assinatura vence em ${Math.round(dias)} ${Math.round(dias) === 1 ? 'dia' : 'dias'} `);
         }
@@ -283,6 +298,7 @@ Entre em contato com o Suporte para mais informações! `);
       setTimezone(null);
       setTimezoneLoading(false);
       localStorage.removeItem("token");
+      localStorage.removeItem("user");  // ✅ CORREÇÃO: Remover user também
       localStorage.removeItem("cshow");
       localStorage.removeItem("profileImage");
       localStorage.removeItem("companyDueDate");

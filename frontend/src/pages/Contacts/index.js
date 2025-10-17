@@ -19,10 +19,12 @@ import Button from "@material-ui/core/Button";
 import Avatar from "@material-ui/core/Avatar";
 import { Facebook, Instagram, WhatsApp } from "@material-ui/icons";
 import SearchIcon from "@material-ui/icons/Search";
+import GroupIcon from "@material-ui/icons/Group";
 
 import TextField from "@material-ui/core/TextField";
 import InputAdornment from "@material-ui/core/InputAdornment";
 import Checkbox from "@material-ui/core/Checkbox"; // Importar Checkbox
+import Box from "@material-ui/core/Box";
 
 import IconButton from "@material-ui/core/IconButton";
 import DeleteOutlineIcon from "@material-ui/icons/DeleteOutline";
@@ -714,13 +716,18 @@ const Contacts = () => {
                                     </TableCell>
                                     <TableCell>{contact.name}</TableCell>
                                     <TableCell align="center">
-                                        {((enableLGPD && hideNum && user.profile === "user")
-                                            ? contact.isGroup
-                                                ? contact.number :
-                                                formatSerializedId(contact?.number) === null ? contact.number.slice(0, -6) + "**-**" + contact?.number.slice(-2) :
-                                                    formatSerializedId(contact?.number)?.slice(0, -6) + "**-**" + contact?.number?.slice(-2) :
-                                            contact.isGroup ? contact.number : <PhoneNumberDisplay phoneNumber={contact?.number} />
-                                        )}
+                                        <Box display="flex" alignItems="center" justifyContent="center" style={{ gap: '8px' }}>
+                                            {contact.isGroup && (
+                                                <GroupIcon style={{ color: '#25D366', fontSize: '1.2em' }} />
+                                            )}
+                                            {((enableLGPD && hideNum && user.profile === "user")
+                                                ? contact.isGroup
+                                                    ? contact.number :
+                                                    formatSerializedId(contact?.number) === null ? contact.number.slice(0, -6) + "**-**" + contact?.number.slice(-2) :
+                                                        formatSerializedId(contact?.number)?.slice(0, -6) + "**-**" + contact?.number?.slice(-2) :
+                                                contact.isGroup ? contact.number : <PhoneNumberDisplay phoneNumber={contact?.number} />
+                                            )}
+                                        </Box>
                                     </TableCell>
                                     <TableCell align="center">
                                         {contact.email}

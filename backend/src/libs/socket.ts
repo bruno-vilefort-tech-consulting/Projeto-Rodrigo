@@ -10,11 +10,35 @@ import jwt from "jsonwebtoken";
 const ALLOWED_NAMESPACES = /^\/workspace-\d+$/;
 
 // Esquemas de validação
-const userIdSchema = z.string().uuid().optional();
-const ticketIdSchema = z.string().uuid();
-const statusSchema = z.enum(["open", "closed", "pending"]);
+// ✅ CORREÇÃO: Aceitar tanto UUID quanto IDs numéricos para compatibilidade
+const userIdSchema = z.union([
+  z.string().uuid(),
+  z.string().regex(/^\d+$/, "ID deve ser UUID ou número"),
+  z.number() // Aceita números diretamente também
+]).optional();
+
+const ticketIdSchema = z.union([
+  z.string().uuid(),
+  z.string().regex(/^\d+$/, "ID deve ser UUID ou número")
+]);
+
+const statusSchema = z.enum(["open", "closed", "pending", "group"]);
+
+// ✅ CORREÇÃO CRÍTICA: JWT contém 'id' numérico, não 'userId' UUID
 const jwtPayloadSchema = z.object({
-  userId: z.string().uuid(),
+  id: z.union([
+    z.number(),  // Aceita número (caso atual)
+    z.string()   // Aceita string (para compatibilidade)
+  ]),
+  userId: z.union([
+    z.string().uuid(),
+    z.string().regex(/^\d+$/),
+    z.number()
+  ]).optional(), // userId é opcional, pois o JWT usa 'id'
+  companyId: z.union([
+    z.number(),
+    z.string()
+  ]).optional(),
   iat: z.number().optional(),
   exp: z.number().optional(),
 });
@@ -63,18 +87,42 @@ export const initIO = (httpServer: Server): SocketIO => {
   // Middleware de autenticação JWT
   io.use((socket, next) => {
     const token = socket.handshake.query.token as string;
+    const userId = socket.handshake.query.userId;
+
+    logger.info("🔐 [Socket Auth] Tentativa de autenticação:", {
+      hasToken: !!token,
+      userId: userId,
+      namespace: socket.nsp.name
+    });
+
     if (!token) {
-      logger.warn("Tentativa de conexão sem token");
+      logger.warn("❌ [Socket Auth] Tentativa de conexão sem token");
       return next(new SocketCompatibleAppError("Token ausente", 401));
     }
 
     try {
       const decoded = jwt.verify(token, process.env.JWT_SECRET || "default_secret");
+
+      logger.info("🔍 [Socket Auth] Token decodificado:", {
+        id: (decoded as any).id,
+        companyId: (decoded as any).companyId,
+        profile: (decoded as any).profile
+      });
+
       const validatedPayload = jwtPayloadSchema.parse(decoded);
       socket.data.user = validatedPayload;
+
+      logger.info("✅ [Socket Auth] Autenticação bem-sucedida:", {
+        userId: validatedPayload.id,
+        companyId: validatedPayload.companyId
+      });
+
       next();
     } catch (err) {
-      logger.warn("Token inválido");
+      logger.error("❌ [Socket Auth] Falha na autenticação:", {
+        error: err instanceof Error ? err.message : String(err),
+        tokenSample: token ? token.substring(0, 20) + "..." : "no token"
+      });
       return next(new SocketCompatibleAppError("Token inválido", 401));
     }
   });
@@ -113,69 +161,95 @@ export const initIO = (httpServer: Server): SocketIO => {
   workspaces.on("connection", (socket) => {
     const clientIp = socket.handshake.address;
 
-    // Valida userId
-    let userId: string | undefined;
+    // Valida userId (mais flexível)
+    let userId: string | number | undefined;
+    const rawUserId = socket.handshake.query.userId;
+
+    logger.info("🔍 [Socket Connection] Validando userId:", {
+      rawUserId,
+      type: typeof rawUserId,
+      namespace: socket.nsp.name
+    });
+
     try {
-      userId = userIdSchema.parse(socket.handshake.query.userId);
+      // Se userId não foi enviado, é opcional, então apenas continue
+      if (rawUserId) {
+        userId = userIdSchema.parse(rawUserId);
+      }
     } catch (error) {
-      socket.disconnect(true);
-      logger.warn(`userId inválido de ${clientIp}`);
-      return;
+      logger.warn(`⚠️ [Socket Connection] userId inválido mas continuando conexão:`, {
+        userId: rawUserId,
+        error: error instanceof Error ? error.message : String(error),
+        clientIp
+      });
+      // NÃO desconectar - deixar continuar mesmo sem userId válido
+      // socket.disconnect(true);
+      // return;
     }
 
-    logger.info(`Cliente conectado ao namespace ${socket.nsp.name} (IP: ${clientIp})`);
+    logger.info(`✅ [Socket Connection] Cliente conectado:`, {
+      namespace: socket.nsp.name,
+      clientIp,
+      userId,
+      socketId: socket.id
+    });
 
-    socket.on("joinChatBox", (ticketId: string, callback: (error?: string) => void) => {
+    // ✅ CORREÇÃO: Callback opcional
+    socket.on("joinChatBox", (ticketId: string, callback?: (error?: string) => void) => {
       try {
         const validatedTicketId = ticketIdSchema.parse(ticketId);
         socket.join(validatedTicketId);
         logger.info(`Cliente entrou no canal de ticket ${validatedTicketId} no namespace ${socket.nsp.name}`);
-        callback();
+        if (callback) callback();
       } catch (error) {
         logger.warn(`ticketId inválido: ${ticketId}`);
-        callback("ID de ticket inválido");
+        if (callback) callback("ID de ticket inválido");
       }
     });
 
-    socket.on("joinNotification", (callback: (error?: string) => void) => {
+    // ✅ CORREÇÃO: Callback opcional
+    socket.on("joinNotification", (callback?: (error?: string) => void) => {
       socket.join("notification");
       logger.info(`Cliente entrou no canal de notificações no namespace ${socket.nsp.name}`);
-      callback();
+      if (callback) callback();
     });
 
-    socket.on("joinTickets", (status: string, callback: (error?: string) => void) => {
+    // ✅ CORREÇÃO: Callback opcional
+    socket.on("joinTickets", (status: string, callback?: (error?: string) => void) => {
       try {
         const validatedStatus = statusSchema.parse(status);
         socket.join(validatedStatus);
         logger.info(`Cliente entrou no canal ${validatedStatus} no namespace ${socket.nsp.name}`);
-        callback();
+        if (callback) callback();
       } catch (error) {
         logger.warn(`Status inválido: ${status}`);
-        callback("Status inválido");
+        if (callback) callback("Status inválido");
       }
     });
 
-    socket.on("joinTicketsLeave", (status: string, callback: (error?: string) => void) => {
+    // ✅ CORREÇÃO: Callback opcional
+    socket.on("joinTicketsLeave", (status: string, callback?: (error?: string) => void) => {
       try {
         const validatedStatus = statusSchema.parse(status);
         socket.leave(validatedStatus);
         logger.info(`Cliente saiu do canal ${validatedStatus} no namespace ${socket.nsp.name}`);
-        callback();
+        if (callback) callback();
       } catch (error) {
         logger.warn(`Status inválido: ${status}`);
-        callback("Status inválido");
+        if (callback) callback("Status inválido");
       }
     });
 
-    socket.on("joinChatBoxLeave", (ticketId: string, callback: (error?: string) => void) => {
+    // ✅ CORREÇÃO: Callback opcional
+    socket.on("joinChatBoxLeave", (ticketId: string, callback?: (error?: string) => void) => {
       try {
         const validatedTicketId = ticketIdSchema.parse(ticketId);
         socket.leave(validatedTicketId);
         logger.info(`Cliente saiu do canal de ticket ${validatedTicketId} no namespace ${socket.nsp.name}`);
-        callback();
+        if (callback) callback();
       } catch (error) {
         logger.warn(`ticketId inválido: ${ticketId}`);
-        callback("ID de ticket inválido");
+        if (callback) callback("ID de ticket inválido");
       }
     });
 

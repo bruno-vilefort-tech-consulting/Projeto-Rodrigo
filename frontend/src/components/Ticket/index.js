@@ -118,10 +118,12 @@ const Ticket = () => {
     }
 
     if (user.companyId) {
-      //    const socket = socketManager.GetSocket();
+      // ✅ CORREÇÃO: Usar ticket.uuid em vez de ticket.id para consistência
+      const ticketIdentifier = ticket.uuid || ticketId;
 
       const onConnectTicket = () => {
-        socket.emit("joinChatBox", `${ticket.id}`);
+        console.log("🔌 [Ticket] Conectando ao chat box:", ticketIdentifier);
+        socket.emit("joinChatBox", ticketIdentifier);
       }
 
       const onCompanyTicket = (data) => {
@@ -152,8 +154,8 @@ const Ticket = () => {
       socket.on(`company-${companyId}-contact`, onCompanyContactTicket);
 
       return () => {
-
-        socket.emit("joinChatBoxLeave", `${ticket.id}`);
+        console.log("🔌 [Ticket] Desconectando do chat box:", ticketIdentifier);
+        socket.emit("joinChatBoxLeave", ticketIdentifier);
         socket.off("connect", onConnectTicket);
         socket.off(`company-${companyId}-ticket`, onCompanyTicket);
         socket.off(`company-${companyId}-contact`, onCompanyContactTicket);

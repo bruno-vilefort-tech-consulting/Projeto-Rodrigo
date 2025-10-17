@@ -8,6 +8,7 @@ import logger from "../../utils/logger";
 import { isNil } from "lodash";
 import Whatsapp from "../../models/Whatsapp";
 import * as Sentry from "@sentry/node";
+import { normalizePhoneNumber } from "../../utils/normalizePhoneNumber";
 
 const axios = require('axios');
 
@@ -82,7 +83,21 @@ const CreateOrUpdateContactService = async ({
   try {
     let createContact = false;
     const publicFolder = path.resolve(__dirname, "..", "..", "..", "public");
-    const number = isGroup ? rawNumber : rawNumber.replace(/[^0-9]/g, "");
+
+    // ✅ CORREÇÃO: Normalizar número ANTES de buscar no banco
+    // Se a feature flag está ativa, o banco tem números no formato E.164 (+55...)
+    let number: string;
+    if (isGroup) {
+      number = rawNumber;
+    } else if (process.env.FEATURE_CONTACTS_NORMALIZE_E164 === 'true') {
+      // Normalizar para E.164 para buscar no banco
+      const normalized = normalizePhoneNumber(rawNumber);
+      number = normalized || rawNumber.replace(/[^0-9]/g, "");
+    } else {
+      // Sem feature flag, apenas remove não-dígitos
+      number = rawNumber.replace(/[^0-9]/g, "");
+    }
+
     const io = getIO();
     let contact: Contact | null;
 
@@ -240,14 +255,16 @@ const CreateOrUpdateContactService = async ({
         featureFlag: process.env.FEATURE_CONTACTS_FIX === 'true'
       });
 
-      io.of(String(companyId))
+      // ✅ CORREÇÃO: Usar namespace /workspace-{companyId}
+      io.of(`/workspace-${companyId}`)
         .emit(`company-${companyId}-contact`, {
           action: "create",
           contact
         });
     } else {
 
-      io.of(String(companyId))
+      // ✅ CORREÇÃO: Usar namespace /workspace-{companyId}
+      io.of(`/workspace-${companyId}`)
         .emit(`company-${companyId}-contact`, {
           action: "update",
           contact

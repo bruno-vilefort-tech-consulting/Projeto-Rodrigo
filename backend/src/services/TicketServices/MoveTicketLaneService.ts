@@ -23,6 +23,36 @@ const MoveTicketLaneService = async ({
   // Buscar o ticket com as tags atuais
   const ticket = await ShowTicketService(ticketId, companyId);
 
+  // 🔍 DEBUG: Log detalhado com stack trace para rastrear origem da chamada
+  const currentLane = await TicketTag.findOne({
+    where: { ticketId },
+    include: [{
+      model: Tag,
+      as: "tag",
+      where: {
+        kanban: 1,
+        companyId
+      }
+    }]
+  });
+
+  const stackTrace = new Error().stack?.split('\n').slice(2, 8).join('\n║ ') || 'N/A';
+
+  console.log(`
+╔════════════════════════════════════════════════════════════
+║ 🔄 MOVE TICKET LANE
+╠════════════════════════════════════════════════════════════
+║ Timestamp:        ${new Date().toISOString()}
+║ Ticket ID:        ${ticketId}
+║ From Lane:        ${currentLane?.tag?.name || 'N/A'} (ID: ${currentLane?.tagId || 'N/A'})
+║ To Lane ID:       ${toLaneId}
+║ Send Greeting:    ${sendGreeting}
+║
+║ 📍 STACK TRACE (quem chamou):
+║ ${stackTrace}
+╚════════════════════════════════════════════════════════════
+`);
+
   // Validar que a lane de destino existe e pertence à empresa
   const toLane = await Tag.findOne({
     where: {
@@ -65,11 +95,12 @@ const MoveTicketLaneService = async ({
     tagId: toLaneId
   });
 
-  // Limpar os timers de lane
+  // Limpar os timers de lane e resetar flag de movimento automático
   await Ticket.update(
     {
       laneTimerStartedAt: null,
-      laneNextMoveAt: null
+      laneNextMoveAt: null,
+      allowAutomaticMove: true // ✅ Reseta flag - ticket está pronto para nova automação
     },
     { where: { id: ticketId } }
   );

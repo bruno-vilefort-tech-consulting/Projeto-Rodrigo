@@ -55,19 +55,34 @@ const StartLaneTimerService = async ({
   const now = new Date();
   const moveAt = new Date(now.getTime() + currentLane.timeLane * 60 * 1000); // timeLane está em minutos
 
-  // Atualizar o ticket com os dados do timer
+  // Atualizar o ticket com os dados do timer e habilitar movimento automático
   await ticket.update({
     laneTimerStartedAt: now,
-    laneNextMoveAt: moveAt
+    laneNextMoveAt: moveAt,
+    allowAutomaticMove: true // ✅ Permite que o cron job mova automaticamente
   });
 
-  console.log(`⏰ [StartLaneTimer] Timer iniciado para ticket ${ticketId}:`, {
-    lane: currentLane.name,
-    timeLane: currentLane.timeLane,
-    startedAt: now,
-    moveAt: moveAt,
-    nextLaneId: currentLane.nextLaneId
-  });
+  // 🔍 DEBUG: Log detalhado do timer iniciado
+  console.log(`
+╔════════════════════════════════════════════════════════════
+║ ⏰ START LANE TIMER
+╠════════════════════════════════════════════════════════════
+║ Ticket ID:        ${ticketId}
+║ Lane:             ${currentLane.name} (ID: ${currentLane.id})
+║ timeLane:         ${currentLane.timeLane} minutos
+║ nextLaneId:       ${currentLane.nextLaneId}
+║ rollbackLaneId:   ${currentLane.rollbackLaneId || 'N/A'}
+║
+║ Timer:
+║   - Iniciado em:  ${now.toISOString()}
+║   - Moverá em:    ${moveAt.toISOString()}
+║   - Duração:      ${currentLane.timeLane} minuto(s)
+║
+║ allowAutomaticMove: true ✅
+║
+║ Próxima Ação: Cron moverá para nextLaneId ${currentLane.nextLaneId} em ${currentLane.timeLane} minuto(s)
+╚════════════════════════════════════════════════════════════
+`);
 };
 
 export default StartLaneTimerService;

@@ -56,6 +56,25 @@ const HandleCustomerResponseService = async ({
 
   const currentLane = ticketTag.tag;
 
+  // 🔍 DEBUG: Log detalhado da lane atual e configuração
+  console.log(`
+╔════════════════════════════════════════════════════════════
+║ 🔄 HANDLE CUSTOMER RESPONSE
+╠════════════════════════════════════════════════════════════
+║ Ticket ID:        ${ticketId}
+║ Current Lane:     ${currentLane.name} (ID: ${currentLane.id})
+║ rollbackLaneId:   ${currentLane.rollbackLaneId || 'NÃO CONFIGURADO'}
+║ timeLane:         ${currentLane.timeLane || 'N/A'}
+║ nextLaneId:       ${currentLane.nextLaneId || 'N/A'}
+║
+║ Timer Atual:
+║   - Iniciado em:  ${ticket.laneTimerStartedAt || 'N/A'}
+║   - Moverá em:    ${ticket.laneNextMoveAt || 'N/A'}
+║
+║ Ação: ${currentLane.rollbackLaneId ? `⏩ Mover para rollbackLane ${currentLane.rollbackLaneId}` : '⏹️ Apenas cancelar timer'}
+╚════════════════════════════════════════════════════════════
+`);
+
   // Se a lane tem rollbackLaneId configurado, move o ticket
   if (currentLane.rollbackLaneId) {
     console.log(`🔄 [HandleCustomerResponse] Cliente respondeu no ticket ${ticketId}, movendo para rollbackLaneId ${currentLane.rollbackLaneId}`);
@@ -66,6 +85,14 @@ const HandleCustomerResponseService = async ({
       toLaneId: currentLane.rollbackLaneId,
       sendGreeting: true // Envia mensagem de saudação da lane de rollback
     });
+
+    // ✅ Desabilita movimento automático - ticket permanece em rollbackLane até nova interação
+    await ticket.reload();
+    await ticket.update({
+      allowAutomaticMove: false
+    });
+
+    console.log(`🔒 [HandleCustomerResponse] Movimento automático DESABILITADO para ticket ${ticketId} (cliente respondeu)`);
   } else {
     // Se não tem rollbackLaneId, apenas cancela o timer
     await ticket.update({

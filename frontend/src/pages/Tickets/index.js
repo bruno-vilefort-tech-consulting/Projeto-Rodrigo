@@ -101,33 +101,34 @@ const Chat = () => {
 
 		const companyId = getCompanyIdFallback();
 
-		// entra nas salas do ticket/empresa (compatível com backend que sugerimos)
-		io.emit("joinChatBox", { companyId, ticketId: String(ticketId) });
+		// ✅ CORREÇÃO: Usar apenas ticketId (UUID) sem objeto
+		console.log("🔌 [Tickets/index] Conectando ao chat box:", ticketId);
+		io.emit("joinChatBox", ticketId);
 
 		// handler único que dá um pequeno "bump" para re-renderizar
 		const applyAckUpdate = (payload: any) => {
 			// se o update é de outro ticket, ignora
 			const pTicketId = payload?.message?.ticketId ?? payload?.ticketId;
-			if (pTicketId && String(pTicketId) !== String(ticketId)) return;
+			const pTicketUuid = payload?.ticket?.uuid ?? payload?.message?.ticket?.uuid;
+
+			// Comparar com UUID do ticket
+			if (pTicketUuid && String(pTicketUuid) !== String(ticketId)) return;
 
 			// re-render suave (não remonta componentes)
+			console.log("🔄 [Tickets/index] Atualizando mensagem para ticket:", ticketId);
 			setBump(b => (b + 1) % 1000);
 		};
 
-		// ouve variações comuns de eventos
-		const events = [
-			"appMessage",
-			"message",
-			"chat:ack",
-			`company-${companyId}-appMessage`,
-		];
+		// ✅ CORREÇÃO: Focar no evento principal company-${companyId}-appMessage
+		const mainEvent = `company-${companyId}-appMessage`;
 
-		events.forEach(ev => io.on(ev, applyAckUpdate));
+		io.on(mainEvent, applyAckUpdate);
 
 		// cleanup
 		return () => {
-			events.forEach(ev => io.off(ev, applyAckUpdate));
-			io.emit("leaveChatBox", { companyId, ticketId: String(ticketId) });
+			console.log("🔌 [Tickets/index] Desconectando do chat box:", ticketId);
+			io.off(mainEvent, applyAckUpdate);
+			io.emit("joinChatBoxLeave", ticketId);
 		};
 	}, [ticketId]);
 

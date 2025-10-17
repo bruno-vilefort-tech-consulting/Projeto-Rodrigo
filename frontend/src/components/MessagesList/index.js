@@ -571,21 +571,41 @@ const MessagesList = ({
 
     const companyId = user.companyId;
 
-    //    const socket = socketManager.GetSocket();
+    console.log("🔄 [MessagesList] useEffect disparado - Configurando listeners Socket.IO:", {
+      ticketId,
+      companyId,
+      socketExists: !!socket,
+      eventName: `company-${companyId}-appMessage`
+    });
+
+    // ✅ CORREÇÃO: Usar ticketId (UUID) diretamente
     const connectEventMessagesList = () => {
-      socket.emit("joinChatBox", `${ticketId}`);
+      console.log("🔌 [MessagesList] Conectando ao chat box:", ticketId);
+      socket.emit("joinChatBox", ticketId);
     }
 
     const onAppMessageMessagesList = (data) => {
-      console.log("📥 [MessagesList] Mensagem recebida via Socket.IO:", {
+      console.log("🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉");
+      console.log("📥 [MessagesList] EVENTO SOCKET.IO RECEBIDO!");
+      console.log("🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉");
+      console.log("📦 [MessagesList] Payload COMPLETO:", JSON.stringify(data, null, 2));
+      console.log("📥 [MessagesList] Resumo da Mensagem:", {
         action: data.action,
         ticketUuid: data.ticket?.uuid,
         messageTicketUuid: data.message?.ticket?.uuid,
+        messageTicketId: data.message?.ticketId,
+        messageId: data.message?.id,
+        messageBody: data.message?.body,
         currentTicketId: ticketId,
+        currentTicketIdType: typeof ticketId,
+        ticketUuidType: typeof data.ticket?.uuid,
         matchCreate: data.action === "create" && data.ticket?.uuid === ticketId,
         matchUpdate: data.action === "update" && data?.message?.ticket?.uuid === ticketId,
-        matchDelete: data.action === "delete" && data.message?.ticket?.uuid === ticketId
+        matchDelete: data.action === "delete" && data.message?.ticket?.uuid === ticketId,
+        strictEquality: data.ticket?.uuid === ticketId,
+        looseEquality: data.ticket?.uuid == ticketId
       });
+      console.log("===========================================");
 
       if (data.action === "create" && data.ticket?.uuid === ticketId) {
         console.log("✅ [MessagesList] ADD_MESSAGE - Validação passou, adicionando mensagem");
@@ -613,8 +633,8 @@ const MessagesList = ({
     socket.on(`company-${companyId}-appMessage`, onAppMessageMessagesList);
 
     return () => {
-
-      socket.emit("joinChatBoxLeave", `${ticketId}`)
+      console.log("🔌 [MessagesList] Desconectando do chat box:", ticketId);
+      socket.emit("joinChatBoxLeave", ticketId);
 
       socket.off("connect", connectEventMessagesList);
       socket.off(`company-${companyId}-appMessage`, onAppMessageMessagesList);

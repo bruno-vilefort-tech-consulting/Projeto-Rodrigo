@@ -13,7 +13,7 @@ const ProcessExpiredLaneTimersJob = async (): Promise<void> => {
   try {
     const now = new Date();
 
-    // Buscar todos os tickets com timer expirado
+    // Buscar todos os tickets com timer expirado E movimento automático permitido
     const expiredTickets = await Ticket.findAll({
       where: {
         laneNextMoveAt: {
@@ -21,7 +21,8 @@ const ProcessExpiredLaneTimersJob = async (): Promise<void> => {
         },
         laneTimerStartedAt: {
           [Op.not]: null // Tem timer ativo
-        }
+        },
+        allowAutomaticMove: true // ✅ Só move tickets com movimento automático HABILITADO
       },
       include: [
         {

@@ -101,33 +101,27 @@ import { MessageUserReceiptUpdate } from "@whiskeysockets/baileys";
 function emitAppMessage(companyId: number, ticketId: number, payload: any) {
   const io = getIO();
 
-  // raiz (sem namespace)
-  io.emit("appMessage", payload);
-  io.emit(`company-${companyId}-appMessage`, payload);
+  // ✅ CORREÇÃO: Usar apenas o namespace correto /workspace-{companyId}
+  const workspaceNamespace = io.of(`/workspace-${companyId}`);
 
-  // namespace por empresa (formas "123" e "/123")
-  const ns = io.of(String(companyId));
-  ns.emit("appMessage", payload);
-  ns.emit(`company-${companyId}-appMessage`, payload);
+  console.log("🚀 [wbotMessageListener] Emitindo evento Socket.IO:", {
+    namespace: `/workspace-${companyId}`,
+    ticketId,
+    action: payload.action,
+    channel: `company-${companyId}-appMessage`
+  });
 
-  const nsAlt = io.of(`/${companyId}`);
-  nsAlt.emit("appMessage", payload);
-  nsAlt.emit(`company-${companyId}-appMessage`, payload);
+  // Emitir para todos os clientes conectados ao namespace
+  workspaceNamespace.emit(`company-${companyId}-appMessage`, payload);
 
-  // rooms
-  io.to(String(ticketId)).emit("appMessage", payload);
-  ns.to(String(ticketId)).emit("appMessage", payload);
-  io.to(`company-${companyId}`).emit("appMessage", payload);
-  ns.to(`company-${companyId}`).emit("appMessage", payload);
+  // Emitir também para o room específico do ticket (se houver clientes que entraram no room)
+  if (payload.ticket?.uuid) {
+    workspaceNamespace.to(payload.ticket.uuid).emit(`company-${companyId}-appMessage`, payload);
+  } else {
+    workspaceNamespace.to(String(ticketId)).emit(`company-${companyId}-appMessage`, payload);
+  }
 
-  // aliases comuns
-  io.emit("message", payload);
-  ns.emit("message", payload);
-  io.to(String(ticketId)).emit("message", payload);
-
-  io.emit("chat:ack", payload);
-  ns.emit("chat:ack", payload);
-  io.to(String(ticketId)).emit("chat:ack", payload);
+  console.log("✅ [wbotMessageListener] Evento emitido com sucesso para namespace /workspace-" + companyId);
 }
 
 
@@ -1112,6 +1106,7 @@ export const verifyMediaMessage = async (
       lastMessage: body || media.filename
     });
 
+    console.log("🔍🔍🔍 [wbotMessageListener] ticketImported:", ticket.imported, "messageData.ticketImported:", messageData.ticketImported);
     const newMessage = await CreateMessageService({
       messageData,
       companyId: companyId
@@ -1152,7 +1147,7 @@ export const verifyMediaMessage = async (
         ]
       });
 
-      io.of(String(companyId))
+      io.of(`/workspace-${companyId}`)
         // .to("closed")
         .emit(`company-${companyId}-ticket`, {
           action: "delete",
@@ -1160,7 +1155,7 @@ export const verifyMediaMessage = async (
           ticketId: ticket.id
         });
       // console.log("emitiu socket 902", ticket.id)
-      io.of(String(companyId))
+      io.of(`/workspace-${companyId}`)
         // .to(ticket.status)
         //   .to(ticket.id.toString())
         .emit(`company-${companyId}-ticket`, {
@@ -1243,7 +1238,7 @@ export const verifyMessage = async (
     // });
 
     if (!ticket.imported) {
-      io.of(String(companyId))
+      io.of(`/workspace-${companyId}`)
         // .to(ticket.status)
         // .to(ticket.id.toString())
         .emit(`company-${companyId}-ticket`, {
@@ -3447,7 +3442,7 @@ export const handleRating = async (
     type: "closed"
   });
 
-  io.of(String(companyId))
+  io.of(`/workspace-${companyId}`)
     // .to("open")
     .emit(`company-${companyId}-ticket`, {
       action: "delete",
@@ -3455,7 +3450,7 @@ export const handleRating = async (
       ticketId: ticket.id
     });
 
-  io.of(String(companyId))
+  io.of(`/workspace-${companyId}`)
     // .to(ticket.status)
     // .to(ticket.id.toString())
     .emit(`company-${companyId}-ticket`, {
@@ -3646,7 +3641,8 @@ if (!fromMe && ticket && chatbotEnabled /* && isFirstContact */) {
       companyId
     });
 
-    io.of(String(companyId)).emit(`company-${companyId}-ticket`, {
+    // ✅ CORREÇÃO: Usar namespace /workspace-{companyId}
+    io.of(`/workspace-${companyId}`).emit(`company-${companyId}-ticket`, {
       action: "delete",
       ticket,
       ticketId: ticket.id
@@ -4119,10 +4115,24 @@ const handleMessage = async (
 ): Promise<void> => {
   console.log("log... 2874");
 
+  // ✅ ULTRA DEBUG: Log detalhado da mensagem recebida
+  console.log("🔥🔥🔥 [handleMessage] MENSAGEM RECEBIDA DO WHATSAPP:", {
+    messageId: msg.key.id,
+    fromNumber: msg.key.remoteJid,
+    isGroup: msg.key.remoteJid?.includes("@g.us"),
+    hasMessage: !!msg.message,
+    messageType: Object.keys(msg.message || {})[0],
+    timestamp: msg.messageTimestamp,
+    companyId,
+    isImported
+  });
+
   if (!isValidMsg(msg)) {
-    console.log("log... 2877");
+    console.log("log... 2877 - ❌ Mensagem inválida, pulando");
     return;
   }
+
+  console.log("✅ [handleMessage] Mensagem VÁLIDA, processando...");
 
   try {
     let msgContact: IMe;
@@ -4355,30 +4365,34 @@ const handleMessage = async (
       return;
     }
 
-    if (
-      rollbackTag &&
-      formatBody(bodyNextTag, ticket) !== bodyMessage &&
-      formatBody(bodyRollbackTag, ticket) !== bodyMessage
-    ) {
-      // ✅ CORREÇÃO: Usar transação para garantir atomicidade
-      await sequelize.transaction(async (transaction) => {
-        await TicketTag.destroy({
-          where: { ticketId: ticket.id, tagId: ticketTag.tagId },
-          transaction
-        });
-        await TicketTag.create({
-          ticketId: ticket.id,
-          tagId: rollbackTag.id
-        }, { transaction });
-      });
+    // ❌ CÓDIGO ANTIGO DESABILITADO: Conflitava com novo sistema de automação Kanban
+    // Este código movia tickets para rollbackTag imediatamente, sem respeitar timers
+    // O novo sistema usa StartLaneTimerService/HandleCustomerResponseService em CreateMessageService
+    //
+    // if (
+    //   rollbackTag &&
+    //   formatBody(bodyNextTag, ticket) !== bodyMessage &&
+    //   formatBody(bodyRollbackTag, ticket) !== bodyMessage
+    // ) {
+    //   await sequelize.transaction(async (transaction) => {
+    //     await TicketTag.destroy({
+    //       where: { ticketId: ticket.id, tagId: ticketTag.tagId },
+    //       transaction
+    //     });
+    //     await TicketTag.create({
+    //       ticketId: ticket.id,
+    //       tagId: rollbackTag.id
+    //     }, { transaction });
+    //   });
+    //
+    //   const io = getIO();
+    //   io.of(`/workspace-${ticket.companyId}`).emit(`company-${ticket.companyId}-ticket`, {
+    //     action: "update",
+    //     ticket
+    //   });
+    // }
 
-      // ✅ CORREÇÃO: Socket.IO após commit da transação
-      const io = getIO();
-      io.of(String(ticket.companyId)).emit(`company-${ticket.companyId}-ticket`, {
-        action: "update",
-        ticket
-      });
-    }
+    console.log(`🔇 [wbotMessageListener] Lógica antiga de rollbackTag DESABILITADA - usando novo sistema de automação Kanban`);
 
     if (isImported) {
       console.log("log... 3063");
@@ -4417,14 +4431,14 @@ const handleMessage = async (
 
         console.log("log... 3094");
 
-        io.of(String(companyId))
+        io.of(`/workspace-${companyId}`)
           // .to(String(ticket.id))
           .emit(`company-${companyId}-appMessage`, {
             action: "update",
             message: messageToUpdate
           });
 
-        io.of(String(companyId))
+        io.of(`/workspace-${companyId}`)
           // .to(ticket.status)
           // .to("notification")
           // .to(String(ticket.id))
@@ -5203,7 +5217,7 @@ const handleMsgAck = async (
     if (!messageToUpdate || messageToUpdate.ack > chat) return;
 
     await messageToUpdate.update({ ack: chat });
-    io.of(messageToUpdate.companyId.toString())
+    io.of(`/workspace-${messageToUpdate.companyId}`)
       // .to(messageToUpdate.ticketId.toString())
       .emit(`company-${messageToUpdate.companyId}-appMessage`, {
         action: "update",
@@ -5291,7 +5305,7 @@ const verifyCampaignMessageAndCloseTicket = async (
       const ticket = await Ticket.findByPk(messageRecord.ticketId);
       await ticket.update({ status: "closed", amountUsedBotQueues: 0 });
 
-      io.of(String(companyId))
+      io.of(`/workspace-${companyId}`)
         // .to("open")
         .emit(`company-${companyId}-ticket`, {
           action: "delete",
@@ -5299,7 +5313,7 @@ const verifyCampaignMessageAndCloseTicket = async (
           ticketId: ticket.id
         });
 
-      io.of(String(companyId))
+      io.of(`/workspace-${companyId}`)
         // .to(ticket.status)
         // .to(ticket.id.toString())
         .emit(`company-${companyId}-ticket`, {
@@ -5333,9 +5347,30 @@ const filterMessages = (msg: WAMessage): boolean => {
 const wbotMessageListener = (wbot: Session, companyId: number): void => {
 const wbotUserJid = wbot?.user?.id;
   wbot.ev.on("messages.upsert", async (messageUpsert: ImessageUpsert) => {
+    // ✅ ULTRA DEBUG: Log ANTES de qualquer filtro
+    console.log("🚨🚨🚨 [messages.upsert] EVENTO RECEBIDO DO WHATSAPP:", {
+      companyId,
+      totalMessages: messageUpsert.messages.length,
+      type: messageUpsert.type,
+      messages: messageUpsert.messages.map(m => ({
+        id: m.key.id,
+        remoteJid: m.key.remoteJid,
+        fromMe: m.key.fromMe,
+        hasMessage: !!m.message,
+        messageType: Object.keys(m.message || {})[0]
+      }))
+    });
+
     const messages = messageUpsert.messages
       .filter(filterMessages)
       .map(msg => msg);
+
+    // ✅ ULTRA DEBUG: Log DEPOIS do filtro
+    console.log("🔍 [messages.upsert] DEPOIS DO FILTRO:", {
+      totalBeforeFilter: messageUpsert.messages.length,
+      totalAfterFilter: messages?.length || 0,
+      filtered: messages?.length === 0 ? "❌ TODAS AS MENSAGENS FORAM FILTRADAS!" : "✅ Algumas mensagens passaram"
+    });
 
     if (!messages) return;
 
