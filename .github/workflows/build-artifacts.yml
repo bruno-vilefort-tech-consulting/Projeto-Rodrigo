@@ -47,7 +47,7 @@ jobs:
       - run: |
           cd frontend
           pnpm install --frozen-lockfile
-          pnpm run build
+          NODE_OPTIONS="--max-old-space-size=4096" pnpm run build
           cp server.js build/
           cp package.json build/
           tar czf ../frontend_build.tar.gz build
