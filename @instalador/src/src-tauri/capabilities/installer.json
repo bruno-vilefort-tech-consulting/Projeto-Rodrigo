@@ -1,0 +1,22 @@
+{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "installer",
+  "description": "Permissões do instalador ChatIA (main window)",
+  "windows": ["main"],
+  "permissions": [
+    "core:default",
+    "core:event:allow-listen",
+    "core:event:allow-emit",
+    {
+      "identifier": "shell:allow-spawn",
+      "allow": [
+        {
+          "name": "postinstall",
+          "cmd": "sudo",
+          "args": ["-S", "/bin/bash", { "validator": "^/home/deploy/[a-z0-9_]+/postinstall\\.sh$" }],
+          "sidecar": false
+        }
+      ]
+    }
+  ]
+}

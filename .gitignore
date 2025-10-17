@@ -36,3 +36,7 @@ docker-compose.override.yml
 # Test Lock File (para controle de execução única de testes)
 .test.lock
 .vitest.lock
+
+# Instalador Tauri
+@instalador/src/src-tauri/target/
+@instalador/src/src-tauri/Cargo.lock

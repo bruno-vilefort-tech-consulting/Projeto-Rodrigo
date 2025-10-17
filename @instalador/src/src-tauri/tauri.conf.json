@@ -1,0 +1,49 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "ChatIA Instalador",
+  "version": "0.1.0",
+  "identifier": "com.chatia.installer",
+  "build": {
+    "beforeDevCommand": "npm run dev",
+    "devUrl": "http://localhost:5173",
+    "beforeBuildCommand": "npm run build",
+    "frontendDist": "../dist"
+  },
+  "app": {
+    "windows": [
+      {
+        "title": "ChatIA Instalador GUI",
+        "width": 1000,
+        "height": 800,
+        "resizable": true,
+        "fullscreen": false,
+        "decorations": true,
+        "transparent": false,
+        "center": true,
+        "minWidth": 800,
+        "minHeight": 600
+      }
+    ],
+    "security": {
+      "csp": null,
+      "assetProtocol": {
+        "enable": true,
+        "scope": ["**"]
+      }
+    }
+  },
+  "bundle": {
+    "active": false,
+    "targets": ["deb", "appimage"],
+    "publisher": "ChatIA Team",
+    "copyright": "© 2025 ChatIA. All rights reserved.",
+    "category": "Utility",
+    "shortDescription": "Instalador GUI para ChatIA v5 - Baixa artefatos pré-construídos do CI",
+    "longDescription": "Instalador visual com tema dark para o ChatIA Flow. Substitui o script shell por um bootstrapper com UI, download paralelo, validação SHA-256 e extração streaming de artefatos do GitHub.",
+    "linux": {
+      "deb": {
+        "depends": ["libwebkit2gtk-4.1-0", "libssl3"]
+      }
+    }
+  }
+}

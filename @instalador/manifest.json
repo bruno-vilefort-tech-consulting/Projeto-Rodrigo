@@ -1,0 +1,29 @@
+{
+  "version": "5.0.0",
+  "artifacts": [
+    {
+      "name": "backend_dist",
+      "url": "https://example.com/releases/5.0.0/backend_dist.tar.gz",
+      "sha256": "<<<sha256>>>",
+      "targetDir": "/home/deploy/__EMPRESA__/backend",
+      "stripComponents": 1,
+      "type": "tar.gz"
+    },
+    {
+      "name": "backend_node_modules",
+      "url": "https://example.com/releases/5.0.0/backend_node_modules.tar.gz",
+      "sha256": "<<<sha256>>>",
+      "targetDir": "/home/deploy/__EMPRESA__/backend/node_modules",
+      "stripComponents": 1,
+      "type": "tar.gz"
+    },
+    {
+      "name": "frontend_build",
+      "url": "https://example.com/releases/5.0.0/frontend_build.tar.gz",
+      "sha256": "<<<sha256>>>",
+      "targetDir": "/home/deploy/__EMPRESA__/frontend",
+      "stripComponents": 1,
+      "type": "tar.gz"
+    }
+  ]
+}

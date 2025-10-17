@@ -1,0 +1,98 @@
+name: build-artifacts
+on:
+  push:
+    tags: ["v*.*.*"]
+
+permissions:
+  contents: write   # necessário para publicar release
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      # Instalar Rust para Tauri
+      - uses: dtolnay/rust-toolchain@stable
+
+      # Instalar dependências do Tauri (Linux)
+      - run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.1-dev \
+            build-essential \
+            curl \
+            wget \
+            file \
+            libxdo-dev \
+            libssl-dev \
+            libayatana-appindicator3-dev \
+            librsvg2-dev
+
+      # BACKEND (usa pnpm)
+      - run: |
+          corepack enable
+          cd backend
+          pnpm install --frozen-lockfile
+          pnpm run build
+          tar czf ../backend_dist.tar.gz dist
+          tar czf ../backend_node_modules.tar.gz node_modules
+
+      # FRONTEND (usa npm)
+      - run: |
+          cd frontend
+          npm ci
+          npm run build
+          cp server.js build/
+          cp package.json build/
+          tar czf ../frontend_build.tar.gz build
+
+      # INSTALADOR TAURI
+      - run: |
+          cd @instalador
+          npm install
+          npm run tauri:build
+
+      # Copiar instalador para raiz
+      - run: |
+          cp @instalador/src/src-tauri/target/release/bundle/appimage/*.AppImage ./chatia-installer.AppImage || true
+          cp @instalador/src/src-tauri/target/release/bundle/deb/*.deb ./chatia-installer.deb || true
+
+      # checksums + manifest
+      - id: mkmanifest
+        run: |
+          sha256sum backend_dist.tar.gz > sha256_backend_dist.txt
+          sha256sum backend_node_modules.tar.gz > sha256_backend_node_modules.txt
+          sha256sum frontend_build.tar.gz > sha256_frontend_build.txt
+
+          BDD=$(cut -d' ' -f1 sha256_backend_dist.txt)
+          BNM=$(cut -d' ' -f1 sha256_backend_node_modules.txt)
+          FBD=$(cut -d' ' -f1 sha256_frontend_build.txt)
+
+          RELEASE_URL="https://github.com/${{ github.repository }}/releases/download/${{ github.ref_name }}"
+
+          cat > manifest.json <<JSON
+          {
+            "version": "${{ github.ref_name }}",
+            "artifacts": [
+              {"name":"backend_dist","url":"$RELEASE_URL/backend_dist.tar.gz","sha256":"$BDD","targetDir":"/home/deploy/__EMPRESA__/backend","stripComponents":1,"type":"tar.gz"},
+              {"name":"backend_node_modules","url":"$RELEASE_URL/backend_node_modules.tar.gz","sha256":"$BNM","targetDir":"/home/deploy/__EMPRESA__/backend/node_modules","stripComponents":1,"type":"tar.gz"},
+              {"name":"frontend_build","url":"$RELEASE_URL/frontend_build.tar.gz","sha256":"$FBD","targetDir":"/home/deploy/__EMPRESA__/frontend","stripComponents":1,"type":"tar.gz"}
+            ]
+          }
+          JSON
+
+      - name: Upload release assets
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            backend_dist.tar.gz
+            backend_node_modules.tar.gz
+            frontend_build.tar.gz
+            manifest.json
+            postinstall.sh
+            chatia-installer.AppImage
+            chatia-installer.deb
