@@ -32,20 +32,22 @@ jobs:
             libayatana-appindicator3-dev \
             librsvg2-dev
 
+      # Habilitar pnpm
+      - run: corepack enable
+
       # BACKEND (usa pnpm)
       - run: |
-          corepack enable
           cd backend
           pnpm install --frozen-lockfile
           pnpm run build
           tar czf ../backend_dist.tar.gz dist
           tar czf ../backend_node_modules.tar.gz node_modules
 
-      # FRONTEND (usa npm)
+      # FRONTEND (usa pnpm)
       - run: |
           cd frontend
-          npm ci
-          npm run build
+          pnpm install --frozen-lockfile
+          pnpm run build
           cp server.js build/
           cp package.json build/
           tar czf ../frontend_build.tar.gz build
