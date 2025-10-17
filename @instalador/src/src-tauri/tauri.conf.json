@@ -34,7 +34,7 @@
   },
   "bundle": {
     "active": true,
-    "targets": ["deb", "appimage"],
+    "targets": ["deb"],
     "publisher": "ChatIA Team",
     "copyright": "© 2025 ChatIA. All rights reserved.",
     "category": "Utility",

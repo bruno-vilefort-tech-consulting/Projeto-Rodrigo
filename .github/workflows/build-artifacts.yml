@@ -60,8 +60,7 @@ jobs:
 
       # Copiar instalador para raiz
       - run: |
-          cp @instalador/src/src-tauri/target/release/bundle/appimage/*.AppImage ./chatia-installer.AppImage || true
-          cp @instalador/src/src-tauri/target/release/bundle/deb/*.deb ./chatia-installer.deb || true
+          cp "@instalador/src/src-tauri/target/release/bundle/deb/"*.deb ./chatia-installer.deb || true
 
       # checksums + manifest
       - id: mkmanifest
@@ -96,5 +95,4 @@ jobs:
             frontend_build.tar.gz
             manifest.json
             postinstall.sh
-            chatia-installer.AppImage
             chatia-installer.deb
