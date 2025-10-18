@@ -80,17 +80,6 @@ struct ProgressEvent {
 #[derive(Serialize, Clone)]
 struct BytesProgress { received: u64, total: u64 }
 
-struct PostVars {
-  empresa: String,
-  deploy_pass: String,
-  admin_email: String,
-  admin_pass: String,
-  backend_host: String,
-  frontend_host: String,
-  backend_port: u16,
-  frontend_port: u16,
-}
-
 fn emit(window: &Window, ev: &str, payload: impl Serialize + Clone) {
   let _ = window.emit(ev, payload);
 }
@@ -195,31 +184,48 @@ async fn install(window: Window, cfg: InstallConfig) -> Result<(), String> {
     }
   }
 
-  // Pós-instalação (opcional): chama /bin/bash postinstall.sh
+  // FASE: Instalação de dependências do sistema e configuração (se habilitado)
   if cfg.run_post_install {
-    log(&window, "Executando postinstall.sh (requer sudo)...");
-    progress(&window, ProgressEvent { phase: "postinstall".into(), artifact: None, current: 0, total: 1, bytes: None, message: None });
+    progress(&window, ProgressEvent { phase: "system-deps".into(), artifact: None, current: 0, total: 5, bytes: None, message: Some("Instalando dependências do sistema...".into()) });
 
-    // Calcular variáveis para postinstall
+    if let Err(e) = install_system_dependencies(&window).await {
+      log(&window, format!("⚠️  Instalação de dependências falhou: {}", e));
+      log(&window, "Continuando instalação (algumas funcionalidades podem não funcionar)...");
+    } else {
+      progress(&window, ProgressEvent { phase: "system-deps".into(), artifact: None, current: 1, total: 5, bytes: None, message: Some("Dependências instaladas".into()) });
+    }
+
+    // Configurar banco de dados
+    progress(&window, ProgressEvent { phase: "database".into(), artifact: None, current: 1, total: 5, bytes: None, message: Some("Configurando banco de dados...".into()) });
+
+    if let Err(e) = setup_database(&window, &company_slug, &cfg.deploy_pass).await {
+      log(&window, format!("⚠️  Configuração de banco falhou: {}", e));
+    } else {
+      progress(&window, ProgressEvent { phase: "database".into(), artifact: None, current: 2, total: 5, bytes: None, message: Some("Banco configurado".into()) });
+    }
+
+    // Configurar Nginx
+    progress(&window, ProgressEvent { phase: "nginx".into(), artifact: None, current: 2, total: 5, bytes: None, message: Some("Configurando Nginx...".into()) });
+
     let backend_host = host_only(&cfg.backend_url);
     let frontend_host = host_only(&cfg.frontend_url);
     let backend_port = calc_port(&company_slug, 8000);
     let frontend_port = calc_port(&company_slug, 3001);
 
-    if let Err(e) = run_postinstall(&window, &base, PostVars {
-      empresa: company_slug.clone(),
-      deploy_pass: cfg.deploy_pass.clone(),
-      admin_email: cfg.email.clone(),
-      admin_pass: cfg.master_pass.clone(),
-      backend_host,
-      frontend_host,
-      backend_port,
-      frontend_port,
-    }).await {
-      let _ = window.emit("install://error", format!("postinstall falhou: {e:#}"));
-      return Err(e.to_string());
+    if let Err(e) = setup_nginx(&window, &company_slug, &backend_host, &frontend_host, backend_port, frontend_port).await {
+      log(&window, format!("⚠️  Configuração Nginx falhou: {}", e));
+    } else {
+      progress(&window, ProgressEvent { phase: "nginx".into(), artifact: None, current: 3, total: 5, bytes: None, message: Some("Nginx configurado".into()) });
     }
-    progress(&window, ProgressEvent { phase: "postinstall".into(), artifact: None, current: 1, total: 1, bytes: None, message: Some("OK".into()) });
+
+    // Iniciar apps com PM2
+    progress(&window, ProgressEvent { phase: "pm2".into(), artifact: None, current: 3, total: 5, bytes: None, message: Some("Iniciando aplicações...".into()) });
+
+    if let Err(e) = start_apps_pm2(&window, &company_slug, &base).await {
+      log(&window, format!("⚠️  Inicialização PM2 falhou: {}", e));
+    } else {
+      progress(&window, ProgressEvent { phase: "pm2".into(), artifact: None, current: 5, total: 5, bytes: None, message: Some("Apps iniciados".into()) });
+    }
   }
 
   // FASE: Migrations (se habilitado)
@@ -489,39 +495,6 @@ fn rand_b64() -> String {
   let mut b = [0u8; 32];
   rand::rngs::OsRng.fill_bytes(&mut b);
   BASE64_STANDARD.encode(b)
-}
-
-async fn run_postinstall(window: &Window, base: &Path, v: PostVars) -> Result<()> {
-  let script = base.join("postinstall.sh");
-  if !script.exists() {
-    log(window, format!("postinstall.sh não encontrado em {}", script.display()));
-    return Ok(());
-  }
-
-  let shell = window.app_handle().shell();
-  let cmd = shell.command("sudo")
-    .args(["-S", "/bin/bash", script.to_string_lossy().as_ref()])
-    .env("EMPRESA", &v.empresa)
-    .env("DEPLOY_PASS", &v.deploy_pass)
-    .env("ADMIN_EMAIL", &v.admin_email)
-    .env("ADMIN_PASSWORD", &v.admin_pass)
-    .env("BACKEND_HOST", &v.backend_host)
-    .env("FRONTEND_HOST", &v.frontend_host)
-    .env("BACKEND_PORT", &v.backend_port.to_string())
-    .env("FRONTEND_PORT", &v.frontend_port.to_string());
-
-  let (mut rx, _child) = cmd.spawn()?;
-  while let Some(ev) = rx.recv().await {
-    use tauri_plugin_shell::process::CommandEvent::*;
-    match ev {
-      Stdout(line) | Stderr(line) =>
-        log(window, String::from_utf8_lossy(&line).into_owned()),
-      Error(e) => log(window, format!("ERR: {e}")),
-      Terminated(_) => break,
-      _ => {}
-    }
-  }
-  Ok(())
 }
 
 // ============================================================================
@@ -806,6 +779,449 @@ r#"# Limpeza de logs - {}
 
   log(window, "✅ Cron de limpeza configurado (semanalmente)");
 
+  Ok(())
+}
+
+/// Instala dependências do sistema (Node.js 20, PostgreSQL, Redis, Nginx, PM2)
+async fn install_system_dependencies(window: &Window) -> Result<()> {
+  log(window, "📦 Instalando dependências do sistema...");
+
+  let shell = window.app_handle().shell();
+
+  // 1. Atualizar apt
+  log(window, "🔄 Atualizando apt...");
+  let cmd = shell.command("sudo")
+    .args(["apt-get", "update", "-y", "-qq"]);
+  let (mut rx, _) = cmd.spawn()?;
+  while let Some(ev) = rx.recv().await {
+    use tauri_plugin_shell::process::CommandEvent::*;
+    match ev {
+      Terminated(status) => {
+        if status.code.unwrap_or(1) != 0 {
+          anyhow::bail!("apt-get update falhou");
+        }
+        break;
+      }
+      _ => {}
+    }
+  }
+
+  // 2. Instalar curl, gnupg (pré-requisitos)
+  log(window, "📥 Instalando pré-requisitos (curl, gnupg)...");
+  let cmd = shell.command("sudo")
+    .args(["apt-get", "install", "-y", "-qq", "curl", "gnupg", "ca-certificates"]);
+  let (mut rx, _) = cmd.spawn()?;
+  while let Some(ev) = rx.recv().await {
+    use tauri_plugin_shell::process::CommandEvent::*;
+    match ev {
+      Terminated(status) => {
+        if status.code.unwrap_or(1) != 0 {
+          anyhow::bail!("Instalação de pré-requisitos falhou");
+        }
+        break;
+      }
+      _ => {}
+    }
+  }
+
+  // 3. Adicionar repositório do Node.js 20
+  log(window, "🟢 Adicionando repositório Node.js 20...");
+  let cmd = shell.command("bash")
+    .args(["-c", "curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -"]);
+  let (mut rx, _) = cmd.spawn()?;
+  while let Some(ev) = rx.recv().await {
+    use tauri_plugin_shell::process::CommandEvent::*;
+    match ev {
+      Terminated(status) => {
+        if status.code.unwrap_or(1) != 0 {
+          anyhow::bail!("Falha ao adicionar repositório Node.js");
+        }
+        break;
+      }
+      _ => {}
+    }
+  }
+
+  // 4. Instalar Node.js 20
+  log(window, "🟢 Instalando Node.js 20...");
+  let cmd = shell.command("sudo")
+    .args(["apt-get", "install", "-y", "-qq", "nodejs"]);
+  let (mut rx, _) = cmd.spawn()?;
+  while let Some(ev) = rx.recv().await {
+    use tauri_plugin_shell::process::CommandEvent::*;
+    match ev {
+      Terminated(status) => {
+        if status.code.unwrap_or(1) != 0 {
+          anyhow::bail!("Instalação Node.js falhou");
+        }
+        break;
+      }
+      _ => {}
+    }
+  }
+
+  // 5. Habilitar corepack para pnpm
+  log(window, "🔧 Habilitando corepack (pnpm)...");
+  let cmd = shell.command("sudo")
+    .args(["corepack", "enable"]);
+  let (mut rx, _) = cmd.spawn()?;
+  while let Some(_) = rx.recv().await {} // Aguardar conclusão
+
+  // 6. Instalar PM2 globalmente
+  log(window, "⚙️ Instalando PM2 globalmente...");
+  let cmd = shell.command("sudo")
+    .args(["npm", "install", "-g", "pm2"]);
+  let (mut rx, _) = cmd.spawn()?;
+  while let Some(ev) = rx.recv().await {
+    use tauri_plugin_shell::process::CommandEvent::*;
+    match ev {
+      Terminated(status) => {
+        if status.code.unwrap_or(1) != 0 {
+          anyhow::bail!("Instalação PM2 falhou");
+        }
+        break;
+      }
+      _ => {}
+    }
+  }
+
+  // 7. Instalar PostgreSQL
+  log(window, "🐘 Instalando PostgreSQL...");
+  let cmd = shell.command("sudo")
+    .args(["apt-get", "install", "-y", "-qq", "postgresql", "postgresql-contrib"]);
+  let (mut rx, _) = cmd.spawn()?;
+  while let Some(ev) = rx.recv().await {
+    use tauri_plugin_shell::process::CommandEvent::*;
+    match ev {
+      Terminated(status) => {
+        if status.code.unwrap_or(1) != 0 {
+          anyhow::bail!("Instalação PostgreSQL falhou");
+        }
+        break;
+      }
+      _ => {}
+    }
+  }
+
+  // 8. Instalar Redis
+  log(window, "🔴 Instalando Redis...");
+  let cmd = shell.command("sudo")
+    .args(["apt-get", "install", "-y", "-qq", "redis-server"]);
+  let (mut rx, _) = cmd.spawn()?;
+  while let Some(ev) = rx.recv().await {
+    use tauri_plugin_shell::process::CommandEvent::*;
+    match ev {
+      Terminated(status) => {
+        if status.code.unwrap_or(1) != 0 {
+          anyhow::bail!("Instalação Redis falhou");
+        }
+        break;
+      }
+      _ => {}
+    }
+  }
+
+  // 9. Instalar Nginx
+  log(window, "🌐 Instalando Nginx...");
+  let cmd = shell.command("sudo")
+    .args(["apt-get", "install", "-y", "-qq", "nginx"]);
+  let (mut rx, _) = cmd.spawn()?;
+  while let Some(ev) = rx.recv().await {
+    use tauri_plugin_shell::process::CommandEvent::*;
+    match ev {
+      Terminated(status) => {
+        if status.code.unwrap_or(1) != 0 {
+          anyhow::bail!("Instalação Nginx falhou");
+        }
+        break;
+      }
+      _ => {}
+    }
+  }
+
+  // 10. Habilitar e iniciar serviços
+  log(window, "🚀 Habilitando serviços (PostgreSQL, Redis, Nginx)...");
+  let services = ["postgresql", "redis-server", "nginx"];
+  for service in &services {
+    let cmd = shell.command("sudo")
+      .args(["systemctl", "enable", "--now", service]);
+    let (mut rx, _) = cmd.spawn()?;
+    while let Some(_) = rx.recv().await {} // Aguardar conclusão
+  }
+
+  log(window, "✅ Todas as dependências instaladas com sucesso!");
+  Ok(())
+}
+
+/// Configura banco de dados PostgreSQL (role + database)
+async fn setup_database(window: &Window, company: &str, password: &str) -> Result<()> {
+  log(window, format!("🗄️ Configurando banco de dados para: {}", company));
+
+  let shell = window.app_handle().shell();
+
+  // Criar role (se não existir)
+  let check_role = format!("SELECT 1 FROM pg_roles WHERE rolname='{}'", company);
+  let cmd = shell.command("sudo")
+    .args(["-u", "postgres", "psql", "-tc", &check_role]);
+  let (mut rx, _) = cmd.spawn()?;
+  let mut role_exists = false;
+  while let Some(ev) = rx.recv().await {
+    use tauri_plugin_shell::process::CommandEvent::*;
+    match ev {
+      Stdout(line) => {
+        if String::from_utf8_lossy(&line).contains("1") {
+          role_exists = true;
+        }
+      }
+      Terminated(_) => break,
+      _ => {}
+    }
+  }
+
+  if !role_exists {
+    log(window, format!("👤 Criando role PostgreSQL: {}", company));
+    let create_role = format!("CREATE ROLE {} LOGIN PASSWORD '{}'", company, password);
+    let cmd = shell.command("sudo")
+      .args(["-u", "postgres", "psql", "-c", &create_role]);
+    let (mut rx, _) = cmd.spawn()?;
+    while let Some(ev) = rx.recv().await {
+      use tauri_plugin_shell::process::CommandEvent::*;
+      match ev {
+        Terminated(status) => {
+          if status.code.unwrap_or(1) != 0 {
+            anyhow::bail!("Falha ao criar role PostgreSQL");
+          }
+          break;
+        }
+        _ => {}
+      }
+    }
+  }
+
+  // Criar database (se não existir)
+  let check_db = format!("SELECT 1 FROM pg_database WHERE datname='{}'", company);
+  let cmd = shell.command("sudo")
+    .args(["-u", "postgres", "psql", "-tc", &check_db]);
+  let (mut rx, _) = cmd.spawn()?;
+  let mut db_exists = false;
+  while let Some(ev) = rx.recv().await {
+    use tauri_plugin_shell::process::CommandEvent::*;
+    match ev {
+      Stdout(line) => {
+        if String::from_utf8_lossy(&line).contains("1") {
+          db_exists = true;
+        }
+      }
+      Terminated(_) => break,
+      _ => {}
+    }
+  }
+
+  if !db_exists {
+    log(window, format!("💾 Criando database PostgreSQL: {}", company));
+    let create_db = format!("CREATE DATABASE {} OWNER {}", company, company);
+    let cmd = shell.command("sudo")
+      .args(["-u", "postgres", "psql", "-c", &create_db]);
+    let (mut rx, _) = cmd.spawn()?;
+    while let Some(ev) = rx.recv().await {
+      use tauri_plugin_shell::process::CommandEvent::*;
+      match ev {
+        Terminated(status) => {
+          if status.code.unwrap_or(1) != 0 {
+            anyhow::bail!("Falha ao criar database PostgreSQL");
+          }
+          break;
+        }
+        _ => {}
+      }
+    }
+  }
+
+  log(window, "✅ Banco de dados configurado");
+  Ok(())
+}
+
+/// Configura Nginx como proxy reverso
+async fn setup_nginx(window: &Window, company: &str, backend_host: &str, frontend_host: &str, backend_port: u16, frontend_port: u16) -> Result<()> {
+  log(window, "🌐 Configurando Nginx...");
+
+  // Config backend
+  let backend_config = format!(
+r#"server {{
+  listen 80;
+  server_name {backend_host};
+  location / {{
+    proxy_pass http://127.0.0.1:{backend_port};
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_http_version 1.1;
+    proxy_set_header Upgrade $http_upgrade;
+    proxy_set_header Connection "upgrade";
+  }}
+}}
+"#,
+    backend_host = backend_host,
+    backend_port = backend_port
+  );
+
+  let backend_file = format!("/etc/nginx/sites-available/{}-backend", company);
+  fs::write(&backend_file, backend_config)?;
+
+  // Config frontend
+  let frontend_config = format!(
+r#"server {{
+  listen 80;
+  server_name {frontend_host};
+  location / {{
+    proxy_pass http://127.0.0.1:{frontend_port};
+    proxy_set_header Host $host;
+    proxy_http_version 1.1;
+  }}
+}}
+"#,
+    frontend_host = frontend_host,
+    frontend_port = frontend_port
+  );
+
+  let frontend_file = format!("/etc/nginx/sites-available/{}-frontend", company);
+  fs::write(&frontend_file, frontend_config)?;
+
+  // Criar symlinks
+  let backend_link = format!("/etc/nginx/sites-enabled/{}-backend", company);
+  let frontend_link = format!("/etc/nginx/sites-enabled/{}-frontend", company);
+
+  let _ = fs::remove_file(&backend_link);
+  let _ = fs::remove_file(&frontend_link);
+
+  std::os::unix::fs::symlink(&backend_file, &backend_link)?;
+  std::os::unix::fs::symlink(&frontend_file, &frontend_link)?;
+
+  // Remover default
+  let _ = fs::remove_file("/etc/nginx/sites-enabled/default");
+
+  // Testar e recarregar Nginx
+  log(window, "🔧 Testando configuração Nginx...");
+  let shell = window.app_handle().shell();
+  let cmd = shell.command("sudo")
+    .args(["nginx", "-t"]);
+  let (mut rx, _) = cmd.spawn()?;
+  while let Some(ev) = rx.recv().await {
+    use tauri_plugin_shell::process::CommandEvent::*;
+    match ev {
+      Terminated(status) => {
+        if status.code.unwrap_or(1) != 0 {
+          anyhow::bail!("Configuração Nginx inválida");
+        }
+        break;
+      }
+      _ => {}
+    }
+  }
+
+  log(window, "🔄 Reiniciando Nginx...");
+  let cmd = shell.command("sudo")
+    .args(["systemctl", "restart", "nginx"]);
+  let (mut rx, _) = cmd.spawn()?;
+  while let Some(ev) = rx.recv().await {
+    use tauri_plugin_shell::process::CommandEvent::*;
+    match ev {
+      Terminated(status) => {
+        if status.code.unwrap_or(1) != 0 {
+          anyhow::bail!("Falha ao reiniciar Nginx");
+        }
+        break;
+      }
+      _ => {}
+    }
+  }
+
+  log(window, "✅ Nginx configurado");
+  Ok(())
+}
+
+/// Inicia aplicações com PM2
+async fn start_apps_pm2(window: &Window, company: &str, base: &Path) -> Result<()> {
+  log(window, "🚀 Iniciando aplicações com PM2...");
+
+  let shell = window.app_handle().shell();
+  let backend_path = base.join("backend");
+  let frontend_path = base.join("frontend");
+
+  // Iniciar backend
+  log(window, "⚙️ Iniciando backend com PM2...");
+  let backend_name = format!("{}-backend", company);
+  let cmd = shell.command("pm2")
+    .args([
+      "start",
+      "dist/server.js",
+      "--name", &backend_name,
+      "-i", "2",
+      "--update-env"
+    ])
+    .current_dir(&backend_path);
+
+  let (mut rx, _) = cmd.spawn()?;
+  while let Some(ev) = rx.recv().await {
+    use tauri_plugin_shell::process::CommandEvent::*;
+    match ev {
+      Stdout(line) | Stderr(line) =>
+        log(window, String::from_utf8_lossy(&line).into_owned()),
+      Terminated(status) => {
+        if status.code.unwrap_or(1) != 0 {
+          log(window, "⚠️ Backend PM2 pode já estar rodando, tentando atualizar...");
+          // Tentar reload
+          let cmd = shell.command("pm2")
+            .args(["reload", &backend_name]);
+          let (mut rx, _) = cmd.spawn()?;
+          while let Some(_) = rx.recv().await {} // Aguardar conclusão
+        }
+        break;
+      }
+      _ => {}
+    }
+  }
+
+  // Iniciar frontend
+  log(window, "⚙️ Iniciando frontend com PM2...");
+  let frontend_name = format!("{}-frontend", company);
+  let cmd = shell.command("pm2")
+    .args([
+      "start",
+      "server.js",
+      "--name", &frontend_name,
+      "--update-env"
+    ])
+    .current_dir(&frontend_path);
+
+  let (mut rx, _) = cmd.spawn()?;
+  while let Some(ev) = rx.recv().await {
+    use tauri_plugin_shell::process::CommandEvent::*;
+    match ev {
+      Stdout(line) | Stderr(line) =>
+        log(window, String::from_utf8_lossy(&line).into_owned()),
+      Terminated(status) => {
+        if status.code.unwrap_or(1) != 0 {
+          log(window, "⚠️ Frontend PM2 pode já estar rodando, tentando atualizar...");
+          // Tentar reload
+          let cmd = shell.command("pm2")
+            .args(["reload", &frontend_name]);
+          let (mut rx, _) = cmd.spawn()?;
+          while let Some(_) = rx.recv().await {} // Aguardar conclusão
+        }
+        break;
+      }
+      _ => {}
+    }
+  }
+
+  // Salvar lista PM2
+  log(window, "💾 Salvando configuração PM2...");
+  let cmd = shell.command("pm2")
+    .args(["save"]);
+  let (mut rx, _) = cmd.spawn()?;
+  while let Some(_) = rx.recv().await {} // Aguardar conclusão
+
+  log(window, "✅ Aplicações iniciadas com PM2");
   Ok(())
 }
 
