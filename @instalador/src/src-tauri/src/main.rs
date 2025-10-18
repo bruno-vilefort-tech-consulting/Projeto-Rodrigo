@@ -277,29 +277,35 @@ fn strip_adapter(dest: &str, strip: usize) -> UnpackTarget {
 }
 impl TarArchiveExt for Archive<GzDecoder<File>> {
   fn unpack_in_place(&mut self, target: UnpackTarget) -> io::Result<()> {
-    // Duas passagens: primeiro arquivos regulares, depois hard links
-    let mut hardlinks = Vec::new();
+    use std::io::Write;
 
     for entry in self.entries()? {
       let mut entry = entry?;
       let path = entry.path()?;
       let comp = path.components().skip(target.strip).collect::<PathBuf>();
       if comp.as_os_str().is_empty() { continue; }
-      let out = target.dest.join(comp);
+      let out = target.dest.join(&comp);
       if let Some(parent) = out.parent() { fs::create_dir_all(parent)?; }
 
-      // Se for hard link, adiar para segunda passagem
+      // Se for hard link, copiar o conteúdo como arquivo regular
       if entry.header().entry_type().is_hard_link() {
-        hardlinks.push((entry, out));
+        // Obter o caminho do link
+        if let Some(link_name) = entry.link_name()? {
+          let link_comp = link_name.components().skip(target.strip).collect::<PathBuf>();
+          let source = target.dest.join(&link_comp);
+
+          // Se o arquivo fonte já existe, copiar o conteúdo
+          if source.exists() {
+            fs::copy(&source, &out)?;
+          } else {
+            // Se não existe, extrair o conteúdo do entry como arquivo regular
+            let mut file = fs::File::create(&out)?;
+            std::io::copy(&mut entry, &mut file)?;
+          }
+        }
       } else {
         entry.unpack(&out)?;
       }
-    }
-
-    // Segunda passagem: processar hard links
-    for (mut entry, out) in hardlinks {
-      // Extrair como arquivo regular em vez de hard link
-      entry.unpack(&out)?;
     }
 
     Ok(())
