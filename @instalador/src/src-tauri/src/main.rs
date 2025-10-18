@@ -115,12 +115,12 @@ async fn install(window: Window, cfg: InstallConfig) -> Result<(), String> {
 
     if let Err(e) = validate_dns(&window, &client, &cfg.backend_url).await {
       log(&window, format!("⚠️  Validação DNS backend falhou: {}", e));
-      log(&window, "Continuando instalação (SSL pode falhar)...".into());
+      log(&window, "Continuando instalação (SSL pode falhar)...");
     }
 
     if let Err(e) = validate_dns(&window, &client, &cfg.frontend_url).await {
       log(&window, format!("⚠️  Validação DNS frontend falhou: {}", e));
-      log(&window, "Continuando instalação (SSL pode falhar)...".into());
+      log(&window, "Continuando instalação (SSL pode falhar)...");
     }
 
     progress(&window, ProgressEvent { phase: "dns-validation".into(), artifact: None, current: 2, total: 2, bytes: None, message: Some("DNS validado".into()) });
@@ -356,8 +356,6 @@ fn strip_adapter(dest: &str, strip: usize) -> UnpackTarget {
 }
 impl TarArchiveExt for Archive<GzDecoder<File>> {
   fn unpack_in_place(&mut self, target: UnpackTarget) -> io::Result<()> {
-    use std::io::Write;
-
     for entry in self.entries()? {
       let mut entry = entry?;
       let path = entry.path()?;
@@ -633,7 +631,7 @@ async fn run_migrations(window: &Window, base: &Path) -> Result<()> {
       Stdout(line) | Stderr(line) =>
         log(window, String::from_utf8_lossy(&line).into_owned()),
       Terminated(status) => {
-        if !status.success() {
+        if status.code.unwrap_or(1) != 0 {
           anyhow::bail!("Migrations falharam");
         }
         break;
@@ -665,7 +663,7 @@ async fn run_seeds(window: &Window, base: &Path) -> Result<()> {
       Stdout(line) | Stderr(line) =>
         log(window, String::from_utf8_lossy(&line).into_owned()),
       Terminated(status) => {
-        if !status.success() {
+        if status.code.unwrap_or(1) != 0 {
           anyhow::bail!("Seeds falharam");
         }
         break;
@@ -728,7 +726,7 @@ async fn setup_ssl(window: &Window, domain: &str, email: &str) -> Result<()> {
       Stdout(line) | Stderr(line) =>
         log(window, String::from_utf8_lossy(&line).into_owned()),
       Terminated(status) => {
-        if !status.success() {
+        if status.code.unwrap_or(1) != 0 {
           anyhow::bail!("Certbot falhou");
         }
         break;
