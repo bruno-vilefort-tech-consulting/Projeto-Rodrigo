@@ -27,15 +27,25 @@ cd /home/deploy/chatia-install
 BASE_URL="https://github.com/bruno-vilefort-tech-consulting/Projeto-Rodrigo/releases/download/v5.0.0"
 
 for FILE in manifest.json backend_dist.tar.gz backend_node_modules.tar.gz frontend_build.tar.gz chatia-installer.deb; do
-    if [ ! -f "$FILE" ]; then
+    if [ ! -f "$FILE" ] || [ $(stat -f%z "$FILE" 2>/dev/null || stat -c%s "$FILE" 2>/dev/null) -lt 1000 ]; then
         echo "  Baixando $FILE..."
-        wget -q --show-progress --max-redirect=5 -L "$BASE_URL/$FILE" || {
-            echo "  ⚠️  Falha ao baixar $FILE"
-            echo "  Tentando com curl..."
-            curl -L -o "$FILE" "$BASE_URL/$FILE" || echo "  ❌ Erro: não foi possível baixar $FILE"
-        }
+
+        # Tentar curl primeiro (mais confiável para GitHub)
+        if curl -f -L -o "$FILE" "$BASE_URL/$FILE" 2>/dev/null; then
+            echo "  ✓ $FILE baixado com sucesso"
+        else
+            echo "  ⚠️  Falha ao baixar com curl, tentando wget..."
+            if wget -q --show-progress --max-redirect=5 -L "$BASE_URL/$FILE" 2>/dev/null; then
+                echo "  ✓ $FILE baixado com sucesso"
+            else
+                echo "  ❌ Erro: não foi possível baixar $FILE"
+                echo "     A release v5.0.0 pode ainda não estar pronta."
+                echo "     Aguarde alguns minutos e tente novamente."
+            fi
+        fi
     else
-        echo "  ✓ $FILE já existe"
+        SIZE=$(du -h "$FILE" | cut -f1)
+        echo "  ✓ $FILE já existe ($SIZE)"
     fi
 done
 
@@ -60,13 +70,24 @@ VNC_PASSWORD="chatia2025"
 mkdir -p /home/deploy/.vnc
 echo "$VNC_PASSWORD" | vncpasswd -f > /home/deploy/.vnc/passwd
 chmod 600 /home/deploy/.vnc/passwd
+
+# Criar arquivo .Xresources vazio para evitar erro
+touch /home/deploy/.Xresources
+chown deploy:deploy /home/deploy/.Xresources
+
 chown -R deploy:deploy /home/deploy/.vnc
 
 # 6. Criar xstartup para XFCE
 echo "[6/8] Configurando XFCE como desktop padrão..."
 cat > /home/deploy/.vnc/xstartup << 'EOF'
 #!/bin/bash
-xrdb $HOME/.Xresources
+unset SESSION_MANAGER
+unset DBUS_SESSION_BUS_ADDRESS
+
+[ -r $HOME/.Xresources ] && xrdb $HOME/.Xresources
+xsetroot -solid grey
+
+# Iniciar XFCE
 startxfce4 &
 EOF
 chmod +x /home/deploy/.vnc/xstartup
@@ -81,9 +102,23 @@ iptables -I INPUT -p tcp --dport 5901 -j ACCEPT 2>/dev/null || true
 
 # 8. Iniciar VNC server
 echo "[8/8] Iniciando VNC server..."
+# Matar qualquer sessão existente
 sudo -u deploy vncserver -kill :1 > /dev/null 2>&1 || true
+sudo -u deploy vncserver -kill :2 > /dev/null 2>&1 || true
 sleep 2
-sudo -u deploy vncserver -localhost no -geometry 1920x1080 -depth 24 2>&1 | grep -v "^$" || echo "  VNC iniciado"
+
+# Iniciar VNC com display :1
+echo "  Iniciando servidor VNC..."
+sudo -u deploy vncserver :1 -localhost no -geometry 1920x1080 -depth 24 > /tmp/vnc-start.log 2>&1
+
+# Verificar se iniciou
+sleep 3
+if pgrep -u deploy Xtigervnc > /dev/null; then
+    echo "  ✓ VNC iniciado com sucesso"
+else
+    echo "  ⚠️  VNC pode não ter iniciado corretamente"
+    echo "  Veja os logs: tail -f /home/deploy/.vnc/*.log"
+fi
 
 # Descobrir IP
 echo ""
