@@ -15,8 +15,14 @@ type InstallConfig = {
   supportPhone: string;
   fbAppId?: string;
   fbAppSecret?: string;
-  sqlBackupPath?: string; // opcional
-  runPostInstall: boolean; // executa postinstall.sh com sudo (opcional)
+  sqlBackupPath?: string;
+  runPostInstall: boolean;
+  // Novas opções v5.1.0
+  skipDnsValidation: boolean;
+  skipSslSetup: boolean;
+  runMigrations: boolean;
+  runSeeds: boolean;
+  setupCrons: boolean;
 };
 
 type ProgressEvent = {
@@ -46,7 +52,13 @@ export default function App() {
     fbAppId: "",
     fbAppSecret: "",
     sqlBackupPath: "",
-    runPostInstall: true
+    runPostInstall: true,
+    // Novas opções v5.1.0
+    skipDnsValidation: false,
+    skipSslSetup: false,
+    runMigrations: true,
+    runSeeds: false,
+    setupCrons: true
   });
 
   const [started, setStarted] = useState(false);
@@ -177,6 +189,63 @@ export default function App() {
             <input placeholder={t.sqlBackupPlaceholder}
                    value={cfg.sqlBackupPath}
                    onChange={e => setCfg({ ...cfg, sqlBackupPath: e.target.value })}/>
+          </label>
+        </div>
+
+        <h3 className="section-title">⚙️ Opções Avançadas (v5.1.0)</h3>
+        <div className="checkbox-group">
+          <label className="checkbox-label">
+            <input
+              type="checkbox"
+              checked={cfg.runMigrations}
+              onChange={e => setCfg({ ...cfg, runMigrations: e.target.checked })}
+            />
+            <span>🔄 Executar Migrations (Sequelize)</span>
+          </label>
+
+          <label className="checkbox-label">
+            <input
+              type="checkbox"
+              checked={cfg.runSeeds}
+              onChange={e => setCfg({ ...cfg, runSeeds: e.target.checked })}
+            />
+            <span>🌱 Executar Seeds (dados iniciais)</span>
+          </label>
+
+          <label className="checkbox-label">
+            <input
+              type="checkbox"
+              checked={!cfg.skipSslSetup}
+              onChange={e => setCfg({ ...cfg, skipSslSetup: !e.target.checked })}
+            />
+            <span>🔒 Configurar SSL (Certbot/Let's Encrypt)</span>
+          </label>
+
+          <label className="checkbox-label">
+            <input
+              type="checkbox"
+              checked={!cfg.skipDnsValidation}
+              onChange={e => setCfg({ ...cfg, skipDnsValidation: !e.target.checked })}
+            />
+            <span>🌐 Validar DNS antes de instalar</span>
+          </label>
+
+          <label className="checkbox-label">
+            <input
+              type="checkbox"
+              checked={cfg.setupCrons}
+              onChange={e => setCfg({ ...cfg, setupCrons: e.target.checked })}
+            />
+            <span>⏰ Configurar Cron Jobs (backup + limpeza)</span>
+          </label>
+
+          <label className="checkbox-label">
+            <input
+              type="checkbox"
+              checked={cfg.runPostInstall}
+              onChange={e => setCfg({ ...cfg, runPostInstall: e.target.checked })}
+            />
+            <span>📦 Executar pós-instalação (PM2, Redis, PostgreSQL)</span>
           </label>
         </div>
 

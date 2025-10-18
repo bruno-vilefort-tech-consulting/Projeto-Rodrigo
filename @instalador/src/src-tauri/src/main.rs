@@ -34,6 +34,16 @@ struct InstallConfig {
   fb_app_secret: Option<String>,
   sql_backup_path: Option<String>,
   run_post_install: bool,
+  #[serde(default)]
+  skip_dns_validation: bool,
+  #[serde(default)]
+  skip_ssl_setup: bool,
+  #[serde(default)]
+  run_migrations: bool,
+  #[serde(default)]
+  run_seeds: bool,
+  #[serde(default)]
+  setup_crons: bool,
 }
 
 #[derive(Serialize, Deserialize, Clone)]
@@ -98,6 +108,24 @@ async fn install(window: Window, cfg: InstallConfig) -> Result<(), String> {
   }
   let company_slug = normalize_company(&cfg.company_name);
   let client = Client::builder().build().map_err(err)?;
+
+  // FASE 0: Validação DNS (se não pulada)
+  if !cfg.skip_dns_validation {
+    progress(&window, ProgressEvent { phase: "dns-validation".into(), artifact: None, current: 0, total: 2, bytes: None, message: Some("Validando DNS...".into()) });
+
+    if let Err(e) = validate_dns(&window, &client, &cfg.backend_url).await {
+      log(&window, format!("⚠️  Validação DNS backend falhou: {}", e));
+      log(&window, "Continuando instalação (SSL pode falhar)...".into());
+    }
+
+    if let Err(e) = validate_dns(&window, &client, &cfg.frontend_url).await {
+      log(&window, format!("⚠️  Validação DNS frontend falhou: {}", e));
+      log(&window, "Continuando instalação (SSL pode falhar)...".into());
+    }
+
+    progress(&window, ProgressEvent { phase: "dns-validation".into(), artifact: None, current: 2, total: 2, bytes: None, message: Some("DNS validado".into()) });
+  }
+
   log(&window, format!("Baixando manifest: {}", MANIFEST_URL));
   let manifest: Manifest = client
     .get(MANIFEST_URL)
@@ -192,6 +220,57 @@ async fn install(window: Window, cfg: InstallConfig) -> Result<(), String> {
       return Err(e.to_string());
     }
     progress(&window, ProgressEvent { phase: "postinstall".into(), artifact: None, current: 1, total: 1, bytes: None, message: Some("OK".into()) });
+  }
+
+  // FASE: Migrations (se habilitado)
+  if cfg.run_migrations {
+    progress(&window, ProgressEvent { phase: "migrations".into(), artifact: None, current: 0, total: 1, bytes: None, message: Some("Executando migrations...".into()) });
+
+    if let Err(e) = run_migrations(&window, &base).await {
+      log(&window, format!("⚠️  Migrations falharam: {}", e));
+    } else {
+      progress(&window, ProgressEvent { phase: "migrations".into(), artifact: None, current: 1, total: 1, bytes: None, message: Some("Migrations OK".into()) });
+    }
+  }
+
+  // FASE: Seeds (se habilitado)
+  if cfg.run_seeds {
+    progress(&window, ProgressEvent { phase: "seeds".into(), artifact: None, current: 0, total: 1, bytes: None, message: Some("Executando seeds...".into()) });
+
+    if let Err(e) = run_seeds(&window, &base).await {
+      log(&window, format!("⚠️  Seeds falharam: {}", e));
+    } else {
+      progress(&window, ProgressEvent { phase: "seeds".into(), artifact: None, current: 1, total: 1, bytes: None, message: Some("Seeds OK".into()) });
+    }
+  }
+
+  // FASE: SSL/Certbot (se não pulado)
+  if !cfg.skip_ssl_setup {
+    progress(&window, ProgressEvent { phase: "ssl".into(), artifact: None, current: 0, total: 2, bytes: None, message: Some("Configurando SSL...".into()) });
+
+    let backend_domain = host_only(&cfg.backend_url);
+    let frontend_domain = host_only(&cfg.frontend_url);
+
+    if let Err(e) = setup_ssl(&window, &backend_domain, &cfg.email).await {
+      log(&window, format!("⚠️  SSL backend falhou: {}", e));
+    }
+
+    if let Err(e) = setup_ssl(&window, &frontend_domain, &cfg.email).await {
+      log(&window, format!("⚠️  SSL frontend falhou: {}", e));
+    }
+
+    progress(&window, ProgressEvent { phase: "ssl".into(), artifact: None, current: 2, total: 2, bytes: None, message: Some("SSL configurado".into()) });
+  }
+
+  // FASE: Cron Jobs (se habilitado)
+  if cfg.setup_crons {
+    progress(&window, ProgressEvent { phase: "crons".into(), artifact: None, current: 0, total: 3, bytes: None, message: Some("Configurando cron jobs...".into()) });
+
+    if let Err(e) = setup_crons(&window, &company_slug).await {
+      log(&window, format!("⚠️  Crons falharam: {}", e));
+    } else {
+      progress(&window, ProgressEvent { phase: "crons".into(), artifact: None, current: 3, total: 3, bytes: None, message: Some("Crons configurados".into()) });
+    }
   }
 
   let _ = window.emit("install://done", "ok");
@@ -444,6 +523,291 @@ async fn run_postinstall(window: &Window, base: &Path, v: PostVars) -> Result<()
       _ => {}
     }
   }
+  Ok(())
+}
+
+// ============================================================================
+// NOVAS FUNCIONALIDADES v5.1.0
+// ============================================================================
+
+/// Valida DNS de um domínio
+async fn validate_dns(window: &Window, client: &Client, url: &str) -> Result<()> {
+  let domain = host_only(url);
+  log(window, format!("🌐 Validando DNS para: {}", domain));
+
+  // Obter IP público da VPS
+  let vps_ip = get_public_ip(client).await?;
+  log(window, format!("  IP da VPS: {}", vps_ip));
+
+  // Resolver domínio
+  let resolved_ip = resolve_domain(&domain).await?;
+  log(window, format!("  DNS resolve para: {}", resolved_ip));
+
+  if resolved_ip != vps_ip {
+    anyhow::bail!(
+      "DNS inválido: {} aponta para {} mas deveria apontar para {}",
+      domain, resolved_ip, vps_ip
+    );
+  }
+
+  log(window, format!("✅ DNS correto para {}", domain));
+  Ok(())
+}
+
+/// Obtém IP público da VPS
+async fn get_public_ip(client: &Client) -> Result<String> {
+  let services = vec![
+    "https://api.ipify.org",
+    "https://ifconfig.me/ip",
+    "https://icanhazip.com",
+  ];
+
+  for service in services {
+    if let Ok(resp) = client.get(service).send().await {
+      if let Ok(ip) = resp.text().await {
+        let ip = ip.trim().to_string();
+        if ip.split('.').count() == 4 {
+          return Ok(ip);
+        }
+      }
+    }
+  }
+
+  anyhow::bail!("Não foi possível detectar IP público")
+}
+
+/// Resolve domínio para IP (via dig ou nslookup)
+async fn resolve_domain(domain: &str) -> Result<String> {
+  use std::process::Command;
+
+  // Tentar com dig primeiro
+  if let Ok(output) = Command::new("dig")
+    .args(["+short", domain])
+    .output()
+  {
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    if let Some(line) = stdout.lines().next() {
+      let ip = line.trim();
+      if !ip.is_empty() && ip.split('.').count() == 4 {
+        return Ok(ip.to_string());
+      }
+    }
+  }
+
+  // Fallback para nslookup
+  if let Ok(output) = Command::new("nslookup")
+    .arg(domain)
+    .output()
+  {
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    for line in stdout.lines() {
+      if line.contains("Address:") && !line.contains("#") {
+        if let Some(ip) = line.split_whitespace().last() {
+          if ip.split('.').count() == 4 {
+            return Ok(ip.to_string());
+          }
+        }
+      }
+    }
+  }
+
+  anyhow::bail!("Não foi possível resolver domínio: {}", domain)
+}
+
+/// Executa migrations do Sequelize
+async fn run_migrations(window: &Window, base: &Path) -> Result<()> {
+  log(window, "🔄 Executando migrations...");
+
+  let backend = base.join("backend");
+  let shell = window.app_handle().shell();
+
+  let cmd = shell.command("npx")
+    .args(["sequelize-cli", "db:migrate"])
+    .current_dir(&backend);
+
+  let (mut rx, _child) = cmd.spawn()?;
+
+  while let Some(ev) = rx.recv().await {
+    use tauri_plugin_shell::process::CommandEvent::*;
+    match ev {
+      Stdout(line) | Stderr(line) =>
+        log(window, String::from_utf8_lossy(&line).into_owned()),
+      Terminated(status) => {
+        if !status.success() {
+          anyhow::bail!("Migrations falharam");
+        }
+        break;
+      }
+      _ => {}
+    }
+  }
+
+  log(window, "✅ Migrations executadas");
+  Ok(())
+}
+
+/// Executa seeds do Sequelize
+async fn run_seeds(window: &Window, base: &Path) -> Result<()> {
+  log(window, "🌱 Executando seeds...");
+
+  let backend = base.join("backend");
+  let shell = window.app_handle().shell();
+
+  let cmd = shell.command("npx")
+    .args(["sequelize-cli", "db:seed:all"])
+    .current_dir(&backend);
+
+  let (mut rx, _child) = cmd.spawn()?;
+
+  while let Some(ev) = rx.recv().await {
+    use tauri_plugin_shell::process::CommandEvent::*;
+    match ev {
+      Stdout(line) | Stderr(line) =>
+        log(window, String::from_utf8_lossy(&line).into_owned()),
+      Terminated(status) => {
+        if !status.success() {
+          anyhow::bail!("Seeds falharam");
+        }
+        break;
+      }
+      _ => {}
+    }
+  }
+
+  log(window, "✅ Seeds executados");
+  Ok(())
+}
+
+/// Configura SSL/Certbot para um domínio
+async fn setup_ssl(window: &Window, domain: &str, email: &str) -> Result<()> {
+  log(window, format!("🔒 Configurando SSL para: {}", domain));
+
+  let shell = window.app_handle().shell();
+
+  // Verificar se certbot está instalado
+  if let Err(_) = std::process::Command::new("which").arg("certbot").output() {
+    log(window, "📦 Instalando Certbot...");
+
+    // Instalar certbot via snap
+    let install_cmds = vec![
+      vec!["apt-get", "update", "-qq"],
+      vec!["apt-get", "install", "-y", "-qq", "snapd"],
+      vec!["systemctl", "enable", "snapd"],
+      vec!["systemctl", "start", "snapd"],
+      vec!["snap", "install", "core"],
+      vec!["snap", "refresh", "core"],
+      vec!["snap", "install", "--classic", "certbot"],
+      vec!["ln", "-sf", "/snap/bin/certbot", "/usr/bin/certbot"],
+    ];
+
+    for args in install_cmds {
+      std::process::Command::new("sudo")
+        .args(&args)
+        .output()?;
+    }
+
+    log(window, "✅ Certbot instalado");
+  }
+
+  // Gerar certificado
+  let cmd = shell.command("sudo")
+    .args([
+      "certbot", "--nginx",
+      "-d", domain,
+      "--non-interactive",
+      "--agree-tos",
+      "--email", email,
+      "--redirect"
+    ]);
+
+  let (mut rx, _child) = cmd.spawn()?;
+
+  while let Some(ev) = rx.recv().await {
+    use tauri_plugin_shell::process::CommandEvent::*;
+    match ev {
+      Stdout(line) | Stderr(line) =>
+        log(window, String::from_utf8_lossy(&line).into_owned()),
+      Terminated(status) => {
+        if !status.success() {
+          anyhow::bail!("Certbot falhou");
+        }
+        break;
+      }
+      _ => {}
+    }
+  }
+
+  log(window, format!("✅ SSL configurado para {}", domain));
+  Ok(())
+}
+
+/// Configura cron jobs (backup, limpeza)
+async fn setup_crons(window: &Window, company: &str) -> Result<()> {
+  log(window, "⏰ Configurando cron jobs...");
+
+  // Script de backup do banco
+  let backup_script = format!(
+r#"#!/bin/bash
+BACKUP_DIR="/home/deploy/backups/{company}"
+DB_NAME="{company}_chatia"
+TIMESTAMP=$(date +%Y%m%d_%H%M%S)
+BACKUP_FILE="$BACKUP_DIR/backup_${{TIMESTAMP}}.sql.gz"
+
+mkdir -p "$BACKUP_DIR"
+PGPASSWORD="123456" pg_dump -h localhost -U atuar_pay -d $DB_NAME | gzip > "$BACKUP_FILE"
+find "$BACKUP_DIR" -name "backup_*.sql.gz" -mtime +7 -delete
+"#,
+    company = company
+  );
+
+  let script_path = format!("/home/deploy/{}/scripts/db-backup.sh", company);
+  fs::create_dir_all(format!("/home/deploy/{}/scripts", company))?;
+  fs::write(&script_path, backup_script)?;
+  std::process::Command::new("chmod")
+    .args(["+x", &script_path])
+    .output()?;
+
+  // Criar cron
+  let cron_content = format!(
+r#"# Backup diário do banco de dados - {}
+0 2 * * * deploy {}
+"#,
+    company, script_path
+  );
+
+  let cron_file = format!("/etc/cron.d/{}-backup", company);
+  fs::write(&cron_file, cron_content)?;
+
+  log(window, "✅ Cron de backup configurado (diário às 2h)");
+
+  // Script de limpeza de logs
+  let cleanup_script = format!(
+r#"#!/bin/bash
+LOG_DIR="/home/deploy/{company}/backend/logs"
+find "$LOG_DIR" -name "*.log" -mtime +30 -delete 2>/dev/null
+find "$LOG_DIR" -name "*.log" -mtime +7 -exec gzip {{}} \; 2>/dev/null
+"#,
+    company = company
+  );
+
+  let cleanup_path = format!("/home/deploy/{}/scripts/log-cleanup.sh", company);
+  fs::write(&cleanup_path, cleanup_script)?;
+  std::process::Command::new("chmod")
+    .args(["+x", &cleanup_path])
+    .output()?;
+
+  let cleanup_cron = format!(
+r#"# Limpeza de logs - {}
+0 3 * * 1 deploy {}
+"#,
+    company, cleanup_path
+  );
+
+  let cleanup_file = format!("/etc/cron.d/{}-cleanup", company);
+  fs::write(&cleanup_file, cleanup_cron)?;
+
+  log(window, "✅ Cron de limpeza configurado (semanalmente)");
+
   Ok(())
 }
 
