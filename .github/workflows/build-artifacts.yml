@@ -42,7 +42,7 @@ jobs:
           pnpm run build
           tar czf ../backend_dist.tar.gz dist
           # --dereference converte hard links do pnpm em arquivos regulares
-          tar czf --dereference ../backend_node_modules.tar.gz node_modules
+          tar --dereference -czf ../backend_node_modules.tar.gz node_modules
 
       # FRONTEND (usa pnpm)
       - run: |
