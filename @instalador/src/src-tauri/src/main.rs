@@ -17,10 +17,12 @@ use tar::Archive;
 use tauri::{Emitter, Manager, Window};
 use tauri_plugin_shell::ShellExt;
 
+// URL fixa do manifest no repositório
+const MANIFEST_URL: &str = "https://github.com/bruno-vilefort-tech-consulting/Projeto-Rodrigo/releases/download/v5.0.0/manifest.json";
+
 #[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
 struct InstallConfig {
-  manifest_url: String,
   backend_url: String,
   frontend_url: String,
   email: String,
@@ -96,9 +98,9 @@ async fn install(window: Window, cfg: InstallConfig) -> Result<(), String> {
   }
   let company_slug = normalize_company(&cfg.company_name);
   let client = Client::builder().build().map_err(err)?;
-  log(&window, format!("Baixando manifest: {}", cfg.manifest_url));
+  log(&window, format!("Baixando manifest: {}", MANIFEST_URL));
   let manifest: Manifest = client
-    .get(&cfg.manifest_url)
+    .get(MANIFEST_URL)
     .send().await.map_err(err)?
     .error_for_status().map_err(err)?
     .json().await.map_err(err)?;
@@ -275,6 +277,9 @@ fn strip_adapter(dest: &str, strip: usize) -> UnpackTarget {
 }
 impl TarArchiveExt for Archive<GzDecoder<File>> {
   fn unpack_in_place(&mut self, target: UnpackTarget) -> io::Result<()> {
+    // Duas passagens: primeiro arquivos regulares, depois hard links
+    let mut hardlinks = Vec::new();
+
     for entry in self.entries()? {
       let mut entry = entry?;
       let path = entry.path()?;
@@ -282,8 +287,21 @@ impl TarArchiveExt for Archive<GzDecoder<File>> {
       if comp.as_os_str().is_empty() { continue; }
       let out = target.dest.join(comp);
       if let Some(parent) = out.parent() { fs::create_dir_all(parent)?; }
+
+      // Se for hard link, adiar para segunda passagem
+      if entry.header().entry_type().is_hard_link() {
+        hardlinks.push((entry, out));
+      } else {
+        entry.unpack(&out)?;
+      }
+    }
+
+    // Segunda passagem: processar hard links
+    for (mut entry, out) in hardlinks {
+      // Extrair como arquivo regular em vez de hard link
       entry.unpack(&out)?;
     }
+
     Ok(())
   }
 }

@@ -6,7 +6,6 @@ import { Language, languages, translations } from "./i18n";
 import logoDark from "./logo-dark.png";
 
 type InstallConfig = {
-  manifestUrl: string;
   backendUrl: string;
   frontendUrl: string;
   email: string;
@@ -37,7 +36,6 @@ export default function App() {
   const t = translations[lang];
 
   const [cfg, setCfg] = useState<InstallConfig>({
-    manifestUrl: "",
     backendUrl: "",
     frontendUrl: "",
     email: "",
@@ -73,7 +71,7 @@ export default function App() {
   }, [progress]);
 
   const canInstall = useMemo(() => {
-    if (!cfg.manifestUrl || !cfg.backendUrl || !cfg.frontendUrl || !cfg.email || !cfg.companyName || !cfg.deployPass || !cfg.masterPass || !cfg.supportPhone)
+    if (!cfg.backendUrl || !cfg.frontendUrl || !cfg.email || !cfg.companyName || !cfg.deployPass || !cfg.masterPass || !cfg.supportPhone)
       return false;
     return isEmail(cfg.email) && isPhone(cfg.supportPhone);
   }, [cfg]);
@@ -116,12 +114,6 @@ export default function App() {
       <section className="card">
         <h2>{t.configTitle}</h2>
         <div className="grid">
-          <label>{t.manifestUrl}
-            <input placeholder={t.manifestUrlPlaceholder}
-                   value={cfg.manifestUrl}
-                   onChange={e => setCfg({ ...cfg, manifestUrl: e.target.value.trim() })}/>
-          </label>
-
           <label>{t.backendUrl}
             <input placeholder={t.backendUrlPlaceholder}
                    value={cfg.backendUrl}
