@@ -1,6 +1,6 @@
 {
   "name": "chatia-installer",
-  "version": "0.1.0",
+  "version": "5.0.0",
   "description": "Instalador GUI para ChatIA Flow v5 - Bootstrapper com UI dark, download paralelo e validação SHA-256",
   "type": "module",
   "scripts": {

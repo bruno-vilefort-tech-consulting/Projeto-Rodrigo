@@ -60,7 +60,7 @@ jobs:
 
       # Copiar instalador para raiz
       - run: |
-          cp "@instalador/src/src-tauri/target/release/bundle/deb/"*.deb ./chatia-installer.deb || true
+          find @instalador -name "*.deb" -exec cp {} ./chatia-installer.deb \; || echo "No .deb found"
 
       # checksums + manifest
       - id: mkmanifest
