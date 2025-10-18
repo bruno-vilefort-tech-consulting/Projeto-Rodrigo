@@ -109,6 +109,8 @@ jobs:
       - name: Upload release assets
         uses: softprops/action-gh-release@v2
         with:
+          draft: false
+          prerelease: false
           files: |
             backend_dist.tar.gz
             backend_node_modules.tar.gz
