@@ -53,14 +53,33 @@ jobs:
           tar czf ../frontend_build.tar.gz build
 
       # INSTALADOR TAURI
-      - run: |
+      - name: Build Tauri Installer
+        run: |
           cd @instalador
           npm install
-          npm run tauri:build
+          npm run build
+          # Tauri CLI procura src-tauri/ na raiz, então vamos criar um symlink
+          ln -sf src/src-tauri src-tauri
+          npm run tauri build -- --verbose
+
+      # Debug: Verificar estrutura de diretórios
+      - name: Debug - List Tauri build output
+        run: |
+          echo "=== Procurando arquivos .deb ==="
+          find @instalador -name "*.deb" -ls || echo "Nenhum .deb encontrado"
+          echo "=== Estrutura do diretório target ==="
+          find @instalador -type d -name "target" -exec ls -laR {} \; || echo "Diretório target não encontrado"
 
       # Copiar instalador para raiz
-      - run: |
-          find @instalador -name "*.deb" -exec cp {} ./chatia-installer.deb \; || echo "No .deb found"
+      - name: Copy installer to root
+        run: |
+          if find @instalador -name "*.deb" -exec cp {} ./chatia-installer.deb \; ; then
+            echo "✅ Instalador copiado com sucesso"
+            ls -lh chatia-installer.deb
+          else
+            echo "❌ ERRO: Nenhum arquivo .deb encontrado!"
+            exit 1
+          fi
 
       # checksums + manifest
       - id: mkmanifest
