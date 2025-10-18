@@ -5,8 +5,6 @@
 # Configuração automática de VNC + Instalador
 #############################################
 
-set -e  # Parar se houver erro
-
 echo "========================================="
 echo "  ChatIA Installer - Setup VNC"
 echo "========================================="
@@ -30,18 +28,31 @@ BASE_URL="https://github.com/bruno-vilefort-tech-consulting/Projeto-Rodrigo/rele
 
 for FILE in manifest.json backend_dist.tar.gz backend_node_modules.tar.gz frontend_build.tar.gz chatia-installer.deb; do
     if [ ! -f "$FILE" ]; then
-        wget -q --show-progress "$BASE_URL/$FILE" || echo "Aviso: Falha ao baixar $FILE"
+        echo "  Baixando $FILE..."
+        wget -q --show-progress --max-redirect=5 -L "$BASE_URL/$FILE" || {
+            echo "  ⚠️  Falha ao baixar $FILE"
+            echo "  Tentando com curl..."
+            curl -L -o "$FILE" "$BASE_URL/$FILE" || echo "  ❌ Erro: não foi possível baixar $FILE"
+        }
+    else
+        echo "  ✓ $FILE já existe"
     fi
 done
 
 # 3. Instalar o instalador .deb
-echo "[3/8] Instalando chatia-installer.deb..."
-dpkg -i chatia-installer.deb 2>/dev/null || apt-get install -f -y
+if [ -f "chatia-installer.deb" ]; then
+    echo "[3/8] Instalando chatia-installer.deb..."
+    dpkg -i chatia-installer.deb 2>/dev/null || apt-get install -f -y
+else
+    echo "[3/8] ⚠️  chatia-installer.deb não encontrado, pulando instalação..."
+fi
 
 # 4. Instalar ambiente desktop e VNC
 echo "[4/8] Instalando XFCE e TigerVNC..."
-apt update -qq
-DEBIAN_FRONTEND=noninteractive apt install -y -qq xfce4 xfce4-goodies tigervnc-standalone-server tigervnc-common > /dev/null 2>&1
+echo "  Atualizando repositórios..."
+apt update -qq 2>&1 | grep -v "packages can be upgraded" || true
+echo "  Instalando pacotes (isso pode levar alguns minutos)..."
+DEBIAN_FRONTEND=noninteractive apt install -y xfce4 xfce4-goodies tigervnc-standalone-server tigervnc-common 2>&1 | grep -E "(Setting up|Unpacking)" || echo "  Instalação em andamento..."
 
 # 5. Configurar senha VNC automaticamente
 echo "[5/8] Configurando senha VNC..."
@@ -71,42 +82,87 @@ iptables -I INPUT -p tcp --dport 5901 -j ACCEPT 2>/dev/null || true
 # 8. Iniciar VNC server
 echo "[8/8] Iniciando VNC server..."
 sudo -u deploy vncserver -kill :1 > /dev/null 2>&1 || true
-sudo -u deploy vncserver -localhost no -geometry 1920x1080 -depth 24 > /dev/null 2>&1
+sleep 2
+sudo -u deploy vncserver -localhost no -geometry 1920x1080 -depth 24 2>&1 | grep -v "^$" || echo "  VNC iniciado"
 
 # Descobrir IP
-IP=$(curl -s -4 ifconfig.me 2>/dev/null || hostname -I | awk '{print $1}')
+echo ""
+echo "Detectando IP público..."
+IP=$(curl -s -4 ifconfig.me 2>/dev/null || curl -s -4 icanhazip.com 2>/dev/null || hostname -I | awk '{print $1}')
+
+# Verificar se VNC está rodando
+sleep 2
+if pgrep -u deploy Xvnc > /dev/null; then
+    VNC_STATUS="✅ Rodando"
+else
+    VNC_STATUS="⚠️  Verificar logs"
+fi
 
 # Exibir informações de conexão
 echo ""
 echo "========================================="
-echo "  ✅ VNC CONFIGURADO COM SUCESSO!"
+echo "  ✅ CONFIGURAÇÃO CONCLUÍDA!"
 echo "========================================="
 echo ""
-echo "📱 CONECTAR VIA FINDER (macOS):"
+echo "📊 STATUS:"
+echo "   VNC Server: $VNC_STATUS"
+echo "   IP Público: $IP"
+echo "   Porta VNC:  5901"
+echo ""
+echo "========================================="
+echo "  📱 CONECTAR VIA FINDER (macOS)"
+echo "========================================="
 echo ""
 echo "   1. No Mac, pressione: Cmd + K"
 echo ""
 echo "   2. Cole este endereço:"
+echo ""
 echo "      vnc://$IP:5901"
 echo ""
 echo "   3. Senha VNC:"
+echo ""
 echo "      $VNC_PASSWORD"
 echo ""
 echo "========================================="
+echo "  🖥️  EXECUTAR INSTALADOR GRÁFICO"
+echo "========================================="
 echo ""
-echo "🖥️  EXECUTAR INSTALADOR:"
+echo "   Após conectar no VNC:"
 echo ""
-echo "   Após conectar no VNC, abra o terminal"
-echo "   no desktop XFCE e execute:"
+echo "   1. Clique com botão direito no desktop"
+echo "   2. Selecione: Open Terminal"
+echo "   3. Digite: chatia-installer"
 echo ""
-echo "   chatia-installer"
+echo "========================================="
+echo "  🔐 COMANDOS ÚTEIS"
+echo "========================================="
+echo ""
+echo "   Parar VNC:"
+echo "   sudo -u deploy vncserver -kill :1"
+echo ""
+echo "   Iniciar VNC:"
+echo "   sudo -u deploy vncserver -localhost no"
+echo ""
+echo "   Ver logs:"
+echo "   tail -f /home/deploy/.vnc/*.log"
+echo ""
+echo "   Status VNC:"
+echo "   ps aux | grep Xvnc"
 echo ""
 echo "========================================="
 echo ""
-echo "🔐 GERENCIAR VNC:"
+
+# Verificar arquivos baixados
+echo "📦 ARTEFATOS BAIXADOS:"
 echo ""
-echo "   Parar:  sudo -u deploy vncserver -kill :1"
-echo "   Iniciar: sudo -u deploy vncserver -localhost no"
-echo "   Logs:   tail -f /home/deploy/.vnc/*.log"
+cd /home/deploy/chatia-install
+for FILE in manifest.json backend_dist.tar.gz backend_node_modules.tar.gz frontend_build.tar.gz chatia-installer.deb; do
+    if [ -f "$FILE" ]; then
+        SIZE=$(du -h "$FILE" | cut -f1)
+        echo "   ✓ $FILE ($SIZE)"
+    else
+        echo "   ✗ $FILE (não baixado)"
+    fi
+done
 echo ""
 echo "========================================="
