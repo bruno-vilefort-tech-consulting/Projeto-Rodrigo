@@ -228,6 +228,17 @@ async fn install(window: Window, cfg: InstallConfig) -> Result<(), String> {
     }
   }
 
+  // FASE: Instalar dependências do backend (necessário para migrations/seeds)
+  if cfg.run_migrations || cfg.run_seeds {
+    progress(&window, ProgressEvent { phase: "backend-deps".into(), artifact: None, current: 0, total: 1, bytes: None, message: Some("Instalando dependências do backend...".into()) });
+
+    if let Err(e) = install_backend_dependencies(&window, &base).await {
+      log(&window, format!("⚠️  Instalação de dependências falhou: {}", e));
+    } else {
+      progress(&window, ProgressEvent { phase: "backend-deps".into(), artifact: None, current: 1, total: 1, bytes: None, message: Some("Dependências instaladas".into()) });
+    }
+  }
+
   // FASE: Migrations (se habilitado)
   if cfg.run_migrations {
     progress(&window, ProgressEvent { phase: "migrations".into(), artifact: None, current: 0, total: 1, bytes: None, message: Some("Executando migrations...".into()) });
@@ -585,6 +596,38 @@ async fn resolve_domain(domain: &str) -> Result<String> {
   anyhow::bail!("Não foi possível resolver domínio: {}", domain)
 }
 
+/// Instala dependências do backend (npm install)
+async fn install_backend_dependencies(window: &Window, base: &Path) -> Result<()> {
+  log(window, "📦 Instalando dependências do backend...");
+
+  let backend = base.join("backend");
+  let shell = window.app_handle().shell();
+
+  let cmd = shell.command("npm")
+    .args(["install", "--production"])
+    .current_dir(&backend);
+
+  let (mut rx, _child) = cmd.spawn()?;
+
+  while let Some(ev) = rx.recv().await {
+    use tauri_plugin_shell::process::CommandEvent::*;
+    match ev {
+      Stdout(line) | Stderr(line) =>
+        log(window, String::from_utf8_lossy(&line).into_owned()),
+      Terminated(status) => {
+        if status.code.unwrap_or(1) != 0 {
+          anyhow::bail!("Instalação de dependências do backend falhou");
+        }
+        break;
+      }
+      _ => {}
+    }
+  }
+
+  log(window, "✅ Dependências do backend instaladas");
+  Ok(())
+}
+
 /// Executa migrations do Sequelize
 async fn run_migrations(window: &Window, base: &Path) -> Result<()> {
   log(window, "🔄 Executando migrations...");
@@ -939,7 +982,69 @@ async fn install_system_dependencies(window: &Window) -> Result<()> {
     }
   }
 
-  // 10. Habilitar e iniciar serviços
+  // 10. Instalar snapd (para Certbot)
+  log(window, "📦 Instalando snapd (para Certbot)...");
+  let cmd = shell.command("sudo")
+    .args(["apt-get", "install", "-y", "-qq", "snapd"]);
+  let (mut rx, _) = cmd.spawn()?;
+  while let Some(ev) = rx.recv().await {
+    use tauri_plugin_shell::process::CommandEvent::*;
+    match ev {
+      Terminated(status) => {
+        if status.code.unwrap_or(1) != 0 {
+          log(window, "⚠️ Instalação snapd falhou, SSL pode não funcionar");
+        }
+        break;
+      }
+      _ => {}
+    }
+  }
+
+  // 11. Habilitar e iniciar snapd
+  log(window, "🔧 Habilitando snapd...");
+  let cmd = shell.command("sudo")
+    .args(["systemctl", "enable", "--now", "snapd"]);
+  let (mut rx, _) = cmd.spawn()?;
+  while let Some(_) = rx.recv().await {} // Aguardar conclusão
+
+  // 12. Atualizar snap core
+  log(window, "🔄 Atualizando snap core...");
+  let cmd = shell.command("sudo")
+    .args(["snap", "install", "core"]);
+  let (mut rx, _) = cmd.spawn()?;
+  while let Some(_) = rx.recv().await {} // Aguardar conclusão
+
+  let cmd = shell.command("sudo")
+    .args(["snap", "refresh", "core"]);
+  let (mut rx, _) = cmd.spawn()?;
+  while let Some(_) = rx.recv().await {} // Aguardar conclusão
+
+  // 13. Instalar Certbot
+  log(window, "🔒 Instalando Certbot (Let's Encrypt)...");
+  let cmd = shell.command("sudo")
+    .args(["snap", "install", "--classic", "certbot"]);
+  let (mut rx, _) = cmd.spawn()?;
+  while let Some(ev) = rx.recv().await {
+    use tauri_plugin_shell::process::CommandEvent::*;
+    match ev {
+      Terminated(status) => {
+        if status.code.unwrap_or(1) != 0 {
+          log(window, "⚠️ Instalação Certbot falhou, SSL pode não funcionar");
+        }
+        break;
+      }
+      _ => {}
+    }
+  }
+
+  // 14. Criar symlink do Certbot
+  log(window, "🔗 Criando symlink do Certbot...");
+  let cmd = shell.command("sudo")
+    .args(["ln", "-sf", "/snap/bin/certbot", "/usr/bin/certbot"]);
+  let (mut rx, _) = cmd.spawn()?;
+  while let Some(_) = rx.recv().await {} // Aguardar conclusão
+
+  // 15. Habilitar e iniciar serviços
   log(window, "🚀 Habilitando serviços (PostgreSQL, Redis, Nginx)...");
   let services = ["postgresql", "redis-server", "nginx"];
   for service in &services {
