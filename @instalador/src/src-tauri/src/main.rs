@@ -217,25 +217,27 @@ async fn install(window: Window, cfg: InstallConfig) -> Result<(), String> {
     } else {
       progress(&window, ProgressEvent { phase: "nginx".into(), artifact: None, current: 3, total: 5, bytes: None, message: Some("Nginx configurado".into()) });
     }
-
-    // Iniciar apps com PM2
-    progress(&window, ProgressEvent { phase: "pm2".into(), artifact: None, current: 3, total: 5, bytes: None, message: Some("Iniciando aplicações...".into()) });
-
-    if let Err(e) = start_apps_pm2(&window, &company_slug, &base).await {
-      log(&window, format!("⚠️  Inicialização PM2 falhou: {}", e));
-    } else {
-      progress(&window, ProgressEvent { phase: "pm2".into(), artifact: None, current: 5, total: 5, bytes: None, message: Some("Apps iniciados".into()) });
-    }
   }
 
-  // FASE: Instalar dependências do backend (necessário para migrations/seeds)
-  if cfg.run_migrations || cfg.run_seeds {
+  // FASE: Instalar dependências do backend (necessário para migrations/seeds e PM2)
+  if cfg.run_post_install || cfg.run_migrations || cfg.run_seeds {
     progress(&window, ProgressEvent { phase: "backend-deps".into(), artifact: None, current: 0, total: 1, bytes: None, message: Some("Instalando dependências do backend...".into()) });
 
     if let Err(e) = install_backend_dependencies(&window, &base).await {
-      log(&window, format!("⚠️  Instalação de dependências falhou: {}", e));
+      log(&window, format!("⚠️  Instalação de dependências do backend falhou: {}", e));
     } else {
-      progress(&window, ProgressEvent { phase: "backend-deps".into(), artifact: None, current: 1, total: 1, bytes: None, message: Some("Dependências instaladas".into()) });
+      progress(&window, ProgressEvent { phase: "backend-deps".into(), artifact: None, current: 1, total: 1, bytes: None, message: Some("Dependências do backend instaladas".into()) });
+    }
+  }
+
+  // FASE: Instalar dependências do frontend (necessário para server.js e PM2)
+  if cfg.run_post_install {
+    progress(&window, ProgressEvent { phase: "frontend-deps".into(), artifact: None, current: 0, total: 1, bytes: None, message: Some("Instalando dependências do frontend...".into()) });
+
+    if let Err(e) = install_frontend_dependencies(&window, &base).await {
+      log(&window, format!("⚠️  Instalação de dependências do frontend falhou: {}", e));
+    } else {
+      progress(&window, ProgressEvent { phase: "frontend-deps".into(), artifact: None, current: 1, total: 1, bytes: None, message: Some("Dependências do frontend instaladas".into()) });
     }
   }
 
@@ -258,6 +260,17 @@ async fn install(window: Window, cfg: InstallConfig) -> Result<(), String> {
       log(&window, format!("⚠️  Seeds falharam: {}", e));
     } else {
       progress(&window, ProgressEvent { phase: "seeds".into(), artifact: None, current: 1, total: 1, bytes: None, message: Some("Seeds OK".into()) });
+    }
+  }
+
+  // FASE: Iniciar apps com PM2 (após instalar dependências e executar migrations)
+  if cfg.run_post_install {
+    progress(&window, ProgressEvent { phase: "pm2".into(), artifact: None, current: 0, total: 1, bytes: None, message: Some("Iniciando aplicações com PM2...".into()) });
+
+    if let Err(e) = start_apps_pm2(&window, &company_slug, &base).await {
+      log(&window, format!("⚠️  Inicialização PM2 falhou: {}", e));
+    } else {
+      progress(&window, ProgressEvent { phase: "pm2".into(), artifact: None, current: 1, total: 1, bytes: None, message: Some("Apps PM2 iniciados".into()) });
     }
   }
 
@@ -625,6 +638,38 @@ async fn install_backend_dependencies(window: &Window, base: &Path) -> Result<()
   }
 
   log(window, "✅ Dependências do backend instaladas");
+  Ok(())
+}
+
+/// Instala dependências do frontend (npm install)
+async fn install_frontend_dependencies(window: &Window, base: &Path) -> Result<()> {
+  log(window, "📦 Instalando dependências do frontend...");
+
+  let frontend = base.join("frontend");
+  let shell = window.app_handle().shell();
+
+  let cmd = shell.command("npm")
+    .args(["install", "--production"])
+    .current_dir(&frontend);
+
+  let (mut rx, _child) = cmd.spawn()?;
+
+  while let Some(ev) = rx.recv().await {
+    use tauri_plugin_shell::process::CommandEvent::*;
+    match ev {
+      Stdout(line) | Stderr(line) =>
+        log(window, String::from_utf8_lossy(&line).into_owned()),
+      Terminated(status) => {
+        if status.code.unwrap_or(1) != 0 {
+          anyhow::bail!("Instalação de dependências do frontend falhou");
+        }
+        break;
+      }
+      _ => {}
+    }
+  }
+
+  log(window, "✅ Dependências do frontend instaladas");
   Ok(())
 }
 
@@ -1258,7 +1303,7 @@ async fn start_apps_pm2(window: &Window, company: &str, base: &Path) -> Result<(
   let cmd = shell.command("pm2")
     .args([
       "start",
-      "dist/server.js",
+      "server.js",
       "--name", &backend_name,
       "-i", "2",
       "--update-env"
