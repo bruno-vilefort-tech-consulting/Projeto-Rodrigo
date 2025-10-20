@@ -168,7 +168,7 @@ async fn install(window: Window, cfg: InstallConfig) -> Result<(), String> {
 
   // Escrever .env
   log(&window, "Escrevendo .env (backend/frontend)...");
-  let base = PathBuf::from(format!("/home/deploy/{company}", company = company_slug));
+  let base = PathBuf::from(format!("/home/deploy/{}", company_slug));
   write_env_backend(&base, &cfg).map_err(err)?;
   write_env_frontend(&base, &cfg).map_err(err)?;
   progress(&window, ProgressEvent { phase: "write-env".into(), artifact: None, current: total, total, bytes: None, message: None });
@@ -692,7 +692,7 @@ async fn install_backend_dependencies(window: &Window, base: &Path) -> Result<()
   let shell = window.app_handle().shell();
 
   let cmd = shell.command("npm")
-    .args(["install", "--production", "--legacy-peer-deps"])
+    .args(["install", "--omit=dev", "--legacy-peer-deps"])
     .current_dir(&backend);
 
   let (mut rx, _child) = cmd.spawn()?;
@@ -724,7 +724,7 @@ async fn install_frontend_dependencies(window: &Window, base: &Path) -> Result<(
   let shell = window.app_handle().shell();
 
   let cmd = shell.command("npm")
-    .args(["install", "--production"])
+    .args(["install", "--omit=dev", "--legacy-peer-deps"])
     .current_dir(&frontend);
 
   let (mut rx, _child) = cmd.spawn()?;
