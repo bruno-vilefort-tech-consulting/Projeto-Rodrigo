@@ -14,7 +14,7 @@ import DialogContent from "@material-ui/core/DialogContent";
 import DialogTitle from "@material-ui/core/DialogTitle";
 import CircularProgress from "@material-ui/core/CircularProgress";
 import { Colorize } from "@material-ui/icons";
-import { ColorBox } from 'material-ui-color';
+import { ChromePicker } from 'react-color';
 
 import { i18n } from "../../translate/i18n";
 
@@ -280,14 +280,16 @@ const TagModal = ({ open, onClose, tagId, kanban }) => {
 										/>
 
 										{colorPickerModalOpen && (
-											<div>
-												<ColorBox
+											<div style={{ position: 'absolute', zIndex: 2 }}>
+												<div
+													style={{ position: 'fixed', top: 0, right: 0, bottom: 0, left: 0 }}
+													onClick={() => setColorPickerModalOpen(false)}
+												/>
+												<ChromePicker
 													disableAlpha={true}
-													hslGradient={false}
-													style={{ margin: '20px auto 0' }}
-													value={tag.color}
+													color={tag.color}
 													onChange={val => {
-														setTag(prev => ({ ...prev, color: `#${val.hex}` }));
+														setTag(prev => ({ ...prev, color: val.hex }));
 													}}
 												/>
 											</div>

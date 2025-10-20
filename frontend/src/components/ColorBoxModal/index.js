@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Button, Dialog, DialogActions, DialogContent, DialogTitle, makeStyles } from "@material-ui/core";
-import { ColorBox } from "material-ui-color";
+import { ChromePicker } from "react-color";
 import { i18n } from "../../translate/i18n";
 
 
@@ -30,12 +30,10 @@ const ColorBoxModal = ({ onChange, currentColor, handleClose, open }) => {
 
             <DialogTitle>{i18n.t("colorBoxModal.title")}</DialogTitle>
             <DialogContent>
-                <ColorBox
+                <ChromePicker
                     disableAlpha={true}
-                    hslGradient={false}
-                    style={{ margin: '20px auto 0' }}
-                    value={selectedColor}
-                    onChange={setSelectedColor} />
+                    color={selectedColor}
+                    onChange={(color) => setSelectedColor(color.hex)} />
             </DialogContent>
 
             <DialogActions>
