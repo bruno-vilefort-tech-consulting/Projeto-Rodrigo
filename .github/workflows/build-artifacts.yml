@@ -42,6 +42,9 @@ jobs:
           pnpm run build
           # Incluir package.json no dist para migrations/seeds
           cp package.json dist/
+          # Criar config.json como cópia de database.js (para compatibilidade Sequelize)
+          mkdir -p dist/config
+          cp dist/config/database.js dist/config/config.json 2>/dev/null || true
           # Criar .sequelizerc na raiz do backend (não em dist/)
           cat > .sequelizerc.deploy <<'EOF'
           const { resolve } = require("path");
@@ -54,6 +57,7 @@ jobs:
           EOF
           tar czf ../backend_dist.tar.gz dist .sequelizerc.deploy
           # --dereference converte hard links do pnpm em arquivos regulares
+          # Inclui ffmpeg binaries específicos de plataforma
           tar --dereference -czf ../backend_node_modules.tar.gz node_modules
 
       # FRONTEND (usa pnpm)
