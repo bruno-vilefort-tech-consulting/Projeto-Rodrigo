@@ -40,6 +40,9 @@ jobs:
           cd backend
           pnpm install --frozen-lockfile
           pnpm run build
+          # Incluir package.json no dist para migrations/seeds
+          cp package.json dist/
+          cp .sequelizerc dist/ 2>/dev/null || true
           tar czf ../backend_dist.tar.gz dist
           # --dereference converte hard links do pnpm em arquivos regulares
           tar --dereference -czf ../backend_node_modules.tar.gz node_modules
