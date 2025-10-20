@@ -171,6 +171,15 @@ async fn install(window: Window, cfg: InstallConfig) -> Result<(), String> {
   let base = PathBuf::from(format!("/home/deploy/{}", company_slug));
   write_env_backend(&base, &cfg).map_err(err)?;
   write_env_frontend(&base, &cfg).map_err(err)?;
+
+  // Renomear .sequelizerc.deploy para .sequelizerc
+  let sequelizerc_deploy = base.join("backend/.sequelizerc.deploy");
+  let sequelizerc = base.join("backend/.sequelizerc");
+  if sequelizerc_deploy.exists() {
+    fs::rename(&sequelizerc_deploy, &sequelizerc).map_err(err)?;
+    log(&window, "✅ .sequelizerc configurado para migrations");
+  }
+
   progress(&window, ProgressEvent { phase: "write-env".into(), artifact: None, current: total, total, bytes: None, message: None });
 
   // FASE: Instalar dependências do frontend (SEMPRE NECESSÁRIO - CRÍTICO)

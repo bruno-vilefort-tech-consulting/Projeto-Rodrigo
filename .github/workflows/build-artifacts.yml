@@ -42,8 +42,17 @@ jobs:
           pnpm run build
           # Incluir package.json no dist para migrations/seeds
           cp package.json dist/
-          cp .sequelizerc dist/ 2>/dev/null || true
-          tar czf ../backend_dist.tar.gz dist
+          # Criar .sequelizerc na raiz do backend (não em dist/)
+          cat > .sequelizerc.deploy <<'EOF'
+          const { resolve } = require("path");
+          module.exports = {
+            "config": resolve(__dirname, "dist", "config", "database.js"),
+            "models-path": resolve(__dirname, "dist", "models"),
+            "migrations-path": resolve(__dirname, "dist", "database", "migrations"),
+            "seeders-path": resolve(__dirname, "dist", "database", "seeds")
+          };
+          EOF
+          tar czf ../backend_dist.tar.gz dist .sequelizerc.deploy
           # --dereference converte hard links do pnpm em arquivos regulares
           tar --dereference -czf ../backend_node_modules.tar.gz node_modules
 
