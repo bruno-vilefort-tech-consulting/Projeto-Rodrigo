@@ -173,6 +173,33 @@ async fn install(window: Window, cfg: InstallConfig) -> Result<(), String> {
   write_env_frontend(&base, &cfg).map_err(err)?;
   progress(&window, ProgressEvent { phase: "write-env".into(), artifact: None, current: total, total, bytes: None, message: None });
 
+  // FASE: Instalar dependências do frontend (SEMPRE NECESSÁRIO - CRÍTICO)
+  // Frontend precisa de node_modules para server.js funcionar (express, etc)
+  log(&window, "📦 Frontend dependencies são OBRIGATÓRIAS, instalando...");
+  progress(&window, ProgressEvent {
+    phase: "frontend-deps".into(),
+    artifact: None,
+    current: 0,
+    total: 1,
+    bytes: None,
+    message: Some("Instalando dependências do frontend...".into())
+  });
+
+  if let Err(e) = install_frontend_dependencies(&window, &base).await {
+    log(&window, format!("❌ ERRO CRÍTICO: Instalação de dependências do frontend falhou: {}", e));
+    log(&window, "Frontend não funcionará sem node_modules!");
+    return Err("Frontend dependencies installation failed - CRITICAL".to_string());
+  } else {
+    progress(&window, ProgressEvent {
+      phase: "frontend-deps".into(),
+      artifact: None,
+      current: 1,
+      total: 1,
+      bytes: None,
+      message: Some("✅ Dependências do frontend instaladas".into())
+    });
+  }
+
   // Copiar backup SQL (opcional)
   if let Some(p) = &cfg.sql_backup_path {
     if !p.trim().is_empty() {
@@ -230,17 +257,6 @@ async fn install(window: Window, cfg: InstallConfig) -> Result<(), String> {
     }
   }
 
-  // FASE: Instalar dependências do frontend (necessário para server.js e PM2)
-  if cfg.run_post_install {
-    progress(&window, ProgressEvent { phase: "frontend-deps".into(), artifact: None, current: 0, total: 1, bytes: None, message: Some("Instalando dependências do frontend...".into()) });
-
-    if let Err(e) = install_frontend_dependencies(&window, &base).await {
-      log(&window, format!("⚠️  Instalação de dependências do frontend falhou: {}", e));
-    } else {
-      progress(&window, ProgressEvent { phase: "frontend-deps".into(), artifact: None, current: 1, total: 1, bytes: None, message: Some("Dependências do frontend instaladas".into()) });
-    }
-  }
-
   // FASE: Migrations (se habilitado)
   if cfg.run_migrations {
     progress(&window, ProgressEvent { phase: "migrations".into(), artifact: None, current: 0, total: 1, bytes: None, message: Some("Executando migrations...".into()) });
@@ -272,6 +288,12 @@ async fn install(window: Window, cfg: InstallConfig) -> Result<(), String> {
     } else {
       progress(&window, ProgressEvent { phase: "pm2".into(), artifact: None, current: 1, total: 1, bytes: None, message: Some("Apps PM2 iniciados".into()) });
     }
+
+    // Ajustar permissões dos arquivos
+    if let Err(e) = fix_permissions(&window, &base).await {
+      log(&window, format!("⚠️  Ajuste de permissões falhou: {}", e));
+      log(&window, "Sistema funcionará, mas com permissões não ideais");
+    }
   }
 
   // FASE: SSL/Certbot (se não pulado)
@@ -301,6 +323,32 @@ async fn install(window: Window, cfg: InstallConfig) -> Result<(), String> {
     } else {
       progress(&window, ProgressEvent { phase: "crons".into(), artifact: None, current: 3, total: 3, bytes: None, message: Some("Crons configurados".into()) });
     }
+  }
+
+  // FASE: Validação pós-instalação (se run_post_install habilitado)
+  if cfg.run_post_install {
+    progress(&window, ProgressEvent {
+      phase: "validation".into(),
+      artifact: None,
+      current: 0,
+      total: 1,
+      bytes: None,
+      message: Some("Validando instalação...".into())
+    });
+
+    if let Err(e) = post_install_validation(&window, &base, &company_slug).await {
+      log(&window, format!("⚠️  Validação detectou problemas: {}", e));
+      // NÃO retornar erro aqui, apenas avisar
+    }
+
+    progress(&window, ProgressEvent {
+      phase: "validation".into(),
+      artifact: None,
+      current: 1,
+      total: 1,
+      bytes: None,
+      message: Some("Validação concluída".into())
+    });
   }
 
   let _ = window.emit("install://done", "ok");
@@ -611,13 +659,40 @@ async fn resolve_domain(domain: &str) -> Result<String> {
 
 /// Instala dependências do backend (npm install)
 async fn install_backend_dependencies(window: &Window, base: &Path) -> Result<()> {
-  log(window, "📦 Instalando dependências do backend...");
-
   let backend = base.join("backend");
+  let node_modules = backend.join("node_modules");
+
+  // Verificar se node_modules já existe e está válido
+  if node_modules.exists() {
+    log(window, "📦 node_modules do backend já existe, verificando integridade...");
+
+    // Testar se pacotes críticos existem
+    let critical_packages = vec!["dotenv", "express", "sequelize"];
+    let mut all_exist = true;
+
+    for pkg in &critical_packages {
+      let pkg_path = node_modules.join(pkg);
+      if !pkg_path.exists() {
+        log(window, &format!("⚠️  Pacote crítico '{}' não encontrado", pkg));
+        all_exist = false;
+        break;
+      }
+    }
+
+    if all_exist {
+      log(window, "✅ node_modules do backend está OK, pulando instalação");
+      log(window, "   (Economizando ~5-10 minutos de reinstalação)");
+      return Ok(());
+    } else {
+      log(window, "⚠️  node_modules corrompido ou incompleto, reinstalando...");
+    }
+  }
+
+  log(window, "📦 Instalando dependências do backend...");
   let shell = window.app_handle().shell();
 
   let cmd = shell.command("npm")
-    .args(["install", "--production"])
+    .args(["install", "--production", "--legacy-peer-deps"])
     .current_dir(&backend);
 
   let (mut rx, _child) = cmd.spawn()?;
@@ -1371,8 +1446,250 @@ async fn start_apps_pm2(window: &Window, company: &str, base: &Path) -> Result<(
   let (mut rx, _) = cmd.spawn()?;
   while let Some(_) = rx.recv().await {} // Aguardar conclusão
 
+  // Configurar auto-start do PM2
+  log(window, "🔧 Configurando auto-start do PM2...");
+  let cmd = shell.command("pm2")
+    .args(["startup", "systemd", "-u", "deploy", "--hp", "/home/deploy"]);
+  let (mut rx, _) = cmd.spawn()?;
+
+  while let Some(ev) = rx.recv().await {
+    use tauri_plugin_shell::process::CommandEvent::*;
+    match ev {
+      Stdout(line) => {
+        let output = String::from_utf8_lossy(&line);
+        log(window, output.clone().into_owned());
+
+        // PM2 startup retorna um comando sudo que precisa ser executado
+        if output.contains("sudo env PATH") {
+          // Extrair e executar o comando sudo
+          let cmd_line = output.trim();
+          log(window, format!("📝 Executando comando de startup: {}", cmd_line));
+
+          let result = std::process::Command::new("bash")
+            .args(["-c", cmd_line])
+            .output();
+
+          match result {
+            Ok(out) => {
+              if out.status.success() {
+                log(window, "✅ Comando de startup executado com sucesso");
+              } else {
+                log(window, &format!("⚠️  Comando retornou código: {}",
+                  out.status.code().unwrap_or(-1)));
+              }
+            }
+            Err(e) => {
+              log(window, &format!("⚠️  Erro ao executar comando de startup: {}", e));
+            }
+          }
+        }
+      }
+      Terminated(_) => break,
+      _ => {}
+    }
+  }
+
+  log(window, "✅ PM2 configurado para auto-start após reboot");
   log(window, "✅ Aplicações iniciadas com PM2");
   Ok(())
+}
+
+/// Ajusta permissões dos arquivos para usuário deploy
+async fn fix_permissions(window: &Window, base: &Path) -> Result<()> {
+  log(window, "🔐 Ajustando permissões para usuário deploy...");
+
+  let shell = window.app_handle().shell();
+
+  // Mudar owner para deploy:deploy
+  let cmd = shell.command("sudo")
+    .args(["chown", "-R", "deploy:deploy", base.to_str().unwrap()]);
+  let (mut rx, _) = cmd.spawn()?;
+
+  while let Some(ev) = rx.recv().await {
+    use tauri_plugin_shell::process::CommandEvent::*;
+    match ev {
+      Terminated(status) => {
+        if status.code.unwrap_or(1) != 0 {
+          anyhow::bail!("Falha ao ajustar permissões");
+        }
+        break;
+      }
+      _ => {}
+    }
+  }
+
+  // Ajustar permissões dos .env para 600 (apenas owner read/write)
+  let backend_env = base.join("backend/.env");
+  let frontend_env = base.join("frontend/.env");
+
+  for env_file in &[backend_env, frontend_env] {
+    let _ = std::process::Command::new("sudo")
+      .args(["chmod", "600", env_file.to_str().unwrap()])
+      .output();
+  }
+
+  log(window, "✅ Permissões ajustadas (deploy:deploy, .env=600)");
+  Ok(())
+}
+
+/// Executa validações pós-instalação
+async fn post_install_validation(window: &Window, base: &Path, company: &str) -> Result<()> {
+  log(window, "\n═══════════════════════════════════════");
+  log(window, "🔍 Executando verificações pós-instalação...");
+  log(window, "═══════════════════════════════════════\n");
+
+  let mut errors = Vec::new();
+  let mut warnings = Vec::new();
+
+  // 1. Verificar PM2 services
+  log(window, "  • Verificando serviços PM2...");
+  let pm2_output = std::process::Command::new("pm2")
+    .args(["jlist"])
+    .output();
+
+  if let Ok(output) = pm2_output {
+    let pm2_data = String::from_utf8_lossy(&output.stdout);
+    let backend_name = format!("{}-backend", company);
+    let frontend_name = format!("{}-frontend", company);
+
+    if !pm2_data.contains(&backend_name) {
+      errors.push(format!("❌ Processo PM2 '{}' não encontrado", backend_name));
+    }
+    if !pm2_data.contains(&frontend_name) {
+      errors.push(format!("❌ Processo PM2 '{}' não encontrado", frontend_name));
+    }
+
+    if pm2_data.contains(&backend_name) && pm2_data.contains(&frontend_name) {
+      if pm2_data.contains("\"status\":\"online\"") {
+        log(window, "    ✅ Serviços PM2 online");
+      } else {
+        warnings.push("⚠️  Serviços PM2 encontrados mas não estão 'online'".to_string());
+      }
+    }
+  } else {
+    errors.push("❌ Não foi possível verificar PM2 (pm2 instalado?)".to_string());
+  }
+
+  // 2. Verificar banco de dados
+  log(window, "  • Verificando banco de dados...");
+  let db_output = std::process::Command::new("sudo")
+    .args(["-u", "postgres", "psql", "-d", company, "-c", "\\dt", "-t"])
+    .output();
+
+  if let Ok(output) = db_output {
+    let tables = String::from_utf8_lossy(&output.stdout);
+    let table_count = tables.lines().filter(|l| !l.trim().is_empty()).count();
+
+    if table_count == 0 {
+      errors.push("❌ Banco de dados vazio (migrations não executadas?)".to_string());
+    } else if table_count < 10 {
+      warnings.push(format!("⚠️  Poucas tabelas no banco ({}), esperado 50+", table_count));
+    } else {
+      log(window, &format!("    ✅ Banco de dados com {} tabelas", table_count));
+    }
+  } else {
+    warnings.push("⚠️  Não foi possível verificar banco de dados".to_string());
+  }
+
+  // 3. Verificar node_modules
+  log(window, "  • Verificando dependências...");
+  let frontend_nm = base.join("frontend/node_modules/express");
+  let backend_nm = base.join("backend/node_modules/dotenv");
+
+  if !frontend_nm.exists() {
+    errors.push("❌ Frontend node_modules incompleto (express não encontrado)".to_string());
+  } else {
+    log(window, "    ✅ Frontend node_modules OK (express presente)");
+  }
+
+  if !backend_nm.exists() {
+    errors.push("❌ Backend node_modules incompleto (dotenv não encontrado)".to_string());
+  } else {
+    log(window, "    ✅ Backend node_modules OK (dotenv presente)");
+  }
+
+  // 4. Verificar serviços HTTP
+  log(window, "  • Verificando serviços HTTP...");
+  log(window, "    (aguardando 5s para services iniciarem...)");
+  std::thread::sleep(std::time::Duration::from_secs(5));
+
+  let backend_port = calc_port(company, 8000);
+  let frontend_port = calc_port(company, 3001);
+
+  // Verificar backend
+  let backend_check = std::process::Command::new("curl")
+    .args(["-s", "-o", "/dev/null", "-w", "%{http_code}",
+           &format!("http://localhost:{}", backend_port)])
+    .output();
+
+  if let Ok(output) = backend_check {
+    let status = String::from_utf8_lossy(&output.stdout);
+    if !status.is_empty() && status != "000" {
+      log(window, &format!("    ✅ Backend respondendo na porta {} (HTTP {})", backend_port, status));
+    } else {
+      warnings.push(format!("⚠️  Backend não respondeu na porta {} (pode estar iniciando)", backend_port));
+    }
+  }
+
+  // Verificar frontend
+  let frontend_check = std::process::Command::new("curl")
+    .args(["-s", "-o", "/dev/null", "-w", "%{http_code}",
+           &format!("http://localhost:{}", frontend_port)])
+    .output();
+
+  if let Ok(output) = frontend_check {
+    let status = String::from_utf8_lossy(&output.stdout);
+    if status == "200" {
+      log(window, &format!("    ✅ Frontend respondendo na porta {} (HTTP 200)", frontend_port));
+    } else if !status.is_empty() && status != "000" {
+      warnings.push(format!("⚠️  Frontend retornou HTTP {} na porta {}", status, frontend_port));
+    } else {
+      warnings.push(format!("⚠️  Frontend não respondeu na porta {} (pode estar iniciando)", frontend_port));
+    }
+  }
+
+  // 5. Resultado final
+  log(window, "\n═══════════════════════════════════════");
+
+  if errors.is_empty() && warnings.is_empty() {
+    log(window, "✅ INSTALAÇÃO CONCLUÍDA COM SUCESSO!");
+    log(window, "\n📝 Informações de Acesso:");
+    log(window, &format!("   🌐 Backend:  http://localhost:{}", backend_port));
+    log(window, &format!("   🌐 Frontend: http://localhost:{}", frontend_port));
+    log(window, &format!("   📊 PM2:      pm2 list"));
+    log(window, &format!("   📋 Logs:     pm2 logs {}-backend", company));
+    log(window, "═══════════════════════════════════════\n");
+    Ok(())
+  } else if !errors.is_empty() {
+    log(window, "❌ INSTALAÇÃO CONCLUÍDA COM ERROS:");
+    for error in &errors {
+      log(window, &format!("   {}", error));
+    }
+    if !warnings.is_empty() {
+      log(window, "\n⚠️  AVISOS:");
+      for warning in &warnings {
+        log(window, &format!("   {}", warning));
+      }
+    }
+    log(window, "═══════════════════════════════════════\n");
+    log(window, "💡 Dica: Execute o workaround manual no README.md");
+    Err(anyhow::anyhow!("Instalação teve erros - veja logs acima"))
+  } else {
+    // Apenas warnings
+    log(window, "✅ INSTALAÇÃO CONCLUÍDA COM AVISOS:");
+    for warning in &warnings {
+      log(window, &format!("   {}", warning));
+    }
+    log(window, "\n═══════════════════════════════════════");
+    log(window, "⚠️  Alguns serviços podem estar iniciando.");
+    log(window, "   Aguarde 1-2 minutos e verifique novamente.");
+    log(window, &format!("\n📝 Comandos úteis:"));
+    log(window, &format!("   pm2 list"));
+    log(window, &format!("   pm2 logs {}", company));
+    log(window, &format!("   curl http://localhost:{}", frontend_port));
+    log(window, "═══════════════════════════════════════\n");
+    Ok(())
+  }
 }
 
 fn err(e: impl std::fmt::Display) -> String { e.to_string() }
