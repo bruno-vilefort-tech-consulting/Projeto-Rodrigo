@@ -174,14 +174,17 @@ sudo bash instalador.sh
 
 ## Próximos Passos
 
-1. ✅ **Remover pnpm-lock.yaml do frontend** (será regenerado com `--shamefully-hoist`)
-   ```bash
-   rm frontend/pnpm-lock.yaml
-   ```
+1. ✅ **CONCLUÍDO: pnpm-lock.yaml removido** (commit `a713173`)
+   - Lockfile será regenerado automaticamente no CI
+   - Usa `--no-frozen-lockfile` conforme indicado no erro
 
-2. ✅ **Testar instalação completa** em VPS limpa Ubuntu 22.04/24.04
+2. ✅ **CONCLUÍDO: Push para GitHub** (tag v5.0.1 atualizada)
+   - Commits: `b4ca3a9` + `a713173`
+   - Tag v5.0.1 force-pushed com ambos commits
 
-3. ⚠️ **Avaliar substituição de material-ui-color**
+3. ⏭️ **Próximo: Testar instalação completa** em VPS limpa Ubuntu 22.04/24.04
+
+4. ⚠️ **Avaliar substituição de material-ui-color**
    - Opção A: Usar `react-color` (já instalado)
    - Opção B: Implementar color picker customizado com MUI v5
    - Opção C: Fork de `material-ui-color` compatível com v4
