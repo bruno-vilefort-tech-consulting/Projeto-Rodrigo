@@ -182,32 +182,8 @@ async fn install(window: Window, cfg: InstallConfig) -> Result<(), String> {
 
   progress(&window, ProgressEvent { phase: "write-env".into(), artifact: None, current: total, total, bytes: None, message: None });
 
-  // FASE: Instalar dependências do frontend (SEMPRE NECESSÁRIO - CRÍTICO)
-  // Frontend precisa de node_modules para server.js funcionar (express, etc)
-  log(&window, "📦 Frontend dependencies são OBRIGATÓRIAS, instalando...");
-  progress(&window, ProgressEvent {
-    phase: "frontend-deps".into(),
-    artifact: None,
-    current: 0,
-    total: 1,
-    bytes: None,
-    message: Some("Instalando dependências do frontend...".into())
-  });
-
-  if let Err(e) = install_frontend_dependencies(&window, &base).await {
-    log(&window, format!("❌ ERRO CRÍTICO: Instalação de dependências do frontend falhou: {}", e));
-    log(&window, "Frontend não funcionará sem node_modules!");
-    return Err("Frontend dependencies installation failed - CRITICAL".to_string());
-  } else {
-    progress(&window, ProgressEvent {
-      phase: "frontend-deps".into(),
-      artifact: None,
-      current: 1,
-      total: 1,
-      bytes: None,
-      message: Some("✅ Dependências do frontend instaladas".into())
-    });
-  }
+  // Frontend já vem com node_modules incluído no artifact (express, dotenv)
+  log(&window, "✅ Frontend node_modules já incluído no artifact");
 
   // Copiar backup SQL (opcional)
   if let Some(p) = &cfg.sql_backup_path {
