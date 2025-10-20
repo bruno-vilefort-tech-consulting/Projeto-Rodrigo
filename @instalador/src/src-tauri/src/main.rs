@@ -18,7 +18,7 @@ use tauri::{Emitter, Manager, Window};
 use tauri_plugin_shell::ShellExt;
 
 // URL fixa do manifest no repositório
-const MANIFEST_URL: &str = "https://github.com/bruno-vilefort-tech-consulting/Projeto-Rodrigo/releases/download/v5.0.1/manifest.json";
+const MANIFEST_URL: &str = "https://github.com/bruno-vilefort-tech-consulting/Projeto-Rodrigo/releases/download/v5.0.0/manifest.json";
 
 #[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
