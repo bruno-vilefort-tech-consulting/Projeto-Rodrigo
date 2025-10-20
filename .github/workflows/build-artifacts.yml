@@ -117,7 +117,7 @@ jobs:
             "artifacts": [
               {"name":"backend_dist","url":"$RELEASE_URL/backend_dist.tar.gz","sha256":"$BDD","targetDir":"/home/deploy/__EMPRESA__/backend","stripComponents":1,"type":"tar.gz"},
               {"name":"backend_node_modules","url":"$RELEASE_URL/backend_node_modules.tar.gz","sha256":"$BNM","targetDir":"/home/deploy/__EMPRESA__/backend/node_modules","stripComponents":1,"type":"tar.gz"},
-              {"name":"frontend_build","url":"$RELEASE_URL/frontend_build.tar.gz","sha256":"$FBD","targetDir":"/home/deploy/__EMPRESA__/frontend","stripComponents":1,"type":"tar.gz"}
+              {"name":"frontend_build","url":"$RELEASE_URL/frontend_build.tar.gz","sha256":"$FBD","targetDir":"/home/deploy/__EMPRESA__/frontend","stripComponents":0,"type":"tar.gz"}
             ]
           }
           JSON
