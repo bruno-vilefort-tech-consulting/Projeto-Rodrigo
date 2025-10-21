@@ -22,8 +22,8 @@ readonly DIM='\033[2m'
 readonly NC='\033[0m' # No Color
 
 # GitHub Release Configuration
-readonly GITHUB_REPO="${GITHUB_REPO:-chatia/chatia-flow}"
-readonly GITHUB_TAG="${GITHUB_TAG:-latest}"
+readonly GITHUB_REPO="${GITHUB_REPO:-bruno-vilefort-tech-consulting/Projeto-Rodrigo}"
+readonly GITHUB_TAG="${GITHUB_TAG:-v5.0.0}"
 readonly GITHUB_TOKEN="${GITHUB_TOKEN:-}"
 readonly MANIFEST_URL="https://github.com/${GITHUB_REPO}/releases/download/${GITHUB_TAG}/manifest.json"
 
@@ -368,14 +368,122 @@ EOF
     log SUCCESS "Database setup complete ✓"
 }
 
+check_release_exists() {
+    log INFO "Checking if release exists..."
+
+    # Try to get release info
+    local release_api_url="https://api.github.com/repos/${GITHUB_REPO}/releases/tags/${GITHUB_TAG}"
+    local curl_opts=(-s -f)
+
+    if [[ -n "$GITHUB_TOKEN" ]]; then
+        curl_opts+=(-H "Authorization: token ${GITHUB_TOKEN}")
+    fi
+
+    if curl "${curl_opts[@]}" "$release_api_url" > /dev/null 2>&1; then
+        log SUCCESS "Release ${GITHUB_TAG} found ✓"
+        return 0
+    else
+        log ERROR "Release ${GITHUB_TAG} not found in ${GITHUB_REPO}"
+        log ERROR "Please check:"
+        log ERROR "  1. The release exists at: https://github.com/${GITHUB_REPO}/releases/tag/${GITHUB_TAG}"
+        log ERROR "  2. The GitHub Actions workflow has completed successfully"
+        log ERROR "  3. The manifest.json file was uploaded to the release"
+        return 1
+    fi
+}
+
+build_from_source() {
+    local company=$1
+
+    log INFO "Building from source code..."
+
+    # Backend build
+    if [[ -d "backend" ]]; then
+        log INFO "Building backend..."
+        cd backend
+
+        # Install dependencies
+        if [[ -f "pnpm-lock.yaml" ]]; then
+            pnpm install --frozen-lockfile
+        elif [[ -f "package-lock.json" ]]; then
+            npm ci
+        else
+            npm install
+        fi
+
+        # Build TypeScript
+        npm run build
+
+        # Copy to deployment directory
+        cp -r dist/* "${BASE_DIR}/${company}/backend/"
+        cp -r node_modules "${BASE_DIR}/${company}/backend/"
+        cp package.json "${BASE_DIR}/${company}/backend/"
+
+        # Copy migrations if exist
+        if [[ -d "src/database" ]]; then
+            cp -r src/database "${BASE_DIR}/${company}/backend/"
+        fi
+
+        cd ..
+        log SUCCESS "Backend built ✓"
+    fi
+
+    # Frontend build
+    if [[ -d "frontend" ]]; then
+        log INFO "Building frontend..."
+        cd frontend
+
+        # Install dependencies
+        if [[ -f "pnpm-lock.yaml" ]]; then
+            pnpm install --shamefully-hoist
+        elif [[ -f "package-lock.json" ]]; then
+            npm ci
+        else
+            npm install
+        fi
+
+        # Build
+        export NODE_OPTIONS="--max-old-space-size=4096"
+        export CI=false
+        npm run build
+
+        # Copy to deployment directory
+        cp -r build/* "${BASE_DIR}/${company}/frontend/"
+
+        # Copy server files if exist
+        if [[ -f "server.js" ]]; then
+            cp server.js "${BASE_DIR}/${company}/frontend/"
+        fi
+        cp package.json "${BASE_DIR}/${company}/frontend/"
+
+        cd ..
+        log SUCCESS "Frontend built ✓"
+    fi
+
+    log SUCCESS "Build from source completed ✓"
+}
+
 download_artifacts() {
     local company=$1
     local manifest_file="/tmp/manifest.json"
+
+    # Check if release exists first
+    if ! check_release_exists; then
+        log ERROR "Cannot proceed without a valid release"
+        log INFO "You can:"
+        log INFO "  1. Wait for GitHub Actions to complete the build"
+        log INFO "  2. Check the Actions status at: https://github.com/${GITHUB_REPO}/actions"
+        log INFO "  3. Manually trigger the workflow if needed"
+        return 1
+    fi
 
     log INFO "Downloading release manifest..."
 
     # Download manifest
     if ! download_with_progress "$MANIFEST_URL" "$manifest_file" "manifest.json"; then
+        log ERROR "Failed to download manifest.json"
+        log ERROR "The release may not have artifacts yet. Check:"
+        log ERROR "  https://github.com/${GITHUB_REPO}/releases/tag/${GITHUB_TAG}"
         return 1
     fi
 
@@ -993,7 +1101,28 @@ main() {
     install_dependencies
     setup_user "$COMPANY"
     setup_database "$COMPANY" "$DEPLOY_PASSWORD"
-    download_artifacts "$COMPANY"
+
+    # Try to download artifacts or use local build
+    if ! download_artifacts "$COMPANY"; then
+        log WARN "Failed to download artifacts from GitHub Release"
+
+        # Check if we can build locally
+        if [[ -d "backend" && -d "frontend" ]]; then
+            log INFO "Found local source code. Would you like to build locally instead?"
+            read -p "$(echo -e "${YELLOW}Build from source? (y/N)${NC}: ")" build_local
+
+            if [[ "$build_local" =~ ^[Yy]$ ]]; then
+                build_from_source "$COMPANY"
+            else
+                log ERROR "Cannot proceed without artifacts"
+                exit 1
+            fi
+        else
+            log ERROR "No local source code found and no release artifacts available"
+            log INFO "Please ensure GitHub Actions has completed: https://github.com/${GITHUB_REPO}/actions"
+            exit 1
+        fi
+    fi
     configure_environment "$COMPANY" "$BACKEND_URL" "$FRONTEND_URL" "$ADMIN_EMAIL" \
         "$DEPLOY_PASSWORD" "$ADMIN_PASSWORD" "$SUPPORT_PHONE" "${FB_APP_ID:-}" "${FB_APP_SECRET:-}"
     run_migrations "$COMPANY"
