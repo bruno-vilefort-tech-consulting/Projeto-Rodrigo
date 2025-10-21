@@ -1082,91 +1082,203 @@ wizard_prompt() {
     done
 }
 
+generate_password() {
+    # Generate a strong password with 16 characters
+    local password=$(openssl rand -base64 16 | tr -d "=+/" | cut -c1-16)
+    echo "$password"
+}
+
 wizard_password() {
     local prompt=$1
     local var_name=$2
+    local auto_generate=${3:-false}
 
-    while true; do
-        read -s -p "$(echo -e "${CYAN}${prompt}${NC}: ")" password
-        echo
-
-        if [[ -z "$password" ]]; then
-            log ERROR "Password cannot be empty"
-            continue
-        fi
-
-        if [[ ${#password} -lt 8 ]]; then
-            log ERROR "Password must be at least 8 characters"
-            continue
-        fi
-
-        read -s -p "$(echo -e "${CYAN}Confirm password${NC}: ")" password2
-        echo
-
-        if [[ "$password" != "$password2" ]]; then
-            log ERROR "Passwords do not match"
-            continue
-        fi
-
+    if [[ "$auto_generate" == "true" ]]; then
+        local password=$(generate_password)
         eval "$var_name=\"$password\""
-        break
-    done
+        echo -e "${GREEN}Generated ${prompt}: ${BOLD}${password}${NC}"
+        log INFO "Please save this password securely!"
+    else
+        while true; do
+            read -p "$(echo -e "${CYAN}${prompt} (press Enter to auto-generate)${NC}: ")" password
+
+            if [[ -z "$password" ]]; then
+                password=$(generate_password)
+                echo -e "${GREEN}Generated: ${BOLD}${password}${NC}"
+                log INFO "Please save this password securely!"
+            elif [[ ${#password} -lt 8 ]]; then
+                log ERROR "Password must be at least 8 characters"
+                continue
+            fi
+
+            eval "$var_name=\"$password\""
+            break
+        done
+    fi
+}
+
+validate_and_format_phone() {
+    local phone=$1
+    # Remove all non-numeric characters
+    phone=$(echo "$phone" | sed 's/[^0-9]//g')
+
+    if [[ ${#phone} -lt 10 || ${#phone} -gt 15 ]]; then
+        return 1
+    fi
+
+    echo "$phone"
+    return 0
 }
 
 run_wizard() {
     print_banner
 
     log INFO "Welcome to ChatIA Flow Installer!"
+    echo -e "${YELLOW}All passwords will be auto-generated and shown for you to save.${NC}"
     echo
 
     # Company name
-    wizard_prompt "Enter your company name (alphanumeric, no spaces)" "COMPANY" "" ""
-    COMPANY=$(echo "$COMPANY" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9]//g')
+    while true; do
+        read -p "$(echo -e "${CYAN}Enter your company name${NC}: ")" COMPANY
+        if [[ -z "$COMPANY" ]]; then
+            log ERROR "Company name is required"
+            continue
+        fi
+        COMPANY=$(echo "$COMPANY" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9]//g')
+        if [[ -z "$COMPANY" ]]; then
+            log ERROR "Company name must contain alphanumeric characters"
+            continue
+        fi
+        log SUCCESS "Company name: $COMPANY ✓"
+        break
+    done
 
-    # URLs
-    wizard_prompt "Backend URL (e.g., api.example.com)" "BACKEND_URL" "" ""
-    wizard_prompt "Frontend URL (e.g., app.example.com)" "FRONTEND_URL" "" ""
+    # Get public IP for DNS validation
+    log INFO "Detecting public IP..."
+    PUBLIC_IP=$(get_public_ip)
+    if [[ -z "$PUBLIC_IP" ]]; then
+        log ERROR "Failed to determine public IP"
+        exit 1
+    fi
+    log SUCCESS "Public IP: $PUBLIC_IP ✓"
 
-    # Strip protocol if provided
-    BACKEND_URL=$(echo "$BACKEND_URL" | sed 's|https\?://||')
-    FRONTEND_URL=$(echo "$FRONTEND_URL" | sed 's|https\?://||')
+    # Backend URL with automatic DNS validation
+    while true; do
+        read -p "$(echo -e "${CYAN}Backend URL (e.g., api.example.com)${NC}: ")" BACKEND_URL
+        if [[ -z "$BACKEND_URL" ]]; then
+            log ERROR "Backend URL is required"
+            continue
+        fi
 
-    # Admin credentials
-    wizard_prompt "Admin email" "ADMIN_EMAIL" "validate_email" ""
-    wizard_password "Admin password" "ADMIN_PASSWORD"
+        # Strip protocol if provided
+        BACKEND_URL=$(echo "$BACKEND_URL" | sed 's|https\?://||' | sed 's|/.*||')
 
-    # Database password
-    wizard_password "Database password" "DEPLOY_PASSWORD"
+        # Validate DNS automatically
+        log INFO "Validating DNS for $BACKEND_URL..."
+        if validate_dns "$BACKEND_URL" "$PUBLIC_IP"; then
+            log SUCCESS "Backend DNS validated ✓"
+            break
+        else
+            log ERROR "DNS validation failed. Please ensure $BACKEND_URL points to $PUBLIC_IP"
+            read -p "$(echo -e "${YELLOW}Continue anyway? (y/N)${NC}: ")" force_continue
+            if [[ "$force_continue" =~ ^[Yy]$ ]]; then
+                log WARN "Continuing without DNS validation for backend"
+                break
+            fi
+        fi
+    done
 
-    # Support phone
-    wizard_prompt "Support phone (numbers only)" "SUPPORT_PHONE" "" ""
+    # Frontend URL with automatic DNS validation
+    while true; do
+        read -p "$(echo -e "${CYAN}Frontend URL (e.g., app.example.com)${NC}: ")" FRONTEND_URL
+        if [[ -z "$FRONTEND_URL" ]]; then
+            log ERROR "Frontend URL is required"
+            continue
+        fi
 
-    # Optional: Facebook integration
-    read -p "$(echo -e "${CYAN}Configure Facebook integration? (y/N)${NC}: ")" fb_setup
-    if [[ "$fb_setup" =~ ^[Yy]$ ]]; then
-        wizard_prompt "Facebook App ID" "FB_APP_ID" "" ""
-        wizard_prompt "Facebook App Secret" "FB_APP_SECRET" "" ""
+        # Strip protocol if provided
+        FRONTEND_URL=$(echo "$FRONTEND_URL" | sed 's|https\?://||' | sed 's|/.*||')
+
+        # Validate DNS automatically
+        log INFO "Validating DNS for $FRONTEND_URL..."
+        if validate_dns "$FRONTEND_URL" "$PUBLIC_IP"; then
+            log SUCCESS "Frontend DNS validated ✓"
+            break
+        else
+            log ERROR "DNS validation failed. Please ensure $FRONTEND_URL points to $PUBLIC_IP"
+            read -p "$(echo -e "${YELLOW}Continue anyway? (y/N)${NC}: ")" force_continue
+            if [[ "$force_continue" =~ ^[Yy]$ ]]; then
+                log WARN "Continuing without DNS validation for frontend"
+                break
+            fi
+        fi
+    done
+
+    # Admin email with validation
+    while true; do
+        read -p "$(echo -e "${CYAN}Admin email${NC}: ")" ADMIN_EMAIL
+        if [[ -z "$ADMIN_EMAIL" ]]; then
+            log ERROR "Email is required"
+            continue
+        fi
+
+        if ! validate_email "$ADMIN_EMAIL"; then
+            log ERROR "Invalid email format. Please use format: user@domain.com"
+            continue
+        fi
+
+        log SUCCESS "Email validated: $ADMIN_EMAIL ✓"
+        break
+    done
+
+    # Support phone with validation
+    while true; do
+        read -p "$(echo -e "${CYAN}Support phone (10-15 digits)${NC}: ")" SUPPORT_PHONE
+        if [[ -z "$SUPPORT_PHONE" ]]; then
+            log ERROR "Phone number is required"
+            continue
+        fi
+
+        SUPPORT_PHONE=$(validate_and_format_phone "$SUPPORT_PHONE")
+        if [[ $? -ne 0 ]]; then
+            log ERROR "Invalid phone number. Must be 10-15 digits"
+            log INFO "Examples: 5511999999999, +1234567890, (11) 99999-9999"
+            continue
+        fi
+
+        log SUCCESS "Phone validated: $SUPPORT_PHONE ✓"
+        break
+    done
+
+    # Auto-generate passwords
+    echo
+    log INFO "Generating secure passwords..."
+
+    ADMIN_PASSWORD=$(generate_password)
+    DEPLOY_PASSWORD=$(generate_password)
+
+    echo
+    echo -e "${BOLD}${GREEN}=== GENERATED CREDENTIALS ===${NC}"
+    echo -e "${CYAN}Admin Password:${NC} ${BOLD}${ADMIN_PASSWORD}${NC}"
+    echo -e "${CYAN}Database Password:${NC} ${BOLD}${DEPLOY_PASSWORD}${NC}"
+    echo -e "${YELLOW}⚠️  IMPORTANT: Save these passwords now! They won't be shown again.${NC}"
+    echo
+
+    # Optional configurations (streamlined)
+    echo -e "${CYAN}Optional Configurations (press Enter to skip):${NC}"
+
+    # Facebook integration (optional, no confirmation needed)
+    read -p "$(echo -e "${DIM}Facebook App ID (optional):${NC} ")" FB_APP_ID
+    if [[ -n "$FB_APP_ID" ]]; then
+        read -p "$(echo -e "${DIM}Facebook App Secret:${NC} ")" FB_APP_SECRET
     fi
 
-    # Optional: GitHub token for private repos
-    read -p "$(echo -e "${CYAN}Using a private GitHub repository? (y/N)${NC}: ")" private_repo
-    if [[ "$private_repo" =~ ^[Yy]$ ]]; then
-        wizard_prompt "GitHub personal access token" "GITHUB_TOKEN" "" ""
-    fi
+    # GitHub token (optional, no confirmation needed)
+    read -p "$(echo -e "${DIM}GitHub Token for private repos (optional):${NC} ")" GITHUB_TOKEN
 
-    # DNS validation
-    read -p "$(echo -e "${CYAN}Validate DNS before installation? (Y/n)${NC}: ")" validate_dns
-    SKIP_DNS_VALIDATION=false
-    if [[ "$validate_dns" =~ ^[Nn]$ ]]; then
-        SKIP_DNS_VALIDATION=true
-    fi
-
-    # SSL setup
-    read -p "$(echo -e "${CYAN}Setup SSL certificates? (Y/n)${NC}: ")" setup_ssl
+    # SSL is always enabled by default
     SKIP_SSL_SETUP=false
-    if [[ "$setup_ssl" =~ ^[Nn]$ ]]; then
-        SKIP_SSL_SETUP=true
-    fi
+    SKIP_DNS_VALIDATION=false
 
     # Summary
     echo
@@ -1175,15 +1287,24 @@ run_wizard() {
     echo -e "${CYAN}Backend:${NC} https://$BACKEND_URL"
     echo -e "${CYAN}Frontend:${NC} https://$FRONTEND_URL"
     echo -e "${CYAN}Admin Email:${NC} $ADMIN_EMAIL"
-    echo -e "${CYAN}DNS Validation:${NC} $([[ "$SKIP_DNS_VALIDATION" == "true" ]] && echo "Skip" || echo "Yes")"
-    echo -e "${CYAN}SSL Setup:${NC} $([[ "$SKIP_SSL_SETUP" == "true" ]] && echo "Skip" || echo "Yes")"
+    echo -e "${CYAN}Support Phone:${NC} $SUPPORT_PHONE"
+    echo
+    echo -e "${BOLD}${YELLOW}=== CREDENTIALS (Save Now!) ===${NC}"
+    echo -e "${CYAN}Admin Password:${NC} ${BOLD}${ADMIN_PASSWORD}${NC}"
+    echo -e "${CYAN}Database Password:${NC} ${BOLD}${DEPLOY_PASSWORD}${NC}"
+    echo
+    echo -e "${GREEN}✓ DNS Validated${NC}"
+    echo -e "${GREEN}✓ SSL will be configured${NC}"
     echo
 
-    read -p "$(echo -e "${YELLOW}Proceed with installation? (y/N)${NC}: ")" confirm
-    if [[ ! "$confirm" =~ ^[Yy]$ ]]; then
-        log WARN "Installation cancelled"
-        exit 0
-    fi
+    # Auto-proceed after 10 seconds
+    echo -e "${YELLOW}Installation will start in 10 seconds...${NC}"
+    echo -e "${DIM}Press Ctrl+C to cancel or Enter to start now${NC}"
+
+    # Wait 10 seconds or until Enter is pressed
+    read -t 10 -p "" || true
+    echo
+    log INFO "Starting installation..."
 }
 
 #=========================== MAIN INSTALLATION =================================
@@ -1297,22 +1418,34 @@ main() {
     echo -e "  Frontend: ${GREEN}https://${FRONTEND_URL}${NC}"
     echo -e "  Backend:  ${GREEN}https://${BACKEND_URL}${NC}"
     echo
-    echo -e "${CYAN}${BOLD}Credentials:${NC}"
-    echo -e "  Email:    ${GREEN}${ADMIN_EMAIL}${NC}"
-    echo -e "  Password: ${GREEN}${ADMIN_PASSWORD}${NC}"
+    echo -e "${BOLD}${YELLOW}LOGIN CREDENTIALS:${NC}"
+    echo -e "  ${CYAN}Email:${NC}    ${GREEN}${ADMIN_EMAIL}${NC}"
+    echo -e "  ${CYAN}Password:${NC} ${GREEN}${BOLD}${ADMIN_PASSWORD}${NC}"
     echo
-    echo -e "${CYAN}${BOLD}Services:${NC}"
-    echo -e "  PM2:      ${GREEN}pm2 status${NC}"
-    echo -e "  Logs:     ${GREEN}pm2 logs${NC}"
-    echo -e "  Monitor:  ${GREEN}pm2 monit${NC}"
+    echo -e "${BOLD}${YELLOW}DATABASE CREDENTIALS:${NC}"
+    echo -e "  ${CYAN}Database:${NC} ${GREEN}${COMPANY}${NC}"
+    echo -e "  ${CYAN}User:${NC}     ${GREEN}${COMPANY}${NC}"
+    echo -e "  ${CYAN}Password:${NC} ${GREEN}${BOLD}${DEPLOY_PASSWORD}${NC}"
     echo
-    echo -e "${YELLOW}${BOLD}Next steps:${NC}"
-    echo -e "  1. Access the frontend URL and login"
-    echo -e "  2. Configure WhatsApp connections"
-    echo -e "  3. Setup your team and permissions"
-    echo -e "  4. Import contacts and start messaging!"
+    echo -e "${CYAN}${BOLD}Service Management:${NC}"
+    echo -e "  View status:  ${GREEN}pm2 status${NC}"
+    echo -e "  View logs:    ${GREEN}pm2 logs${NC}"
+    echo -e "  Monitor:      ${GREEN}pm2 monit${NC}"
+    echo -e "  Restart all:  ${GREEN}pm2 restart all${NC}"
     echo
-    echo -e "${DIM}Installation log: ${LOG_FILE}${NC}"
+    echo -e "${YELLOW}${BOLD}Important Files:${NC}"
+    echo -e "  Backend env:  ${DIM}/home/deploy/${COMPANY}/backend/.env${NC}"
+    echo -e "  Frontend env: ${DIM}/home/deploy/${COMPANY}/frontend/.env${NC}"
+    echo -e "  Install log:  ${DIM}${LOG_FILE}${NC}"
+    echo
+    echo -e "${YELLOW}${BOLD}Next Steps:${NC}"
+    echo -e "  1. Save the credentials shown above securely"
+    echo -e "  2. Access ${GREEN}https://${FRONTEND_URL}${NC} and login"
+    echo -e "  3. Configure WhatsApp connections"
+    echo -e "  4. Setup your team and permissions"
+    echo -e "  5. Import contacts and start messaging!"
+    echo
+    echo -e "${BOLD}${GREEN}Thank you for choosing ChatIA Flow!${NC}"
     echo
 }
 
