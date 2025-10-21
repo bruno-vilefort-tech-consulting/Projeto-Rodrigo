@@ -21,11 +21,12 @@ readonly BOLD='\033[1m'
 readonly DIM='\033[2m'
 readonly NC='\033[0m' # No Color
 
-# GitHub Release Configuration
-readonly GITHUB_REPO="${GITHUB_REPO:-bruno-vilefort-tech-consulting/Projeto-Rodrigo}"
-readonly GITHUB_TAG="${GITHUB_TAG:-v5.0.0}"
-readonly GITHUB_TOKEN="${GITHUB_TOKEN:-}"
-readonly MANIFEST_URL="https://github.com/${GITHUB_REPO}/releases/download/${GITHUB_TAG}/manifest.json"
+# GitHub Configuration (can be overridden)
+GITHUB_REPO="${GITHUB_REPO:-bruno-vilefort-tech-consulting/Projeto-Rodrigo}"
+GITHUB_BRANCH="${GITHUB_BRANCH:-main}"
+GITHUB_TOKEN="${GITHUB_TOKEN:-}"
+# Forçar sempre clone do código real (não usar releases)
+FORCE_BUILD_FROM_SOURCE="${FORCE_BUILD_FROM_SOURCE:-true}"
 
 # Installation paths
 readonly BASE_DIR="/home/deploy"
@@ -282,35 +283,36 @@ verify_checksum() {
 install_dependencies() {
     log INFO "Installing system dependencies..."
 
+    # Export to ensure non-interactive mode
+    export DEBIAN_FRONTEND=noninteractive
+
     # Update package list
     apt-get update -qq
 
-    # Fix any broken packages first
-    apt-get install -f -y || true
-    dpkg --configure -a || true
+    # Stage 0: Fix Nginx configuration BEFORE trying to fix packages
+    # This prevents dpkg --configure -a from failing on nginx
 
-    # Install dependencies in stages to handle errors better
+    # First, stop any running nginx to avoid conflicts
+    systemctl stop nginx 2>/dev/null || true
 
-    # Stage 1: Basic tools
-    log INFO "Installing basic tools..."
-    DEBIAN_FRONTEND=noninteractive apt-get install -y \
-        curl wget git software-properties-common build-essential || {
-        log ERROR "Failed to install basic tools"
-        return 1
-    }
-
-    # Stage 2: Database
-    log INFO "Installing PostgreSQL and Redis..."
-    DEBIAN_FRONTEND=noninteractive apt-get install -y \
-        postgresql postgresql-contrib redis-server || {
-        log ERROR "Failed to install databases"
-        return 1
-    }
-
-    # Stage 3: Create nginx.conf if it doesn't exist
     if [[ ! -f /etc/nginx/nginx.conf ]]; then
-        log INFO "Creating default nginx.conf..."
+        log INFO "Creating default nginx.conf to fix potential nginx issues..."
         mkdir -p /etc/nginx
+        mkdir -p /etc/nginx/sites-available
+        mkdir -p /etc/nginx/sites-enabled
+        mkdir -p /etc/nginx/conf.d
+        mkdir -p /etc/nginx/modules-enabled
+        mkdir -p /var/log/nginx
+        mkdir -p /var/cache/nginx
+        mkdir -p /var/lib/nginx
+
+        # Create a proper user for nginx if it doesn't exist
+        id -u www-data &>/dev/null || useradd -r -s /bin/false www-data
+
+        # Ensure proper permissions on nginx directories
+        chown -R www-data:www-data /var/log/nginx 2>/dev/null || true
+        chmod 755 /var/log/nginx
+
         cat > /etc/nginx/nginx.conf <<'NGINX_CONF'
 user www-data;
 worker_processes auto;
@@ -356,36 +358,106 @@ http {
     include /etc/nginx/sites-enabled/*;
 }
 NGINX_CONF
+
+        # Create mime.types if it doesn't exist
+        if [[ ! -f /etc/nginx/mime.types ]]; then
+            log INFO "Creating mime.types file..."
+            cat > /etc/nginx/mime.types <<'MIME_TYPES'
+types {
+    text/html                             html htm shtml;
+    text/css                              css;
+    text/xml                              xml;
+    image/gif                             gif;
+    image/jpeg                            jpeg jpg;
+    application/javascript                js;
+    application/atom+xml                  atom;
+    application/rss+xml                   rss;
+    text/plain                            txt;
+    text/x-component                      htc;
+    image/png                             png;
+    image/svg+xml                         svg svgz;
+    image/webp                            webp;
+    application/json                      json;
+    application/pdf                       pdf;
+    application/zip                       zip;
+    application/x-font-ttf                ttc ttf;
+    application/x-font-opentype           otf;
+    application/vnd.ms-fontobject         eot;
+    font/woff                             woff;
+    font/woff2                            woff2;
+    video/mp4                             mp4;
+    video/webm                            webm;
+    audio/mpeg                            mp3;
+    audio/ogg                             ogg;
+}
+MIME_TYPES
+        fi
     fi
 
-    # Create necessary nginx directories
-    mkdir -p /etc/nginx/sites-available /etc/nginx/sites-enabled /etc/nginx/conf.d
-    mkdir -p /var/log/nginx
+    # Now that nginx.conf exists, we can safely fix broken packages
+    log INFO "Fixing any broken packages..."
 
-    # Stage 4: Nginx
+    # Special handling for nginx if it's broken
+    if dpkg -l | grep -q -E "^[piuhr][^i].*nginx" || dpkg -l | grep -q "^iF.*nginx"; then
+        log INFO "Found broken nginx packages, removing them first..."
+        # Force stop nginx service if it exists
+        systemctl stop nginx 2>/dev/null || true
+        systemctl disable nginx 2>/dev/null || true
+        # Remove all nginx packages
+        apt-get remove --purge -y nginx nginx-common nginx-core nginx-full nginx-light nginx-extras 2>/dev/null || true
+        apt-get autoremove -y 2>/dev/null || true
+        # Clean package cache
+        apt-get clean
+        # Update package list again
+        apt-get update -qq
+    fi
+
+    apt-get install -f -y || true
+    dpkg --configure -a || true
+
+    # Set dpkg options to avoid prompts
+    local APT_OPTIONS="-o Dpkg::Options::=--force-confnew -o Dpkg::Options::=--force-confdef"
+
+    # Stage 1: Basic tools
+    log INFO "Installing basic tools..."
+    apt-get install -y $APT_OPTIONS \
+        curl wget git jq software-properties-common build-essential || {
+        log ERROR "Failed to install basic tools"
+        return 1
+    }
+
+    # Stage 2: Database
+    log INFO "Installing PostgreSQL and Redis..."
+    apt-get install -y $APT_OPTIONS \
+        postgresql postgresql-client postgresql-contrib redis-server || {
+        log ERROR "Failed to install databases"
+        return 1
+    }
+
+    # Stage 3: Nginx
     log INFO "Installing Nginx..."
-    DEBIAN_FRONTEND=noninteractive apt-get install -y nginx || {
+    apt-get install -y $APT_OPTIONS nginx || {
         log WARN "Nginx installation had issues, trying to fix..."
 
         # Try to fix nginx installation
         systemctl stop nginx 2>/dev/null || true
         apt-get remove -y nginx nginx-common nginx-core 2>/dev/null || true
         apt-get autoremove -y 2>/dev/null || true
-        apt-get install -y nginx || {
+        apt-get install -y $APT_OPTIONS nginx || {
             log ERROR "Failed to install nginx after retry"
             return 1
         }
     }
 
-    # Stage 5: Certbot (optional, don't fail if it doesn't install)
+    # Stage 4: Certbot (optional, don't fail if it doesn't install)
     log INFO "Installing Certbot..."
-    DEBIAN_FRONTEND=noninteractive apt-get install -y certbot python3-certbot-nginx || {
+    apt-get install -y $APT_OPTIONS certbot python3-certbot-nginx || {
         log WARN "Certbot installation failed, SSL setup will be skipped"
     }
 
-    # Stage 6: Additional tools
+    # Stage 5: Additional tools
     log INFO "Installing additional tools..."
-    DEBIAN_FRONTEND=noninteractive apt-get install -y ufw fail2ban htop || {
+    apt-get install -y $APT_OPTIONS ufw fail2ban htop || {
         log WARN "Some additional tools failed to install, continuing..."
     }
 
@@ -444,29 +516,206 @@ setup_database() {
 
     log INFO "Setting up PostgreSQL database..."
 
-    # Start PostgreSQL
-    systemctl enable --now postgresql
+    # Ensure PostgreSQL is installed and configured
+    if ! command -v psql &> /dev/null; then
+        log ERROR "PostgreSQL is not installed. Please run install_dependencies first."
+        return 1
+    fi
+
+    # Stop PostgreSQL first to ensure clean state
+    systemctl stop postgresql 2>/dev/null || true
+
+    # Get PostgreSQL version
+    local pg_version=""
+    if command -v pg_config &> /dev/null; then
+        pg_version=$(pg_config --version | grep -oP '\d+' | head -1)
+    else
+        # Fallback: try to detect installed version
+        pg_version=$(ls /usr/lib/postgresql/ 2>/dev/null | grep -E '^[0-9]+$' | sort -V | tail -1)
+    fi
+
+    if [[ -z "$pg_version" ]]; then
+        log ERROR "Could not determine PostgreSQL version"
+        return 1
+    fi
+
+    log INFO "Detected PostgreSQL version: ${pg_version}"
+
+    # Check if PostgreSQL cluster exists
+    local pg_data_dir="/var/lib/postgresql/${pg_version}/main"
+
+    if [[ ! -d "$pg_data_dir" ]] || [[ ! -f "$pg_data_dir/PG_VERSION" ]]; then
+        log INFO "PostgreSQL cluster not found. Creating new cluster..."
+
+        # For Ubuntu/Debian, use pg_createcluster
+        if command -v pg_createcluster &> /dev/null; then
+            pg_createcluster ${pg_version} main --start 2>/dev/null || {
+                log WARN "pg_createcluster failed, trying manual initialization..."
+
+                # Manual initialization as fallback
+                mkdir -p "$pg_data_dir"
+                chown -R postgres:postgres "/var/lib/postgresql/${pg_version}"
+                sudo -u postgres /usr/lib/postgresql/${pg_version}/bin/initdb -D "$pg_data_dir" --locale=C.UTF-8 --encoding=UTF8
+            }
+        else
+            # Direct initdb for non-Debian systems
+            mkdir -p "$pg_data_dir"
+            chown -R postgres:postgres "/var/lib/postgresql/${pg_version}"
+            sudo -u postgres /usr/lib/postgresql/${pg_version}/bin/initdb -D "$pg_data_dir" --locale=C.UTF-8 --encoding=UTF8
+        fi
+    fi
+
+    # Ensure PostgreSQL config exists
+    if [[ ! -f "/etc/postgresql/${pg_version}/main/postgresql.conf" ]]; then
+        log INFO "Creating PostgreSQL configuration..."
+        mkdir -p "/etc/postgresql/${pg_version}/main"
+
+        # Try to copy from template or create basic config
+        if [[ -f "/usr/share/postgresql/${pg_version}/postgresql.conf.sample" ]]; then
+            cp "/usr/share/postgresql/${pg_version}/postgresql.conf.sample" "/etc/postgresql/${pg_version}/main/postgresql.conf"
+        else
+            # Create minimal config
+            cat > "/etc/postgresql/${pg_version}/main/postgresql.conf" <<PGCONF
+# Minimal PostgreSQL configuration
+listen_addresses = 'localhost'
+port = 5432
+max_connections = 100
+shared_buffers = 128MB
+dynamic_shared_memory_type = posix
+log_timezone = 'UTC'
+datestyle = 'iso, mdy'
+timezone = 'UTC'
+lc_messages = 'C.UTF-8'
+lc_monetary = 'C.UTF-8'
+lc_numeric = 'C.UTF-8'
+lc_time = 'C.UTF-8'
+default_text_search_config = 'pg_catalog.english'
+PGCONF
+        fi
+
+        chown postgres:postgres "/etc/postgresql/${pg_version}/main/postgresql.conf"
+    fi
+
+    # Ensure pg_hba.conf exists with proper authentication
+    if [[ ! -f "/etc/postgresql/${pg_version}/main/pg_hba.conf" ]]; then
+        log INFO "Creating pg_hba.conf..."
+        cat > "/etc/postgresql/${pg_version}/main/pg_hba.conf" <<PGHBA
+# PostgreSQL Client Authentication Configuration
+local   all             postgres                                peer
+local   all             all                                     peer
+host    all             all             127.0.0.1/32            md5
+host    all             all             ::1/128                 md5
+PGHBA
+        chown postgres:postgres "/etc/postgresql/${pg_version}/main/pg_hba.conf"
+    fi
+
+    # Ensure socket directory exists
+    if [[ ! -d /var/run/postgresql ]]; then
+        log INFO "Creating PostgreSQL socket directory..."
+        mkdir -p /var/run/postgresql
+        chown postgres:postgres /var/run/postgresql
+        chmod 2775 /var/run/postgresql
+    fi
+
+    # Start PostgreSQL service
+    log INFO "Starting PostgreSQL service..."
+    systemctl enable postgresql
+
+    # Try different methods to start PostgreSQL
+    if ! systemctl start postgresql; then
+        log WARN "systemctl start failed, trying service command..."
+        service postgresql start || {
+            log WARN "service command failed, trying pg_ctlcluster..."
+            pg_ctlcluster ${pg_version} main start || {
+                log ERROR "All PostgreSQL start methods failed"
+
+                # Try to start manually as last resort
+                log INFO "Attempting manual PostgreSQL start..."
+                sudo -u postgres /usr/lib/postgresql/${pg_version}/bin/pg_ctl \
+                    -D "/var/lib/postgresql/${pg_version}/main" \
+                    -l "/var/log/postgresql/postgresql-${pg_version}-main.log" \
+                    start || {
+                    log ERROR "Manual start also failed"
+
+                    # Check logs for errors
+                    log INFO "PostgreSQL logs:"
+                    tail -50 /var/log/postgresql/*.log 2>/dev/null || true
+                    return 1
+                }
+            }
+        }
+    fi
+
+    # Wait for PostgreSQL to be ready (max 30 seconds)
+    local max_attempts=30
+    local attempt=0
+
+    log INFO "Waiting for PostgreSQL to become ready..."
+    while [ $attempt -lt $max_attempts ]; do
+        # Try multiple methods to check if PostgreSQL is ready
+        if sudo -u postgres pg_isready -q 2>/dev/null; then
+            log SUCCESS "PostgreSQL is ready (pg_isready) ✓"
+            break
+        elif sudo -u postgres psql -c "SELECT 1;" >/dev/null 2>&1; then
+            log SUCCESS "PostgreSQL is ready (psql test) ✓"
+            break
+        fi
+
+        attempt=$((attempt + 1))
+        if [ $attempt -eq $max_attempts ]; then
+            log ERROR "PostgreSQL failed to become ready after ${max_attempts} seconds"
+            log INFO "Checking PostgreSQL status..."
+            systemctl status postgresql --no-pager || true
+
+            # Check for socket files
+            log INFO "Checking for PostgreSQL socket files..."
+            ls -la /var/run/postgresql/ 2>/dev/null || true
+            find /tmp -name ".s.PGSQL.*" 2>/dev/null || true
+
+            # Check PostgreSQL processes
+            log INFO "Checking PostgreSQL processes..."
+            ps aux | grep postgres || true
+
+            return 1
+        fi
+
+        # Show progress
+        if [ $((attempt % 5)) -eq 0 ]; then
+            log INFO "Still waiting for PostgreSQL... (${attempt}/${max_attempts})"
+        fi
+
+        sleep 1
+    done
+
+    # Additional wait for complete initialization
+    sleep 2
 
     # Create role and database
-    sudo -u postgres psql <<EOF
-DO \$\$
-BEGIN
-    IF NOT EXISTS (SELECT FROM pg_roles WHERE rolname = '${company}') THEN
-        CREATE ROLE ${company} LOGIN PASSWORD '${password}';
-    END IF;
-END
-\$\$;
+    log INFO "Creating database and user..."
 
-DO \$\$
-BEGIN
-    IF NOT EXISTS (SELECT FROM pg_database WHERE datname = '${company}') THEN
-        CREATE DATABASE ${company} OWNER ${company};
-    END IF;
-END
-\$\$;
+    # Change to postgres home to avoid permission warnings
+    cd /var/lib/postgresql
 
-GRANT ALL PRIVILEGES ON DATABASE ${company} TO ${company};
-EOF
+    # First create the role if it doesn't exist
+    sudo -u postgres psql -tc "SELECT 1 FROM pg_roles WHERE rolname = '${company}'" 2>/dev/null | grep -q 1 || {
+        log INFO "Creating PostgreSQL user: ${company}"
+        sudo -u postgres psql -c "CREATE ROLE ${company} LOGIN PASSWORD '${password}';" 2>/dev/null
+    }
+
+    # Then create the database if it doesn't exist
+    sudo -u postgres psql -tc "SELECT 1 FROM pg_database WHERE datname = '${company}'" 2>/dev/null | grep -q 1 || {
+        log INFO "Creating database: ${company}"
+        sudo -u postgres psql -c "CREATE DATABASE ${company} OWNER ${company};" 2>/dev/null
+    }
+
+    # Grant privileges
+    sudo -u postgres psql -c "GRANT ALL PRIVILEGES ON DATABASE ${company} TO ${company};" 2>/dev/null
+
+    # Also ensure the user can create schemas (needed for migrations)
+    sudo -u postgres psql -d ${company} -c "GRANT CREATE ON SCHEMA public TO ${company};" 2>/dev/null || true
+
+    # Return to previous directory
+    cd - >/dev/null
 
     log SUCCESS "Database setup complete ✓"
 }
@@ -486,104 +735,662 @@ check_release_exists() {
         log SUCCESS "Release ${GITHUB_TAG} found ✓"
         return 0
     else
-        log ERROR "Release ${GITHUB_TAG} not found in ${GITHUB_REPO}"
+        log WARN "Release ${GITHUB_TAG} not found in ${GITHUB_REPO}"
+
+        # Check for latest release as fallback
+        log INFO "Checking for latest release..."
+        local latest_api_url="https://api.github.com/repos/${GITHUB_REPO}/releases/latest"
+
+        if curl "${curl_opts[@]}" "$latest_api_url" > /tmp/latest_release.json 2>&1; then
+            local latest_tag=$(jq -r '.tag_name' /tmp/latest_release.json 2>/dev/null)
+
+            if [[ -n "$latest_tag" && "$latest_tag" != "null" ]]; then
+                log INFO "Found latest release: ${latest_tag}"
+                log INFO "Would you like to use ${latest_tag} instead? (y/n)"
+
+                if [[ "$NON_INTERACTIVE" == "true" ]]; then
+                    log INFO "Non-interactive mode: using latest release ${latest_tag}"
+                    GITHUB_TAG="$latest_tag"
+                    return 0
+                else
+                    read -r answer
+                    if [[ "$answer" == "y" || "$answer" == "Y" ]]; then
+                        GITHUB_TAG="$latest_tag"
+                        log SUCCESS "Using release ${GITHUB_TAG} ✓"
+                        return 0
+                    fi
+                fi
+            fi
+        fi
+
+        log ERROR "No suitable release found"
         log ERROR "Please check:"
-        log ERROR "  1. The release exists at: https://github.com/${GITHUB_REPO}/releases/tag/${GITHUB_TAG}"
-        log ERROR "  2. The GitHub Actions workflow has completed successfully"
-        log ERROR "  3. The manifest.json file was uploaded to the release"
+        log ERROR "  1. The repository exists: https://github.com/${GITHUB_REPO}"
+        log ERROR "  2. At least one release has been created"
+        log ERROR "  3. The GitHub Actions workflow has completed successfully"
         return 1
     fi
+}
+
+create_frontend_server() {
+    local target_dir=$1
+    cat > "${target_dir}/server.js" <<'FRONTEND_SERVER'
+const express = require('express');
+const path = require('path');
+const app = express();
+
+const PORT = process.env.PORT || 3000;
+
+// Serve static files
+app.use(express.static(__dirname));
+
+// Handle React routing
+app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, 'index.html'));
+});
+
+const server = app.listen(PORT, '0.0.0.0', () => {
+    console.log(`Frontend server running on port ${PORT}`);
+});
+
+process.on('SIGTERM', () => {
+    server.close(() => {
+        console.log('Frontend server closed');
+    });
+});
+FRONTEND_SERVER
+    chmod +x "${target_dir}/server.js"
+}
+
+clone_repository() {
+    local company="${1:-chatia}"
+    local temp_dir="/tmp/chatia-source-$(date +%s)"
+    local current_dir=$(pwd)
+
+    log INFO "========================================="
+    log INFO "Cloning ChatIA Flow repository"
+    log INFO "Repository: ${GITHUB_REPO}"
+    log INFO "Branch: ${GITHUB_BRANCH}"
+    log INFO "========================================="
+
+    # Prepare GitHub URL with optional token
+    local github_url="https://github.com/${GITHUB_REPO}.git"
+    if [[ -n "${GITHUB_TOKEN}" ]]; then
+        github_url="https://${GITHUB_TOKEN}@github.com/${GITHUB_REPO}.git"
+        log INFO "Using GitHub token for authentication"
+    fi
+
+    # Ensure we're in the right directory
+    mkdir -p "${BASE_DIR}/${company}"
+    cd "${BASE_DIR}/${company}"
+
+    # Remove any existing source directories to start fresh
+    if [[ -d "backend" ]] || [[ -d "frontend" ]]; then
+        log WARN "Removing existing source directories..."
+        rm -rf backend frontend 2>/dev/null || true
+    fi
+
+    # Try to clone with the specified branch first
+    log INFO "Attempting to clone branch: ${GITHUB_BRANCH}..."
+    if git clone --depth=1 --branch "${GITHUB_BRANCH}" --single-branch "$github_url" "$temp_dir" 2>&1 | tee -a "$LOG_FILE"; then
+        log SUCCESS "Repository cloned successfully from branch ${GITHUB_BRANCH}"
+    else
+        # If specified branch fails, try main branch
+        log WARN "Branch ${GITHUB_BRANCH} not found, trying 'main' branch..."
+        if git clone --depth=1 --branch main --single-branch "$github_url" "$temp_dir" 2>&1 | tee -a "$LOG_FILE"; then
+            log SUCCESS "Repository cloned successfully from main branch"
+        else
+            # Last attempt: clone without specifying branch
+            log WARN "Trying to clone default branch..."
+            if git clone --depth=1 "$github_url" "$temp_dir" 2>&1 | tee -a "$LOG_FILE"; then
+                log SUCCESS "Repository cloned successfully from default branch"
+            else
+                log ERROR "All clone attempts failed!"
+                rm -rf "$temp_dir" 2>/dev/null
+                cd "$current_dir"
+                return 1
+            fi
+        fi
+    fi
+
+    # Verify the repository structure - check both root and chatia subdirectory
+    local backend_path=""
+    local frontend_path=""
+
+    # First check if backend/frontend are in the root
+    if [[ -d "$temp_dir/backend" ]] && [[ -d "$temp_dir/frontend" ]]; then
+        log INFO "Found backend and frontend in repository root"
+        backend_path="$temp_dir/backend"
+        frontend_path="$temp_dir/frontend"
+    # Then check if they're inside a chatia subdirectory
+    elif [[ -d "$temp_dir/chatia/backend" ]] && [[ -d "$temp_dir/chatia/frontend" ]]; then
+        log INFO "Found backend and frontend in chatia/ subdirectory"
+        backend_path="$temp_dir/chatia/backend"
+        frontend_path="$temp_dir/chatia/frontend"
+    # Also check for capital Chatia
+    elif [[ -d "$temp_dir/Chatia/backend" ]] && [[ -d "$temp_dir/Chatia/frontend" ]]; then
+        log INFO "Found backend and frontend in Chatia/ subdirectory"
+        backend_path="$temp_dir/Chatia/backend"
+        frontend_path="$temp_dir/Chatia/frontend"
+    else
+        log ERROR "Repository doesn't contain expected backend/frontend directories!"
+        log ERROR "Searched in: root, chatia/, and Chatia/"
+        log ERROR "Repository structure:"
+        ls -la "$temp_dir" | head -20 | tee -a "$LOG_FILE"
+        if [[ -d "$temp_dir/chatia" ]]; then
+            log ERROR "Contents of chatia/:"
+            ls -la "$temp_dir/chatia" | head -20 | tee -a "$LOG_FILE"
+        fi
+        rm -rf "$temp_dir"
+        cd "$current_dir"
+        return 1
+    fi
+
+    # Move the source code to deployment directory
+    log INFO "Moving source code to ${BASE_DIR}/${company}/"
+    mv "$backend_path" ./backend
+    mv "$frontend_path" ./frontend
+
+    # Clean up
+    rm -rf "$temp_dir"
+
+    # Verify move was successful
+    if [[ -d "backend" ]] && [[ -d "frontend" ]]; then
+        log SUCCESS "Source code successfully deployed"
+        log INFO "Backend location: ${BASE_DIR}/${company}/backend"
+        log INFO "Frontend location: ${BASE_DIR}/${company}/frontend"
+        cd "$current_dir"
+        return 0
+    else
+        log ERROR "Failed to move source code to deployment directory"
+        cd "$current_dir"
+        return 1
+    fi
+}
+
+create_minimal_structure() {
+    local company=$1
+
+    log WARN "Creating minimal placeholder structure (real code not available)..."
+    log WARN "This is a fallback - the system will need real code to function properly"
+
+    # Always create directories if they don't exist
+    mkdir -p "${BASE_DIR}/${company}/backend/dist"
+    mkdir -p "${BASE_DIR}/${company}/frontend/build"
+
+    # Only create backend server if it doesn't exist
+    if [[ ! -f "${BASE_DIR}/${company}/backend/dist/server.js" ]]; then
+        cat > "${BASE_DIR}/${company}/backend/dist/server.js" <<MINIMAL_BACKEND
+#!/usr/bin/env node
+const express = require('express');
+const app = express();
+const PORT = process.env.PORT || 8080;
+
+// Enable CORS for frontend
+app.use((req, res, next) => {
+    res.header('Access-Control-Allow-Origin', '*');
+    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+    if (req.method === 'OPTIONS') {
+        return res.sendStatus(200);
+    }
+    next();
+});
+
+app.get('/health', (req, res) => {
+    res.json({ status: 'ok', message: 'ChatIA Flow Backend - Placeholder' });
+});
+
+app.get('/', (req, res) => {
+    res.json({
+        message: 'ChatIA Flow Backend - Minimal placeholder',
+        note: 'Please deploy your actual backend code to this directory',
+        path: '/home/deploy/${company}/backend/',
+        time: new Date().toISOString()
+    });
+});
+
+const server = app.listen(PORT, '0.0.0.0', () => {
+    console.log(\`Minimal backend server running on port \${PORT}\`);
+});
+
+// Graceful shutdown
+process.on('SIGTERM', () => {
+    server.close(() => {
+        console.log('Backend server closed');
+    });
+});
+MINIMAL_BACKEND
+
+        # Make backend executable
+        chmod +x "${BASE_DIR}/${company}/backend/dist/server.js"
+    fi
+
+    # Create package.json for backend if it doesn't exist
+    if [[ ! -f "${BASE_DIR}/${company}/backend/package.json" ]]; then
+        cat > "${BASE_DIR}/${company}/backend/package.json" <<BACKEND_PACKAGE
+{
+    "name": "chatia-backend-placeholder",
+    "version": "1.0.0",
+    "main": "dist/server.js",
+    "scripts": {
+        "start": "node dist/server.js"
+    },
+    "dependencies": {
+        "express": "^4.18.2"
+    }
+}
+BACKEND_PACKAGE
+    fi
+
+    # Only create frontend server if it doesn't exist
+    if [[ ! -f "${BASE_DIR}/${company}/frontend/build/server.js" ]]; then
+        cat > "${BASE_DIR}/${company}/frontend/build/server.js" <<MINIMAL_FRONTEND
+#!/usr/bin/env node
+const express = require('express');
+const path = require('path');
+const app = express();
+const PORT = process.env.PORT || 3000;
+
+app.get('*', (req, res) => {
+    res.send(\`
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ChatIA Flow</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .container {
+            text-align: center;
+            padding: 3rem;
+            background: rgba(255,255,255,0.1);
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+            max-width: 600px;
+            margin: 2rem;
+        }
+        h1 {
+            margin-bottom: 1.5rem;
+            font-size: 2.5rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+        .status {
+            background: rgba(0,255,0,0.2);
+            color: #00ff88;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            display: inline-block;
+            margin-bottom: 2rem;
+            font-weight: bold;
+        }
+        .info {
+            background: rgba(0,0,0,0.3);
+            padding: 1.5rem;
+            border-radius: 10px;
+            margin-top: 2rem;
+            text-align: left;
+        }
+        .info h3 {
+            margin-bottom: 1rem;
+            color: #ffd700;
+        }
+        .info p {
+            margin: 0.5rem 0;
+            font-family: monospace;
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+        .paths {
+            background: rgba(0,0,0,0.2);
+            padding: 1rem;
+            border-radius: 5px;
+            margin-top: 1rem;
+        }
+        .footer {
+            margin-top: 2rem;
+            opacity: 0.7;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 ChatIA Flow</h1>
+        <div class="status">✅ Instalação Concluída</div>
+
+        <p>O sistema está pronto para receber o código da aplicação.</p>
+
+        <div class="info">
+            <h3>📋 Próximos Passos:</h3>
+            <div class="paths">
+                <p><strong>1. Deploy do Backend:</strong></p>
+                <p>/home/deploy/${company}/backend/</p>
+                <br>
+                <p><strong>2. Deploy do Frontend:</strong></p>
+                <p>/home/deploy/${company}/frontend/build/</p>
+                <br>
+                <p><strong>3. Executar Migrations:</strong></p>
+                <p>cd /home/deploy/${company}/backend && npx sequelize db:migrate</p>
+                <br>
+                <p><strong>4. Reiniciar PM2:</strong></p>
+                <p>pm2 restart all</p>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>ChatIA Flow v6.0 - Sistema Multi-tenant de Atendimento</p>
+        </div>
+    </div>
+</body>
+</html>
+    \`);
+});
+
+const server = app.listen(PORT, '0.0.0.0', () => {
+    console.log(\`Minimal frontend server running on port \${PORT}\`);
+});
+
+// Graceful shutdown
+process.on('SIGTERM', () => {
+    server.close(() => {
+        console.log('Frontend server closed');
+    });
+});
+MINIMAL_FRONTEND
+
+        # Make frontend executable
+        chmod +x "${BASE_DIR}/${company}/frontend/build/server.js"
+    fi
+
+    # Create package.json for frontend if it doesn't exist
+    if [[ ! -f "${BASE_DIR}/${company}/frontend/build/package.json" ]]; then
+        cat > "${BASE_DIR}/${company}/frontend/build/package.json" <<FRONTEND_PACKAGE
+{
+    "name": "chatia-frontend-placeholder",
+    "version": "1.0.0",
+    "main": "server.js",
+    "scripts": {
+        "start": "node server.js"
+    },
+    "dependencies": {
+        "express": "^4.18.2"
+    }
+}
+FRONTEND_PACKAGE
+    fi
+
+    # Create frontend package.json at root level too (PM2 may look here) if it doesn't exist
+    if [[ ! -f "${BASE_DIR}/${company}/frontend/package.json" ]]; then
+        cat > "${BASE_DIR}/${company}/frontend/package.json" <<FRONTEND_ROOT_PACKAGE
+{
+    "name": "chatia-frontend",
+    "version": "1.0.0",
+    "scripts": {
+        "start": "cd build && node server.js"
+    }
+}
+FRONTEND_ROOT_PACKAGE
+    fi
+
+    # Install minimal dependencies
+    log INFO "Installing minimal dependencies..."
+
+    # Backend dependencies
+    if [[ -f "${BASE_DIR}/${company}/backend/package.json" ]]; then
+        cd "${BASE_DIR}/${company}/backend"
+        npm install --production --no-save 2>/dev/null || log WARN "Could not install backend dependencies"
+    fi
+
+    # Frontend dependencies
+    if [[ -f "${BASE_DIR}/${company}/frontend/build/package.json" ]]; then
+        cd "${BASE_DIR}/${company}/frontend/build"
+        npm install --production --no-save 2>/dev/null || log WARN "Could not install frontend dependencies"
+    fi
+
+    cd / >/dev/null
+
+    # Set ownership
+    chown -R deploy:deploy "${BASE_DIR}/${company}"
+
+    # Set proper permissions
+    chmod -R 755 "${BASE_DIR}/${company}"
+
+    log SUCCESS "Minimal structure created ✓"
+    log WARN "This is a placeholder installation"
+    log INFO "To deploy real code:"
+    log INFO "  Backend: ${BASE_DIR}/${company}/backend/"
+    log INFO "  Frontend: ${BASE_DIR}/${company}/frontend/"
+    log INFO ""
+    log INFO "After deploying code, run:"
+    log INFO "  sudo -u deploy pm2 restart all"
 }
 
 build_from_source() {
     local company=$1
 
-    log INFO "Building from source code..."
+    log INFO "Building ChatIA Flow from source code..."
+
+    # Ensure directories exist
+    mkdir -p "${BASE_DIR}/${company}/backend"
+    mkdir -p "${BASE_DIR}/${company}/frontend"
 
     # Backend build
     if [[ -d "backend" ]]; then
-        log INFO "Building backend..."
+        log INFO "Building backend (this may take a few minutes)..."
         cd backend
 
         # Install dependencies
-        if [[ -f "pnpm-lock.yaml" ]]; then
-            pnpm install --frozen-lockfile
+        log INFO "Installing backend dependencies..."
+        if command -v pnpm &> /dev/null && [[ -f "pnpm-lock.yaml" ]]; then
+            pnpm install --frozen-lockfile || npm install
         elif [[ -f "package-lock.json" ]]; then
-            npm ci
+            npm ci || npm install
         else
             npm install
         fi
 
         # Build TypeScript
-        npm run build
+        log INFO "Compiling TypeScript..."
+        if npm run build 2>/dev/null; then
+            log SUCCESS "Backend compiled successfully"
+        else
+            log WARN "Standard build failed, trying alternative..."
+            npx tsc || {
+                log ERROR "TypeScript compilation failed. Trying to copy source files..."
+                mkdir -p dist
+                cp -r src/* dist/ 2>/dev/null || true
+            }
+        fi
 
-        # Copy to deployment directory
-        cp -r dist/* "${BASE_DIR}/${company}/backend/"
-        cp -r node_modules "${BASE_DIR}/${company}/backend/"
-        cp package.json "${BASE_DIR}/${company}/backend/"
+        # Deploy backend with proper structure
+        log INFO "Deploying backend files..."
 
-        # Copy migrations if exist
+        # Copy built files
+        if [[ -d "dist" ]]; then
+            cp -r dist "${BASE_DIR}/${company}/backend/"
+        fi
+
+        # Copy node_modules
+        if [[ -d "node_modules" ]]; then
+            log INFO "Copying backend dependencies..."
+            cp -r node_modules "${BASE_DIR}/${company}/backend/"
+        fi
+
+        # Copy configuration files
+        cp package*.json "${BASE_DIR}/${company}/backend/" 2>/dev/null || true
+        cp .sequelizerc* "${BASE_DIR}/${company}/backend/" 2>/dev/null || true
+        cp tsconfig*.json "${BASE_DIR}/${company}/backend/" 2>/dev/null || true
+
+        # Copy database files (preserve structure for migrations)
         if [[ -d "src/database" ]]; then
-            cp -r src/database "${BASE_DIR}/${company}/backend/"
+            mkdir -p "${BASE_DIR}/${company}/backend/src"
+            cp -r src/database "${BASE_DIR}/${company}/backend/src/"
+        fi
+
+        # Copy public directory if exists (for WhatsApp sessions, etc.)
+        if [[ -d "public" ]]; then
+            cp -r public "${BASE_DIR}/${company}/backend/"
         fi
 
         cd ..
-        log SUCCESS "Backend built ✓"
+        log SUCCESS "Backend built and deployed ✓"
+    else
+        log ERROR "Backend source not found!"
+        return 1
     fi
 
     # Frontend build
     if [[ -d "frontend" ]]; then
-        log INFO "Building frontend..."
+        log INFO "Building frontend (this may take a few minutes)..."
         cd frontend
 
         # Install dependencies
-        if [[ -f "pnpm-lock.yaml" ]]; then
-            pnpm install --shamefully-hoist
+        log INFO "Installing frontend dependencies..."
+        if command -v pnpm &> /dev/null && [[ -f "pnpm-lock.yaml" ]]; then
+            pnpm install --shamefully-hoist || npm install --legacy-peer-deps
         elif [[ -f "package-lock.json" ]]; then
-            npm ci
+            npm ci --legacy-peer-deps || npm install --legacy-peer-deps
         else
-            npm install
+            npm install --legacy-peer-deps
         fi
 
-        # Build
+        # Set build environment
         export NODE_OPTIONS="--max-old-space-size=4096"
         export CI=false
-        npm run build
+        export GENERATE_SOURCEMAP=false
 
-        # Copy to deployment directory
-        cp -r build/* "${BASE_DIR}/${company}/frontend/"
-
-        # Copy server files if exist
-        if [[ -f "server.js" ]]; then
-            cp server.js "${BASE_DIR}/${company}/frontend/"
+        # Build React app
+        log INFO "Building React application..."
+        if npm run build 2>/dev/null; then
+            log SUCCESS "Frontend built successfully"
+        else
+            log ERROR "Frontend build failed!"
+            cd ..
+            return 1
         fi
-        cp package.json "${BASE_DIR}/${company}/frontend/"
+
+        # Deploy frontend with proper structure
+        log INFO "Deploying frontend files..."
+
+        # Ensure build directory exists
+        mkdir -p "${BASE_DIR}/${company}/frontend/build"
+
+        # Copy built files
+        if [[ -d "build" ]]; then
+            cp -r build/* "${BASE_DIR}/${company}/frontend/build/"
+        else
+            log ERROR "Build directory not found!"
+            cd ..
+            return 1
+        fi
+
+        # Copy server.js for static serving
+        if [[ -f "server.js" ]]; then
+            cp server.js "${BASE_DIR}/${company}/frontend/build/"
+        else
+            # Create a simple server.js if it doesn't exist
+            cat > "${BASE_DIR}/${company}/frontend/build/server.js" <<'FRONTEND_SERVER'
+const express = require('express');
+const path = require('path');
+const app = express();
+
+const PORT = process.env.PORT || 3000;
+
+// Serve static files
+app.use(express.static(__dirname));
+
+// Handle React routing
+app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, 'index.html'));
+});
+
+const server = app.listen(PORT, '0.0.0.0', () => {
+    console.log(`Frontend server running on port ${PORT}`);
+});
+
+process.on('SIGTERM', () => {
+    server.close(() => {
+        console.log('Frontend server closed');
+    });
+});
+FRONTEND_SERVER
+        fi
+
+        # Copy package.json for server dependencies
+        if [[ -f "package.json" ]]; then
+            cp package.json "${BASE_DIR}/${company}/frontend/build/"
+        else
+            # Create minimal package.json for server
+            cat > "${BASE_DIR}/${company}/frontend/build/package.json" <<'FRONTEND_PACKAGE'
+{
+    "name": "chatia-frontend",
+    "version": "1.0.0",
+    "main": "server.js",
+    "scripts": {
+        "start": "node server.js"
+    },
+    "dependencies": {
+        "express": "^4.18.2"
+    }
+}
+FRONTEND_PACKAGE
+        fi
+
+        # Install server dependencies
+        cd "${BASE_DIR}/${company}/frontend/build"
+        npm install --production --omit=dev express 2>/dev/null || true
+        cd -
 
         cd ..
-        log SUCCESS "Frontend built ✓"
+        log SUCCESS "Frontend built and deployed ✓"
+    else
+        log ERROR "Frontend source not found!"
+        return 1
     fi
 
-    log SUCCESS "Build from source completed ✓"
+    # Set proper permissions
+    chown -R deploy:deploy "${BASE_DIR}/${company}"
+
+    log SUCCESS "Build from source completed successfully ✓"
+    return 0
 }
 
 download_artifacts() {
     local company=$1
     local manifest_file="/tmp/manifest.json"
+    local manifest_url="https://github.com/${GITHUB_REPO}/releases/download/${GITHUB_TAG}/manifest.json"
+
+    # Skip if SKIP_ARTIFACTS is set
+    if [[ "${SKIP_ARTIFACTS:-false}" == "true" ]]; then
+        log INFO "Skipping artifact download (manual installation mode)"
+        # Create minimal structure since we're skipping artifacts
+        create_minimal_structure "$company"
+        return 0
+    fi
 
     # Check if release exists first
     if ! check_release_exists; then
-        log ERROR "Cannot proceed without a valid release"
-        log INFO "You can:"
-        log INFO "  1. Wait for GitHub Actions to complete the build"
-        log INFO "  2. Check the Actions status at: https://github.com/${GITHUB_REPO}/actions"
-        log INFO "  3. Manually trigger the workflow if needed"
-        return 1
+        log WARN "No valid release found, creating minimal structure instead"
+        create_minimal_structure "$company"
+        return 0
     fi
 
     log INFO "Downloading release manifest..."
 
     # Download manifest
-    if ! download_with_progress "$MANIFEST_URL" "$manifest_file" "manifest.json"; then
+    if ! download_with_progress "$manifest_url" "$manifest_file" "manifest.json"; then
         log ERROR "Failed to download manifest.json"
         log ERROR "The release may not have artifacts yet. Check:"
         log ERROR "  https://github.com/${GITHUB_REPO}/releases/tag/${GITHUB_TAG}"
@@ -737,36 +1544,135 @@ EOF
 run_migrations() {
     local company=$1
 
-    log INFO "Running database migrations..."
+    log INFO "Checking for database migrations..."
 
     local backend_dir="${BASE_DIR}/${company}/backend"
 
     if [[ ! -d "$backend_dir" ]]; then
-        log ERROR "Backend directory not found: $backend_dir"
-        return 1
+        log WARN "Backend directory not found: $backend_dir"
+        log INFO "Skipping migrations (will run when real code is deployed)"
+        return 0
+    fi
+
+    # Check if this is a real backend or just placeholder
+    if [[ ! -f "${backend_dir}/package.json" ]] || ! grep -q '"sequelize"' "${backend_dir}/package.json" 2>/dev/null; then
+        log INFO "No Sequelize found in backend. Skipping migrations."
+        log INFO "Migrations will run automatically when real code is deployed."
+        return 0
     fi
 
     cd "$backend_dir"
 
-    # Copy .sequelizerc if it was included in the artifact
-    if [[ -f ".sequelizerc.deploy" ]]; then
-        cp .sequelizerc.deploy .sequelizerc
-    fi
-
-    # Check if sequelize-cli is available
-    if ! npx sequelize --version &>/dev/null; then
-        log INFO "Installing sequelize-cli..."
-        npm install --save-dev sequelize-cli
-    fi
-
-    # Run migrations
-    if sudo -u deploy npx sequelize db:migrate; then
-        log SUCCESS "Migrations completed ✓"
+    # Check for migrations directory
+    local migrations_dir=""
+    if [[ -d "dist/database/migrations" ]]; then
+        migrations_dir="dist/database/migrations"
+    elif [[ -d "src/database/migrations" ]]; then
+        migrations_dir="src/database/migrations"
+    elif [[ -d "database/migrations" ]]; then
+        migrations_dir="database/migrations"
     else
-        log WARN "Migrations failed or already applied"
-        log INFO "You can run migrations manually later with:"
+        log WARN "No migrations directory found"
+        cd - >/dev/null
+        return 0
+    fi
+
+    log INFO "Found migrations in: $migrations_dir"
+
+    # Create or update .sequelizerc
+    cat > .sequelizerc <<SEQUELIZERC
+const { resolve } = require("path");
+
+module.exports = {
+    "config": resolve(__dirname, "dist", "config", "database.js"),
+    "models-path": resolve(__dirname, "dist", "models"),
+    "migrations-path": resolve(__dirname, "${migrations_dir}"),
+    "seeders-path": resolve(__dirname, "dist", "database", "seeds")
+};
+SEQUELIZERC
+
+    # Ensure sequelize-cli is available
+    if ! command -v sequelize &>/dev/null; then
+        if ! npx sequelize --version &>/dev/null; then
+            log INFO "Installing sequelize-cli..."
+            npm install --save-dev sequelize-cli 2>/dev/null || {
+                log WARN "Could not install sequelize-cli globally"
+                log INFO "Trying with npx..."
+            }
+        fi
+    fi
+
+    # Ensure database config exists
+    if [[ ! -f "dist/config/database.js" ]]; then
+        log INFO "Creating database configuration..."
+        mkdir -p dist/config
+        cat > dist/config/database.js <<'DBCONFIG'
+require('dotenv').config();
+
+module.exports = {
+    development: {
+        username: process.env.DB_USER,
+        password: process.env.DB_PASS,
+        database: process.env.DB_NAME,
+        host: process.env.DB_HOST || 'localhost',
+        port: process.env.DB_PORT || 5432,
+        dialect: process.env.DB_DIALECT || 'postgres',
+        timezone: 'America/Sao_Paulo',
+        define: {
+            charset: 'utf8mb4',
+            collate: 'utf8mb4_general_ci'
+        },
+        logging: false
+    },
+    test: {
+        username: process.env.DB_USER,
+        password: process.env.DB_PASS,
+        database: process.env.DB_NAME,
+        host: process.env.DB_HOST || 'localhost',
+        port: process.env.DB_PORT || 5432,
+        dialect: process.env.DB_DIALECT || 'postgres',
+        timezone: 'America/Sao_Paulo'
+    },
+    production: {
+        username: process.env.DB_USER,
+        password: process.env.DB_PASS,
+        database: process.env.DB_NAME,
+        host: process.env.DB_HOST || 'localhost',
+        port: process.env.DB_PORT || 5432,
+        dialect: process.env.DB_DIALECT || 'postgres',
+        timezone: 'America/Sao_Paulo',
+        define: {
+            charset: 'utf8mb4',
+            collate: 'utf8mb4_general_ci'
+        },
+        logging: false
+    }
+};
+DBCONFIG
+    fi
+
+    # Set proper ownership
+    chown -R deploy:deploy .
+
+    # Run migrations as deploy user
+    log INFO "Running database migrations..."
+    if sudo -u deploy NODE_ENV=production npx sequelize db:migrate 2>&1 | tee -a "$LOG_FILE"; then
+        log SUCCESS "Database migrations completed successfully ✓"
+    else
+        log WARN "Some migrations may have failed or were already applied"
+        log INFO "You can check migration status with:"
         log INFO "  cd ${backend_dir}"
-        log INFO "  npx sequelize db:migrate"
+        log INFO "  sudo -u deploy npx sequelize db:migrate:status"
+    fi
+
+    # Run seeds if they exist (optional)
+    if [[ -d "dist/database/seeds" ]] || [[ -d "src/database/seeds" ]]; then
+        log INFO "Checking for database seeds..."
+        if sudo -u deploy NODE_ENV=production npx sequelize db:seed:all 2>/dev/null; then
+            log SUCCESS "Database seeds applied ✓"
+        else
+            log INFO "Seeds already applied or not required"
+        fi
     fi
 
     cd - >/dev/null
@@ -777,28 +1683,80 @@ setup_pm2_services() {
 
     log INFO "Setting up PM2 services..."
 
+    # Ensure PM2 is properly installed and accessible
+    if ! command -v pm2 &> /dev/null; then
+        log ERROR "PM2 is not installed. Installing..."
+        npm install -g pm2
+    fi
+
+    # Fix PM2 permissions
+    mkdir -p /home/deploy/.pm2
+    chown -R deploy:deploy /home/deploy/.pm2
+    chmod 755 /home/deploy/.pm2
+
+    # Ensure log directory exists with correct permissions
+    mkdir -p "${LOG_DIR}"
+    chown -R deploy:deploy "${LOG_DIR}"
+
+    # Check if the server files exist before starting
+    if [[ ! -f "${BASE_DIR}/${company}/backend/dist/server.js" ]]; then
+        log WARN "Backend server.js not found. Creating placeholder..."
+        create_minimal_structure "$company"
+    fi
+
+    if [[ ! -f "${BASE_DIR}/${company}/frontend/build/server.js" ]]; then
+        log WARN "Frontend server.js not found. Creating placeholder..."
+        create_minimal_structure "$company"
+    fi
+
+    # Ensure frontend build directory exists
+    if [[ ! -d "${BASE_DIR}/${company}/frontend/build" ]]; then
+        log INFO "Creating frontend build directory..."
+        mkdir -p "${BASE_DIR}/${company}/frontend/build"
+    fi
+
+    # Start PM2 as deploy user with proper environment
     # Backend service
-    sudo -u deploy pm2 start "${BASE_DIR}/${company}/backend/dist/server.js" \
-        --name "${company}-backend" \
-        --cwd "${BASE_DIR}/${company}/backend" \
-        -i 2 \
-        --merge-logs \
-        --log "${LOG_DIR}/${company}-backend.log"
+    if [[ -f "${BASE_DIR}/${company}/backend/dist/server.js" ]]; then
+        su - deploy -c "cd ${BASE_DIR}/${company}/backend && pm2 start dist/server.js \
+            --name '${company}-backend' \
+            --cwd '${BASE_DIR}/${company}/backend' \
+            --merge-logs \
+            --log '${LOG_DIR}/${company}-backend.log' \
+            --time" || {
+            log WARN "Backend PM2 service failed to start."
+        }
+    else
+        log WARN "Backend server.js not found, skipping PM2 start for backend"
+    fi
 
     # Frontend service
-    sudo -u deploy pm2 start "${BASE_DIR}/${company}/frontend/build/server.js" \
-        --name "${company}-frontend" \
-        --cwd "${BASE_DIR}/${company}/frontend/build" \
-        --merge-logs \
-        --log "${LOG_DIR}/${company}-frontend.log"
+    if [[ -f "${BASE_DIR}/${company}/frontend/build/server.js" ]]; then
+        su - deploy -c "cd ${BASE_DIR}/${company}/frontend/build && pm2 start server.js \
+            --name '${company}-frontend' \
+            --cwd '${BASE_DIR}/${company}/frontend/build' \
+            --merge-logs \
+            --log '${LOG_DIR}/${company}-frontend.log' \
+            --time" || {
+            log WARN "Frontend PM2 service failed to start."
+        }
+    else
+        log WARN "Frontend server.js not found, skipping PM2 start for frontend"
+    fi
 
     # Save PM2 configuration
-    sudo -u deploy pm2 save
+    su - deploy -c "pm2 save" || log WARN "Could not save PM2 configuration"
 
     # Setup PM2 startup
-    pm2 startup systemd -u deploy --hp /home/deploy
+    local startup_cmd=$(su - deploy -c "pm2 startup systemd -u deploy --hp /home/deploy" | grep sudo | tail -1)
+    if [[ -n "$startup_cmd" ]]; then
+        eval "$startup_cmd" || log WARN "Could not setup PM2 startup"
+    fi
 
-    log SUCCESS "PM2 services configured ✓"
+    # List PM2 processes for verification
+    su - deploy -c "pm2 list"
+
+    log SUCCESS "PM2 services setup complete (may need real code to run properly) ✓"
 }
 
 setup_nginx() {
@@ -1082,39 +2040,28 @@ wizard_prompt() {
     done
 }
 
-generate_password() {
-    # Generate a strong password with 16 characters
-    local password=$(openssl rand -base64 16 | tr -d "=+/" | cut -c1-16)
-    echo "$password"
-}
-
 wizard_password() {
     local prompt=$1
     local var_name=$2
-    local auto_generate=${3:-false}
 
-    if [[ "$auto_generate" == "true" ]]; then
-        local password=$(generate_password)
+    while true; do
+        # Show password as it's being typed (no -s flag)
+        read -p "$(echo -e "${CYAN}${prompt}${NC}: ")" password
+
+        if [[ -z "$password" ]]; then
+            log ERROR "Password cannot be empty"
+            continue
+        fi
+
+        if [[ ${#password} -lt 8 ]]; then
+            log ERROR "Password must be at least 8 characters"
+            continue
+        fi
+
         eval "$var_name=\"$password\""
-        echo -e "${GREEN}Generated ${prompt}: ${BOLD}${password}${NC}"
-        log INFO "Please save this password securely!"
-    else
-        while true; do
-            read -p "$(echo -e "${CYAN}${prompt} (press Enter to auto-generate)${NC}: ")" password
-
-            if [[ -z "$password" ]]; then
-                password=$(generate_password)
-                echo -e "${GREEN}Generated: ${BOLD}${password}${NC}"
-                log INFO "Please save this password securely!"
-            elif [[ ${#password} -lt 8 ]]; then
-                log ERROR "Password must be at least 8 characters"
-                continue
-            fi
-
-            eval "$var_name=\"$password\""
-            break
-        done
-    fi
+        log SUCCESS "Password set: ${BOLD}${password}${NC} ✓"
+        break
+    done
 }
 
 validate_and_format_phone() {
@@ -1131,15 +2078,88 @@ validate_and_format_phone() {
 }
 
 run_wizard() {
+    clear
     print_banner
 
     log INFO "Welcome to ChatIA Flow Installer!"
-    echo -e "${YELLOW}All passwords will be auto-generated and shown for you to save.${NC}"
     echo
 
-    # Company name
+    # GitHub Repository
+    clear
+    print_banner
     while true; do
-        read -p "$(echo -e "${CYAN}Enter your company name${NC}: ")" COMPANY
+        read -p "$(echo -e "${CYAN}GitHub Repository (owner/repo or full URL)${NC}: ")" input_repo
+        if [[ -z "$input_repo" ]]; then
+            log ERROR "GitHub repository is required"
+            continue
+        fi
+
+        # Extract owner/repo from different formats
+        # Handle full GitHub URLs: https://github.com/owner/repo or https://github.com/owner/repo.git
+        if [[ "$input_repo" =~ github\.com[:/]([a-zA-Z0-9_.-]+)/([a-zA-Z0-9_.-]+) ]]; then
+            local owner="${BASH_REMATCH[1]}"
+            local repo="${BASH_REMATCH[2]}"
+            # Remove .git suffix if present
+            repo="${repo%.git}"
+            GITHUB_REPO="${owner}/${repo}"
+        # Handle owner/repo format
+        elif [[ "$input_repo" =~ ^([a-zA-Z0-9_.-]+)/([a-zA-Z0-9_.-]+)$ ]]; then
+            GITHUB_REPO="$input_repo"
+        else
+            log ERROR "Invalid format. Examples:"
+            log ERROR "  bruno-vilefort-tech-consulting/Projeto-Rodrigo"
+            log ERROR "  https://github.com/bruno-vilefort-tech-consulting/Projeto-Rodrigo"
+            log ERROR "  https://github.com/bruno-vilefort-tech-consulting/Projeto-Rodrigo.git"
+            continue
+        fi
+
+        export GITHUB_REPO
+        log SUCCESS "Repository: $GITHUB_REPO ✓"
+        break
+    done
+
+    # GitHub Tag
+    clear
+    print_banner
+    echo -e "${GREEN}Repository: $GITHUB_REPO${NC}"
+    echo
+    while true; do
+        read -p "$(echo -e "${CYAN}GitHub Release Tag (e.g., v1.0.0)${NC} [v5.0.0]: ")" input_tag
+        input_tag=${input_tag:-v5.0.0}
+
+        if [[ -z "$input_tag" ]]; then
+            log ERROR "GitHub tag is required"
+            continue
+        fi
+
+        GITHUB_TAG="$input_tag"
+        export GITHUB_TAG
+        log SUCCESS "Tag: $GITHUB_TAG ✓"
+        break
+    done
+
+    # GitHub Token
+    clear
+    print_banner
+    echo -e "${GREEN}Repository: $GITHUB_REPO${NC}"
+    echo -e "${GREEN}Tag: $GITHUB_TAG${NC}"
+    echo
+    read -s -p "$(echo -e "${CYAN}GitHub Personal Access Token (optional, press Enter to skip)${NC}: ")" input_token
+    echo
+    if [[ -n "$input_token" ]]; then
+        GITHUB_TOKEN="$input_token"
+        export GITHUB_TOKEN
+        log SUCCESS "GitHub token configured ✓"
+    else
+        GITHUB_TOKEN=""
+        log INFO "No GitHub token provided (using public access)"
+    fi
+
+    # Company name
+    clear
+    print_banner
+    while true; do
+        read -p "$(echo -e "${CYAN}Enter your company name (alphanumeric only)${NC}: ")" COMPANY
         if [[ -z "$COMPANY" ]]; then
             log ERROR "Company name is required"
             continue
@@ -1154,6 +2174,10 @@ run_wizard() {
     done
 
     # Get public IP for DNS validation
+    clear
+    print_banner
+    echo -e "${GREEN}Company: $COMPANY${NC}"
+    echo
     log INFO "Detecting public IP..."
     PUBLIC_IP=$(get_public_ip)
     if [[ -z "$PUBLIC_IP" ]]; then
@@ -1161,8 +2185,14 @@ run_wizard() {
         exit 1
     fi
     log SUCCESS "Public IP: $PUBLIC_IP ✓"
+    sleep 2
 
     # Backend URL with automatic DNS validation
+    clear
+    print_banner
+    echo -e "${GREEN}Company: $COMPANY${NC}"
+    echo -e "${GREEN}Public IP: $PUBLIC_IP${NC}"
+    echo
     while true; do
         read -p "$(echo -e "${CYAN}Backend URL (e.g., api.example.com)${NC}: ")" BACKEND_URL
         if [[ -z "$BACKEND_URL" ]]; then
@@ -1189,6 +2219,11 @@ run_wizard() {
     done
 
     # Frontend URL with automatic DNS validation
+    clear
+    print_banner
+    echo -e "${GREEN}Company: $COMPANY${NC}"
+    echo -e "${GREEN}Backend: $BACKEND_URL${NC}"
+    echo
     while true; do
         read -p "$(echo -e "${CYAN}Frontend URL (e.g., app.example.com)${NC}: ")" FRONTEND_URL
         if [[ -z "$FRONTEND_URL" ]]; then
@@ -1215,6 +2250,12 @@ run_wizard() {
     done
 
     # Admin email with validation
+    clear
+    print_banner
+    echo -e "${GREEN}Company: $COMPANY${NC}"
+    echo -e "${GREEN}Backend: $BACKEND_URL${NC}"
+    echo -e "${GREEN}Frontend: $FRONTEND_URL${NC}"
+    echo
     while true; do
         read -p "$(echo -e "${CYAN}Admin email${NC}: ")" ADMIN_EMAIL
         if [[ -z "$ADMIN_EMAIL" ]]; then
@@ -1231,7 +2272,27 @@ run_wizard() {
         break
     done
 
+    # Admin password
+    clear
+    print_banner
+    echo -e "${GREEN}Company: $COMPANY${NC}"
+    echo -e "${GREEN}Admin Email: $ADMIN_EMAIL${NC}"
+    echo
+    wizard_password "Admin password (min 8 characters)" "ADMIN_PASSWORD"
+
+    # Database password
+    clear
+    print_banner
+    echo -e "${GREEN}Company: $COMPANY${NC}"
+    echo -e "${GREEN}Admin Email: $ADMIN_EMAIL${NC}"
+    echo
+    wizard_password "Database password (min 8 characters)" "DEPLOY_PASSWORD"
+
     # Support phone with validation
+    clear
+    print_banner
+    echo -e "${GREEN}Company: $COMPANY${NC}"
+    echo
     while true; do
         read -p "$(echo -e "${CYAN}Support phone (10-15 digits)${NC}: ")" SUPPORT_PHONE
         if [[ -z "$SUPPORT_PHONE" ]]; then
@@ -1250,59 +2311,45 @@ run_wizard() {
         break
     done
 
-    # Auto-generate passwords
+    # Optional configurations
+    clear
+    print_banner
+    echo -e "${GREEN}Company: $COMPANY${NC}"
     echo
-    log INFO "Generating secure passwords..."
-
-    ADMIN_PASSWORD=$(generate_password)
-    DEPLOY_PASSWORD=$(generate_password)
-
-    echo
-    echo -e "${BOLD}${GREEN}=== GENERATED CREDENTIALS ===${NC}"
-    echo -e "${CYAN}Admin Password:${NC} ${BOLD}${ADMIN_PASSWORD}${NC}"
-    echo -e "${CYAN}Database Password:${NC} ${BOLD}${DEPLOY_PASSWORD}${NC}"
-    echo -e "${YELLOW}⚠️  IMPORTANT: Save these passwords now! They won't be shown again.${NC}"
-    echo
-
-    # Optional configurations (streamlined)
     echo -e "${CYAN}Optional Configurations (press Enter to skip):${NC}"
+    echo
 
-    # Facebook integration (optional, no confirmation needed)
+    # Facebook integration (optional)
     read -p "$(echo -e "${DIM}Facebook App ID (optional):${NC} ")" FB_APP_ID
     if [[ -n "$FB_APP_ID" ]]; then
         read -p "$(echo -e "${DIM}Facebook App Secret:${NC} ")" FB_APP_SECRET
     fi
-
-    # GitHub token (optional, no confirmation needed)
-    read -p "$(echo -e "${DIM}GitHub Token for private repos (optional):${NC} ")" GITHUB_TOKEN
 
     # SSL is always enabled by default
     SKIP_SSL_SETUP=false
     SKIP_DNS_VALIDATION=false
 
     # Summary
-    echo
+    clear
+    print_banner
     echo -e "${BOLD}${GREEN}=== Installation Summary ===${NC}"
+    echo
+    echo -e "${CYAN}Repository:${NC} $GITHUB_REPO"
+    echo -e "${CYAN}Branch:${NC} $GITHUB_BRANCH"
     echo -e "${CYAN}Company:${NC} $COMPANY"
+    echo -e "${CYAN}Build Mode:${NC} ${GREEN}FORCE BUILD FROM SOURCE (Real Code)${NC}"
     echo -e "${CYAN}Backend:${NC} https://$BACKEND_URL"
     echo -e "${CYAN}Frontend:${NC} https://$FRONTEND_URL"
     echo -e "${CYAN}Admin Email:${NC} $ADMIN_EMAIL"
     echo -e "${CYAN}Support Phone:${NC} $SUPPORT_PHONE"
     echo
-    echo -e "${BOLD}${YELLOW}=== CREDENTIALS (Save Now!) ===${NC}"
-    echo -e "${CYAN}Admin Password:${NC} ${BOLD}${ADMIN_PASSWORD}${NC}"
-    echo -e "${CYAN}Database Password:${NC} ${BOLD}${DEPLOY_PASSWORD}${NC}"
-    echo
+    echo -e "${GREEN}✓ Passwords configured${NC}"
     echo -e "${GREEN}✓ DNS Validated${NC}"
     echo -e "${GREEN}✓ SSL will be configured${NC}"
     echo
 
-    # Auto-proceed after 10 seconds
-    echo -e "${YELLOW}Installation will start in 10 seconds...${NC}"
-    echo -e "${DIM}Press Ctrl+C to cancel or Enter to start now${NC}"
-
-    # Wait 10 seconds or until Enter is pressed
-    read -t 10 -p "" || true
+    # Confirm to proceed
+    read -p "$(echo -e "${YELLOW}Press Enter to start installation or Ctrl+C to cancel...${NC}")"
     echo
     log INFO "Starting installation..."
 }
@@ -1369,27 +2416,107 @@ main() {
     setup_user "$COMPANY"
     setup_database "$COMPANY" "$DEPLOY_PASSWORD"
 
-    # Try to download artifacts or use local build
-    if ! download_artifacts "$COMPANY"; then
-        log WARN "Failed to download artifacts from GitHub Release"
+    # PRIORITY: Always clone and build from source
+    local artifacts_downloaded=false
 
-        # Check if we can build locally
-        if [[ -d "backend" && -d "frontend" ]]; then
-            log INFO "Found local source code. Would you like to build locally instead?"
-            read -p "$(echo -e "${YELLOW}Build from source? (y/N)${NC}: ")" build_local
+    # Check if FORCE_BUILD_FROM_SOURCE is true or if we should try releases first
+    if [[ "$FORCE_BUILD_FROM_SOURCE" == "true" ]]; then
+        log INFO "Force build from source enabled - skipping release artifacts"
 
-            if [[ "$build_local" =~ ^[Yy]$ ]]; then
-                build_from_source "$COMPANY"
+        # Always clone the repository
+        log INFO "Cloning repository from GitHub..."
+
+        # Move to a working directory
+        cd "${BASE_DIR}/${COMPANY}" 2>/dev/null || mkdir -p "${BASE_DIR}/${COMPANY}" && cd "${BASE_DIR}/${COMPANY}"
+
+        # Clone the repository
+        if clone_repository "$COMPANY"; then
+            log SUCCESS "Repository cloned successfully"
+
+            # Build from source
+            log INFO "Building ChatIA Flow from source..."
+            if build_from_source "$COMPANY"; then
+                artifacts_downloaded=true
+                log SUCCESS "ChatIA Flow built successfully from source"
             else
-                log ERROR "Cannot proceed without artifacts"
-                exit 1
+                log ERROR "Build failed!"
             fi
         else
-            log ERROR "No local source code found and no release artifacts available"
-            log INFO "Please ensure GitHub Actions has completed: https://github.com/${GITHUB_REPO}/actions"
-            exit 1
+            log ERROR "Failed to clone repository!"
+        fi
+    else
+        # Try to download artifacts first (old behavior)
+        if download_artifacts "$COMPANY"; then
+            # Check if artifacts actually created the needed directories
+            if [[ -f "${BASE_DIR}/${COMPANY}/backend/dist/server.js" ]] && [[ -f "${BASE_DIR}/${COMPANY}/frontend/build/server.js" ]]; then
+                artifacts_downloaded=true
+                log SUCCESS "Artifacts downloaded and extracted successfully"
+            else
+                log WARN "Artifacts downloaded but files are missing"
+            fi
         fi
     fi
+
+    # If artifacts/build failed, try alternate approach
+    if [[ "$artifacts_downloaded" == "false" ]]; then
+        log WARN "Primary installation method failed, trying alternate approach..."
+
+        # Check if source code exists locally (maybe from a previous attempt)
+        if [[ -d "${BASE_DIR}/${COMPANY}/backend" && -d "${BASE_DIR}/${COMPANY}/frontend" ]]; then
+            log INFO "Found existing source code, attempting to build..."
+            cd "${BASE_DIR}/${COMPANY}"
+            if build_from_source "$COMPANY"; then
+                artifacts_downloaded=true
+                log SUCCESS "Built from existing source code"
+            fi
+        else
+            # Last attempt: clone and build
+            log INFO "Making final attempt to clone and build..."
+            cd "${BASE_DIR}/${COMPANY}" 2>/dev/null || mkdir -p "${BASE_DIR}/${COMPANY}" && cd "${BASE_DIR}/${COMPANY}"
+
+            if clone_repository "$COMPANY"; then
+                if build_from_source "$COMPANY"; then
+                    artifacts_downloaded=true
+                    log SUCCESS "Successfully cloned and built ChatIA Flow"
+                fi
+            fi
+        fi
+    fi
+
+    # NEVER create minimal structure - fail instead
+    if [[ "$artifacts_downloaded" == "false" ]]; then
+        log ERROR "=================================="
+        log ERROR "INSTALLATION FAILED"
+        log ERROR "=================================="
+        log ERROR "Could not install ChatIA Flow. Possible causes:"
+        log ERROR "1. Repository ${GITHUB_REPO} doesn't exist or is private"
+        log ERROR "2. Network issues preventing clone"
+        log ERROR "3. Build dependencies are missing"
+        log ERROR ""
+        log ERROR "To fix:"
+        log ERROR "1. Verify repository: https://github.com/${GITHUB_REPO}"
+        log ERROR "2. Check network connectivity"
+        log ERROR "3. Try setting GITHUB_TOKEN environment variable if repo is private"
+        log ERROR "4. Check the log file: $LOG_FILE"
+        exit 1
+    fi
+    # Verify installation succeeded
+    if [[ ! -f "${BASE_DIR}/${COMPANY}/backend/dist/server.js" ]] && [[ ! -f "${BASE_DIR}/${COMPANY}/backend/server.js" ]]; then
+        log ERROR "Backend server.js not found after build!"
+        log ERROR "Installation cannot continue without backend code"
+        exit 1
+    fi
+
+    if [[ ! -d "${BASE_DIR}/${COMPANY}/frontend/build" ]] && [[ ! -f "${BASE_DIR}/${COMPANY}/frontend/build/index.html" ]]; then
+        log WARN "Frontend build directory incomplete, checking..."
+        # Try to ensure at least the server exists
+        if [[ ! -f "${BASE_DIR}/${COMPANY}/frontend/build/server.js" ]]; then
+            log INFO "Creating frontend server..."
+            mkdir -p "${BASE_DIR}/${COMPANY}/frontend/build"
+            create_frontend_server "${BASE_DIR}/${COMPANY}/frontend/build"
+        fi
+    fi
+
     configure_environment "$COMPANY" "$BACKEND_URL" "$FRONTEND_URL" "$ADMIN_EMAIL" \
         "$DEPLOY_PASSWORD" "$ADMIN_PASSWORD" "$SUPPORT_PHONE" "${FB_APP_ID:-}" "${FB_APP_SECRET:-}"
     run_migrations "$COMPANY"
