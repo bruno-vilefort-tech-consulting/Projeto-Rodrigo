@@ -1756,7 +1756,50 @@ setup_pm2_services() {
     # List PM2 processes for verification
     su - deploy -c "pm2 list"
 
-    log SUCCESS "PM2 services setup complete (may need real code to run properly) ✓"
+    # Wait for services to be actually running
+    log INFO "Verifying services are running..."
+    sleep 3
+
+    # Check backend service status
+    local backend_status=$(su - deploy -c "pm2 show ${company}-backend --json 2>/dev/null | jq -r '.[0].pm2_env.status' 2>/dev/null || echo 'stopped'")
+    if [[ "$backend_status" == "online" ]]; then
+        log SUCCESS "Backend PM2 service is online ✓"
+
+        # Try to verify it's actually responding
+        if curl -f -s -m 5 "http://localhost:${DEFAULT_BACKEND_PORT}" > /dev/null 2>&1 || \
+           curl -f -s -m 5 "http://localhost:${DEFAULT_BACKEND_PORT}/health" > /dev/null 2>&1; then
+            log SUCCESS "Backend is responding on port ${DEFAULT_BACKEND_PORT} ✓"
+        else
+            log WARN "Backend PM2 is running but not responding yet on port ${DEFAULT_BACKEND_PORT}"
+            log INFO "Service may need more time to initialize"
+        fi
+    else
+        log WARN "Backend PM2 service is not online (status: $backend_status)"
+    fi
+
+    # Check frontend service status
+    local frontend_status=$(su - deploy -c "pm2 show ${company}-frontend --json 2>/dev/null | jq -r '.[0].pm2_env.status' 2>/dev/null || echo 'stopped'")
+    if [[ "$frontend_status" == "online" ]]; then
+        log SUCCESS "Frontend PM2 service is online ✓"
+
+        # Try to verify it's actually responding
+        if curl -f -s -m 5 "http://localhost:${DEFAULT_FRONTEND_PORT}" > /dev/null 2>&1; then
+            log SUCCESS "Frontend is responding on port ${DEFAULT_FRONTEND_PORT} ✓"
+        else
+            log WARN "Frontend PM2 is running but not responding yet on port ${DEFAULT_FRONTEND_PORT}"
+            log INFO "Service may need more time to initialize"
+        fi
+    else
+        log WARN "Frontend PM2 service is not online (status: $frontend_status)"
+    fi
+
+    # Show PM2 logs for debugging if services aren't running properly
+    if [[ "$backend_status" != "online" ]] || [[ "$frontend_status" != "online" ]]; then
+        log INFO "Showing recent PM2 logs for debugging:"
+        su - deploy -c "pm2 logs --nostream --lines 5" || true
+    fi
+
+    log SUCCESS "PM2 services setup complete ✓"
 }
 
 setup_nginx() {
@@ -1903,6 +1946,26 @@ EOF
     fi
 }
 
+wait_for_service() {
+    local service_name=$1
+    local url=$2
+    local max_retries=${3:-30}
+    local retry_count=0
+
+    while [[ $retry_count -lt $max_retries ]]; do
+        if curl -f -s -m 5 "$url" > /dev/null 2>&1; then
+            log SUCCESS "${service_name} is ready ✓"
+            return 0
+        fi
+        ((retry_count++))
+        log INFO "${service_name} not ready yet, retrying... ($retry_count/$max_retries)"
+        sleep 2
+    done
+
+    log WARN "${service_name} not accessible after $max_retries attempts"
+    return 1
+}
+
 setup_ssl() {
     local backend_host=$1
     local frontend_host=$2
@@ -1910,18 +1973,50 @@ setup_ssl() {
 
     log INFO "Setting up SSL certificates..."
 
-    # Check if domains are accessible
-    if ! curl -f -s "http://${backend_host}" > /dev/null; then
-        log WARN "Backend not accessible via HTTP, skipping SSL for now"
+    # Wait a bit for services to fully initialize
+    log INFO "Waiting for services to stabilize..."
+    sleep 5
+
+    # Wait for backend to be ready with retries
+    log INFO "Checking backend availability..."
+    local backend_ready=false
+
+    # Try different possible backend URLs
+    for backend_url in "http://${backend_host}" "http://${backend_host}/health" "http://localhost:${DEFAULT_BACKEND_PORT}"; do
+        if wait_for_service "Backend ($backend_url)" "$backend_url" 20; then
+            backend_ready=true
+            break
+        fi
+    done
+
+    if [[ "$backend_ready" != "true" ]]; then
+        log WARN "Backend not accessible, continuing without SSL for now"
+        log INFO "To setup SSL manually later, run:"
+        log INFO "  sudo certbot --nginx -d ${backend_host} -d ${frontend_host}"
         return 0
     fi
 
-    if ! curl -f -s "http://${frontend_host}" > /dev/null; then
-        log WARN "Frontend not accessible via HTTP, skipping SSL for now"
+    # Wait for frontend to be ready with retries
+    log INFO "Checking frontend availability..."
+    local frontend_ready=false
+
+    # Try different possible frontend URLs
+    for frontend_url in "http://${frontend_host}" "http://localhost:${DEFAULT_FRONTEND_PORT}"; do
+        if wait_for_service "Frontend ($frontend_url)" "$frontend_url" 20; then
+            frontend_ready=true
+            break
+        fi
+    done
+
+    if [[ "$frontend_ready" != "true" ]]; then
+        log WARN "Frontend not accessible, continuing without SSL for now"
+        log INFO "To setup SSL manually later, run:"
+        log INFO "  sudo certbot --nginx -d ${backend_host} -d ${frontend_host}"
         return 0
     fi
 
     # Request certificates
+    log INFO "Requesting SSL certificates..."
     certbot --nginx \
         -d "${backend_host}" \
         -d "${frontend_host}" \
@@ -1929,7 +2024,12 @@ setup_ssl() {
         --agree-tos \
         --email "${email}" \
         --redirect \
-        --expand
+        --expand || {
+        log WARN "SSL certificate installation failed"
+        log INFO "To retry manually, run:"
+        log INFO "  sudo certbot --nginx -d ${backend_host} -d ${frontend_host}"
+        return 0
+    }
 
     # Setup auto-renewal
     cat > /etc/cron.d/certbot-renewal <<EOF
