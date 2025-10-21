@@ -285,16 +285,109 @@ install_dependencies() {
     # Update package list
     apt-get update -qq
 
-    # Core dependencies
-    local packages=(
-        curl wget git nginx certbot python3-certbot-nginx
-        postgresql postgresql-contrib redis-server
-        build-essential software-properties-common
-        ufw fail2ban htop
-    )
+    # Fix any broken packages first
+    apt-get install -f -y || true
+    dpkg --configure -a || true
 
-    # Install packages
-    DEBIAN_FRONTEND=noninteractive apt-get install -y "${packages[@]}"
+    # Install dependencies in stages to handle errors better
+
+    # Stage 1: Basic tools
+    log INFO "Installing basic tools..."
+    DEBIAN_FRONTEND=noninteractive apt-get install -y \
+        curl wget git software-properties-common build-essential || {
+        log ERROR "Failed to install basic tools"
+        return 1
+    }
+
+    # Stage 2: Database
+    log INFO "Installing PostgreSQL and Redis..."
+    DEBIAN_FRONTEND=noninteractive apt-get install -y \
+        postgresql postgresql-contrib redis-server || {
+        log ERROR "Failed to install databases"
+        return 1
+    }
+
+    # Stage 3: Create nginx.conf if it doesn't exist
+    if [[ ! -f /etc/nginx/nginx.conf ]]; then
+        log INFO "Creating default nginx.conf..."
+        mkdir -p /etc/nginx
+        cat > /etc/nginx/nginx.conf <<'NGINX_CONF'
+user www-data;
+worker_processes auto;
+pid /run/nginx.pid;
+error_log /var/log/nginx/error.log;
+include /etc/nginx/modules-enabled/*.conf;
+
+events {
+    worker_connections 768;
+    multi_accept on;
+}
+
+http {
+    # Basic Settings
+    sendfile on;
+    tcp_nopush on;
+    types_hash_max_size 2048;
+    server_tokens off;
+
+    server_names_hash_bucket_size 64;
+    server_name_in_redirect off;
+
+    include /etc/nginx/mime.types;
+    default_type application/octet-stream;
+
+    # SSL Settings
+    ssl_protocols TLSv1.2 TLSv1.3;
+    ssl_ciphers ECDHE-RSA-AES128-GCM-SHA256:HIGH:!aNULL:!MD5:!RC4:!DHE;
+    ssl_prefer_server_ciphers off;
+
+    # Logging Settings
+    access_log /var/log/nginx/access.log;
+
+    # Gzip Settings
+    gzip on;
+    gzip_vary on;
+    gzip_proxied any;
+    gzip_comp_level 6;
+    gzip_types text/plain text/css text/xml text/javascript application/json application/javascript application/xml+rss application/rss+xml application/atom+xml image/svg+xml text/x-js text/x-cross-domain-policy application/x-font-ttf application/x-font-opentype application/vnd.ms-fontobject image/x-icon;
+
+    # Virtual Host Configs
+    include /etc/nginx/conf.d/*.conf;
+    include /etc/nginx/sites-enabled/*;
+}
+NGINX_CONF
+    fi
+
+    # Create necessary nginx directories
+    mkdir -p /etc/nginx/sites-available /etc/nginx/sites-enabled /etc/nginx/conf.d
+    mkdir -p /var/log/nginx
+
+    # Stage 4: Nginx
+    log INFO "Installing Nginx..."
+    DEBIAN_FRONTEND=noninteractive apt-get install -y nginx || {
+        log WARN "Nginx installation had issues, trying to fix..."
+
+        # Try to fix nginx installation
+        systemctl stop nginx 2>/dev/null || true
+        apt-get remove -y nginx nginx-common nginx-core 2>/dev/null || true
+        apt-get autoremove -y 2>/dev/null || true
+        apt-get install -y nginx || {
+            log ERROR "Failed to install nginx after retry"
+            return 1
+        }
+    }
+
+    # Stage 5: Certbot (optional, don't fail if it doesn't install)
+    log INFO "Installing Certbot..."
+    DEBIAN_FRONTEND=noninteractive apt-get install -y certbot python3-certbot-nginx || {
+        log WARN "Certbot installation failed, SSL setup will be skipped"
+    }
+
+    # Stage 6: Additional tools
+    log INFO "Installing additional tools..."
+    DEBIAN_FRONTEND=noninteractive apt-get install -y ufw fail2ban htop || {
+        log WARN "Some additional tools failed to install, continuing..."
+    }
 
     # Install Node.js 20
     if ! command -v node &> /dev/null || [[ $(node -v | cut -d. -f1 | sed 's/v//') -lt 20 ]]; then
@@ -304,10 +397,20 @@ install_dependencies() {
     fi
 
     # Install PM2 globally
-    npm install -g pm2
+    if ! command -v pm2 &> /dev/null; then
+        npm install -g pm2
+        log SUCCESS "PM2 installed ✓"
+    else
+        log INFO "PM2 already installed"
+    fi
 
     # Install pnpm
-    npm install -g pnpm
+    if ! command -v pnpm &> /dev/null; then
+        npm install -g pnpm
+        log SUCCESS "pnpm installed ✓"
+    else
+        log INFO "pnpm already installed"
+    fi
 
     log SUCCESS "Dependencies installed ✓"
 }
@@ -636,17 +739,37 @@ run_migrations() {
 
     log INFO "Running database migrations..."
 
-    cd "${BASE_DIR}/${company}/backend"
+    local backend_dir="${BASE_DIR}/${company}/backend"
+
+    if [[ ! -d "$backend_dir" ]]; then
+        log ERROR "Backend directory not found: $backend_dir"
+        return 1
+    fi
+
+    cd "$backend_dir"
 
     # Copy .sequelizerc if it was included in the artifact
     if [[ -f ".sequelizerc.deploy" ]]; then
         cp .sequelizerc.deploy .sequelizerc
     fi
 
-    # Run migrations
-    sudo -u deploy npx sequelize db:migrate
+    # Check if sequelize-cli is available
+    if ! npx sequelize --version &>/dev/null; then
+        log INFO "Installing sequelize-cli..."
+        npm install --save-dev sequelize-cli
+    fi
 
-    log SUCCESS "Migrations completed ✓"
+    # Run migrations
+    if sudo -u deploy npx sequelize db:migrate; then
+        log SUCCESS "Migrations completed ✓"
+    else
+        log WARN "Migrations failed or already applied"
+        log INFO "You can run migrations manually later with:"
+        log INFO "  cd ${backend_dir}"
+        log INFO "  npx sequelize db:migrate"
+    fi
+
+    cd - >/dev/null
 }
 
 setup_pm2_services() {
@@ -684,6 +807,15 @@ setup_nginx() {
     local frontend_host=$3
 
     log INFO "Configuring Nginx..."
+
+    # Ensure nginx is stopped while we configure
+    systemctl stop nginx 2>/dev/null || true
+
+    # Create directories if they don't exist
+    mkdir -p /etc/nginx/sites-available /etc/nginx/sites-enabled
+
+    # Remove default site if exists
+    rm -f /etc/nginx/sites-enabled/default 2>/dev/null || true
 
     # Backend configuration
     cat > "/etc/nginx/sites-available/${company}-backend" <<EOF
@@ -786,15 +918,29 @@ EOF
     ln -sf "/etc/nginx/sites-available/${company}-backend" "/etc/nginx/sites-enabled/"
     ln -sf "/etc/nginx/sites-available/${company}-frontend" "/etc/nginx/sites-enabled/"
 
-    # Remove default site
-    rm -f /etc/nginx/sites-enabled/default
+    # Test configuration
+    if nginx -t 2>/dev/null; then
+        log SUCCESS "Nginx configuration valid ✓"
 
-    # Test and reload
-    if nginx -t; then
-        systemctl reload nginx
-        log SUCCESS "Nginx configured ✓"
+        # Start or restart nginx
+        if systemctl is-active nginx >/dev/null 2>&1; then
+            systemctl reload nginx
+            log SUCCESS "Nginx reloaded ✓"
+        else
+            systemctl start nginx
+            log SUCCESS "Nginx started ✓"
+        fi
+
+        # Enable nginx to start on boot
+        systemctl enable nginx 2>/dev/null || true
     else
         log ERROR "Nginx configuration test failed"
+        nginx -t 2>&1 | while read line; do
+            log ERROR "  $line"
+        done
+        log WARN "Nginx configuration has errors. You may need to fix them manually."
+        log WARN "Check: /etc/nginx/sites-available/${company}-backend"
+        log WARN "Check: /etc/nginx/sites-available/${company}-frontend"
         return 1
     fi
 }
