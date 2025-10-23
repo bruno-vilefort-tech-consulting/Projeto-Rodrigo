@@ -2,6 +2,7 @@ FROM node:16-alpine
 
 # Instalar dependências do sistema necessárias
 RUN apk add --no-cache \
+    git \
     ffmpeg \
     chromium \
     nss \
