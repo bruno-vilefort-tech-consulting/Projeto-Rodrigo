@@ -1,0 +1,50 @@
+FROM node:16-alpine as build
+
+WORKDIR /app
+
+# Declarar ARGs para receber variáveis de ambiente no build
+ARG REACT_APP_BACKEND_URL
+ARG REACT_APP_NAME_SYSTEM
+ARG REACT_APP_COMPANY_NAME
+ARG REACT_APP_NUMBER_SUPPORT
+ARG REACT_APP_HOURS_CLOSE_TICKETS_AUTO
+ARG REACT_APP_PRIMARY_COLOR
+ARG REACT_APP_PRIMARY_DARK
+ARG REACT_APP_FACEBOOK_APP_ID
+ARG REACT_APP_REQUIRE_BUSINESS_MANAGEMENT
+
+# Transformar ARGs em ENVs para o build do React
+ENV REACT_APP_BACKEND_URL=$REACT_APP_BACKEND_URL
+ENV REACT_APP_NAME_SYSTEM=$REACT_APP_NAME_SYSTEM
+ENV REACT_APP_COMPANY_NAME=$REACT_APP_COMPANY_NAME
+ENV REACT_APP_NUMBER_SUPPORT=$REACT_APP_NUMBER_SUPPORT
+ENV REACT_APP_HOURS_CLOSE_TICKETS_AUTO=$REACT_APP_HOURS_CLOSE_TICKETS_AUTO
+ENV REACT_APP_PRIMARY_COLOR=$REACT_APP_PRIMARY_COLOR
+ENV REACT_APP_PRIMARY_DARK=$REACT_APP_PRIMARY_DARK
+ENV REACT_APP_FACEBOOK_APP_ID=$REACT_APP_FACEBOOK_APP_ID
+ENV REACT_APP_REQUIRE_BUSINESS_MANAGEMENT=$REACT_APP_REQUIRE_BUSINESS_MANAGEMENT
+
+# Copiar arquivos de dependências
+COPY package*.json ./
+
+# Instalar dependências
+RUN npm install --legacy-peer-deps
+
+# Copiar código fonte
+COPY . .
+
+# Build da aplicação (as variáveis REACT_APP_* serão injetadas no build)
+RUN npm run build
+
+# Estágio de produção
+FROM nginx:alpine
+
+# Copiar build para nginx
+COPY --from=build /app/build /usr/share/nginx/html
+
+# Copiar configuração customizada do nginx
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+
+EXPOSE 80
+
+CMD ["nginx", "-g", "daemon off;"]

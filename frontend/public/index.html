@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="pt" class="h-full">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="minimum-scale=1, initial-scale=1, width=device-width" />
+  <meta name="theme-color" content="#ffffff" />
+  <meta name="color-scheme" content="light" />
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+
+  <title id="page-title">Carregando...</title>
+  <link rel="apple-touch-icon" href="%PUBLIC_URL%/apple-touch-icon.png" />
+  <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
+  <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
+
+  <!-- 🌍 Sistema de Internacionalização Robusto -->
+  <script>
+    (function setupI18nRobust() {
+      console.log('🌍 Iniciando sistema de internacionalização...');
+
+      // ✅ Função para obter appName do cache (WhiteLabel-aware)
+      const getAppTitle = (loadingText) => {
+        try {
+          const cachedAppName = localStorage.getItem('appName');
+          if (cachedAppName && cachedAppName !== 'null' && cachedAppName !== 'undefined') {
+            return cachedAppName; // Retorna apenas o nome do app, sem "· Carregando"
+          }
+        } catch (e) {
+          console.warn('⚠️ i18n: Erro ao ler appName do cache:', e);
+        }
+        return loadingText; // Fallback: apenas "Carregando" sem "ChatIA"
+      };
+
+      // Traduções para os 5 idiomas (SEM "ChatIA" hardcoded)
+      const translations = {
+        pt: {
+          title: getAppTitle('Carregando...'),
+          loading: 'Carregando',
+          loadingText: 'Isso pode levar alguns segundos, por favor aguarde.',
+          noscript: 'Você precisa habilitar o JavaScript para executar este app.'
+        },
+        en: {
+          title: getAppTitle('Loading...'),
+          loading: 'Loading',
+          loadingText: 'This may take a few seconds, please wait.',
+          noscript: 'You need to enable JavaScript to run this app.'
+        },
+        es: {
+          title: getAppTitle('Cargando...'),
+          loading: 'Cargando',
+          loadingText: 'Esto puede tomar algunos segundos, por favor espere.',
+          noscript: 'Necesita habilitar JavaScript para ejecutar esta aplicación.'
+        },
+        tr: {
+          title: getAppTitle('Yükleniyor...'),
+          loading: 'Yükleniyor',
+          loadingText: 'Bu birkaç saniye sürebilir, lütfen bekleyin.',
+          noscript: 'Bu uygulamayı çalıştırmak için JavaScript\'i etkinleştirmeniz gerekiyor.'
+        },
+        ar: {
+          title: getAppTitle('جاري التحميل...'),
+          loading: 'جاري التحميل',
+          loadingText: 'قد يستغرق هذا بضع ثوانٍ، يرجى الانتظار.',
+          noscript: 'تحتاج إلى تفعيل JavaScript لتشغيل هذا التطبيق.'
+        }
+      };
+
+      // Função para detectar idioma com maior robustez
+      const detectLanguage = () => {
+        try {
+          // Verifica localStorage múltiplas vezes com diferentes chaves
+          const possibleKeys = ['i18nextLng', 'language', 'locale'];
+          let savedLang = null;
+
+          for (const key of possibleKeys) {
+            try {
+              const value = localStorage.getItem(key);
+              if (value && ['pt', 'en', 'es', 'tr', 'ar'].includes(value)) {
+                savedLang = value;
+                break;
+              }
+            } catch (e) {
+              console.warn(`Erro ao acessar localStorage com chave ${key}:`, e);
+            }
+          }
+
+          if (savedLang) {
+            console.log('🎯 Idioma detectado do localStorage:', savedLang);
+            return savedLang;
+          }
+
+          // Fallback para idioma do navegador
+          const browserLang = navigator.language || navigator.userLanguage || 'pt';
+          console.log('📱 Idioma do navegador:', browserLang);
+
+          if (browserLang.startsWith('en')) return 'en';
+          if (browserLang.startsWith('es')) return 'es';
+          if (browserLang.startsWith('tr')) return 'tr';
+          if (browserLang.startsWith('ar')) return 'ar';
+
+          console.log('🔄 Usando idioma padrão: pt');
+          return 'pt';
+        } catch (e) {
+          console.error('Erro na detecção de idioma:', e);
+          return 'pt';
+        }
+      };
+
+      // Função robusta para aplicar traduções
+      const applyTranslations = () => {
+        try {
+          const currentLang = detectLanguage();
+          const t = translations[currentLang];
+
+          console.log(`🔤 Aplicando traduções para: ${currentLang}`);
+
+          // Atualiza idioma do HTML
+          document.documentElement.lang = currentLang;
+
+          // Aplica traduções com múltiplas tentativas
+          const updateElement = (id, text, description) => {
+            const element = document.getElementById(id);
+            if (element) {
+              // ✅ PROTEÇÃO WHITELABEL: Não sobrescrever title se React App já atualizou
+              if (id === 'page-title') {
+                // Verifica se o React já montou (existe #root com conteúdo)
+                const rootElement = document.getElementById('root');
+                if (rootElement && rootElement.children.length > 0) {
+                  console.log('🛡️ WhiteLabel protegido: React App já montado, não atualiza título');
+                  return true; // Retorna true para não acionar retry
+                }
+
+                // Verifica se há appName no cache mais recente que o texto atual
+                try {
+                  const cachedAppName = localStorage.getItem('appName');
+                  if (cachedAppName && cachedAppName !== 'null' && cachedAppName !== 'undefined') {
+                    // Usa o cache mais recente em vez do texto da tradução
+                    element.textContent = cachedAppName;
+                    document.title = cachedAppName;
+                    console.log(`✅ ${description} atualizado do cache: ${cachedAppName}`);
+                    return true;
+                  }
+                } catch (e) {
+                  console.warn('⚠️ Erro ao verificar cache para title:', e);
+                }
+              }
+
+              element.textContent = text;
+              console.log(`✅ ${description} atualizado para: ${text}`);
+              return true;
+            } else {
+              console.warn(`❌ Elemento ${id} não encontrado`);
+              return false;
+            }
+          };
+
+          updateElement('page-title', t.title, 'Título da página');
+          updateElement('loading-title', t.loading, 'Título de carregamento');
+          updateElement('loading-text', t.loadingText, 'Texto de carregamento');
+          updateElement('noscript-msg', t.noscript, 'Mensagem noscript');
+
+          return true;
+        } catch (e) {
+          console.error('❌ Erro ao aplicar traduções:', e);
+          return false;
+        }
+      };
+
+      // Sistema de retry inteligente
+      let retryCount = 0;
+      const maxRetries = 50;
+      const retryInterval = 200;
+
+      const tryApplyTranslations = () => {
+        const success = applyTranslations();
+        if (!success && retryCount < maxRetries) {
+          retryCount++;
+          console.log(`🔄 Tentativa ${retryCount}/${maxRetries} - Reagendando...`);
+          setTimeout(tryApplyTranslations, retryInterval);
+        } else if (success) {
+          console.log('🎉 Traduções aplicadas com sucesso!');
+        } else {
+          console.warn('⚠️ Não foi possível aplicar traduções após múltiplas tentativas');
+        }
+      };
+
+      // MutationObserver para detectar quando elementos são adicionados ao DOM
+      if (typeof MutationObserver !== 'undefined') {
+        const observer = new MutationObserver((mutations) => {
+          mutations.forEach((mutation) => {
+            if (mutation.type === 'childList') {
+              mutation.addedNodes.forEach((node) => {
+                if (node.nodeType === 1) { // Element node
+                  const hasTargetElements = node.id && ['loading-title', 'loading-text', 'page-title', 'noscript-msg'].includes(node.id);
+                  const containsTargetElements = node.querySelector && (
+                    node.querySelector('#loading-title') ||
+                    node.querySelector('#loading-text') ||
+                    node.querySelector('#page-title') ||
+                    node.querySelector('#noscript-msg')
+                  );
+
+                  if (hasTargetElements || containsTargetElements) {
+                    console.log('👁️ MutationObserver detectou elemento relevante');
+                    setTimeout(applyTranslations, 50);
+                  }
+                }
+              });
+            }
+          });
+        });
+
+        observer.observe(document.documentElement, {
+          childList: true,
+          subtree: true
+        });
+      }
+
+      // Múltiplos pontos de execução
+      // 1. Imediato
+      tryApplyTranslations();
+
+      // 2. DOMContentLoaded
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', () => {
+          console.log('🎯 DOMContentLoaded - aplicando traduções');
+          setTimeout(tryApplyTranslations, 50);
+        });
+      }
+
+      // 3. Window load
+      window.addEventListener('load', () => {
+        console.log('🎯 Window load - aplicando traduções');
+        setTimeout(tryApplyTranslations, 100);
+      });
+
+      // 4. Delays escalonados
+      [100, 300, 500, 1000, 2000].forEach((delay) => {
+        setTimeout(() => {
+          console.log(`⏰ Execução agendada (${delay}ms)`);
+          tryApplyTranslations();
+        }, delay);
+      });
+
+      // 5. Monitora mudanças no localStorage
+      window.addEventListener('storage', (e) => {
+        if (e.key === 'i18nextLng' || e.key === 'language') {
+          console.log('🔄 LocalStorage mudou - aplicando traduções');
+          setTimeout(tryApplyTranslations, 100);
+        }
+      });
+
+      // 6. Polling para detectar mudanças (fallback)
+      let lastLang = detectLanguage();
+      const pollInterval = setInterval(() => {
+        const currentLang = detectLanguage();
+        if (currentLang !== lastLang) {
+          console.log(`🔄 Mudança de idioma detectada: ${lastLang} → ${currentLang}`);
+          lastLang = currentLang;
+          tryApplyTranslations();
+        }
+      }, 1000);
+
+      // 7. Função global para força atualização
+      window.forceLanguageUpdate = () => {
+        console.log('🚀 Atualização forçada solicitada');
+        tryApplyTranslations();
+      };
+
+      // Limpa o polling após 30 segundos para evitar overhead
+      setTimeout(() => {
+        clearInterval(pollInterval);
+        console.log('🧹 Polling de idioma interrompido');
+      }, 30000);
+
+      console.log('✨ Sistema de internacionalização inicializado');
+    })();
+  </script>
+
+  <!-- ✅ WhiteLabel: Cache de appName ANTES do React montar -->
+  <script>
+    (function setupWhiteLabelCache() {
+      try {
+        // Ler appName do cache ANTES do React montar
+        const cachedAppName = localStorage.getItem('appName');
+
+        if (cachedAppName && cachedAppName !== 'null' && cachedAppName !== 'undefined') {
+          // Atualiza o título imediatamente com o valor em cache
+          document.title = cachedAppName;
+          console.log('✅ WhiteLabel: Título carregado do cache:', cachedAppName);
+        } else {
+          // Mantém título genérico se não houver cache
+          document.title = 'Carregando...';
+          console.log('ℹ️ WhiteLabel: Sem cache, usando título genérico');
+        }
+      } catch (e) {
+        console.warn('⚠️ Erro ao carregar appName do cache:', e);
+        document.title = 'Carregando...';
+      }
+    })();
+  </script>
+
+  <!-- Inter Font -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+  <!-- Tailwind CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- 🔒 Tema: força LIGHT no login antes do primeiro paint -->
+  <script>
+    (function () {
+      var path = location.pathname || "/";
+      var isLogin = /\/(login|signup|forgot-password)(\/|$|\?)/i.test(path) || path === "/";
+      try { 
+        if (isLogin) {
+          // força claro no login
+          localStorage.setItem("theme", "light");
+          document.documentElement.classList.remove("dark");
+          document.documentElement.setAttribute("data-theme", "light");
+          // marca body como página de login para CSS específico
+          document.addEventListener("DOMContentLoaded", function() {
+            document.body.classList.add("login-page");
+          });
+        } else {
+          // respeita preferência salva fora do login
+          var theme = localStorage.getItem("theme");
+          if (theme === "dark") {
+            document.documentElement.classList.add("dark");
+            document.documentElement.setAttribute("data-theme", "dark");
+          } else {
+            document.documentElement.classList.remove("dark");
+            document.documentElement.setAttribute("data-theme", "light");
+          }
+        }
+      } catch (e) {
+        // fallback seguro: claro
+        document.documentElement.classList.remove("dark");
+        document.documentElement.setAttribute("data-theme", "light");
+      }
+    })();
+  </script>
+
+  <style>
+    :root {
+      /* Cor principal (padrão). O app pode sobrescrever com window.setSplashBrand('#hex') */
+      --brand: #10aa62;
+
+      /* Variáveis para o TEMA CLARO */
+      --bg-color: #f8f9fa;
+      --card-bg: #ffffff;
+      --card-stroke: #e5e7eb;
+      --text-title: #1f2937;
+      --text-body: #4b5563;
+      --ring-glow: rgba(16,170,98,.25);
+      --progress-track-bg: #e5e7eb;
+    }
+
+    /* Cartão do splash com sombra suave */
+    .splash-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-stroke);
+      box-shadow: 0 10px 25px -5px rgba(0,0,0,.07), 0 8px 10px -6px rgba(0,0,0,.07);
+    }
+
+    /* Loader: anel com glow */
+    .ring-loader {
+      width: 64px; height: 64px;
+      border-radius: 9999px;
+      border: 4px solid #e5e7eb;
+      border-top-color: #000000;
+      animation: spin .9s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg)} }
+
+    /* Barra de progresso suave */
+    .progress-track {
+      height: 8px; border-radius: 9999px; overflow: hidden; background: var(--progress-track-bg);
+    }
+    .progress-bar {
+      height: 100%; width: 0%;
+      background: #000000;
+      transition: width .35s ease-in-out;
+    }
+
+    /* Animação de fade-out ao sair */
+    .splash-hide {
+      opacity: 0 !important;
+      pointer-events: none !important;
+      transform: scale(.97);
+      transition: opacity .35s ease, transform .35s ease;
+    }
+
+    /* ========= FIX: Inputs brancos no login ========= */
+    /* Força campos do MUI a ficarem brancos com texto preto na tela de login,
+       cobrindo root, input, adornos, foco, hover, erro e autofill do navegador. */
+    body.login-page .MuiInputBase-root,
+    body.login-page .MuiOutlinedInput-root,
+    body.login-page .MuiOutlinedInput-input,
+    body.login-page .MuiInputBase-input,
+    body.login-page .MuiInputAdornment-root {
+      background-color: #ffffff !important;
+      color: #000000 !important;
+    }
+    body.login-page .MuiOutlinedInput-root.Mui-focused,
+    body.login-page .MuiOutlinedInput-root.Mui-disabled,
+    body.login-page .MuiOutlinedInput-root.Mui-error,
+    body.login-page .MuiOutlinedInput-root.MuiInputBase-adornedStart,
+    body.login-page .MuiOutlinedInput-root.MuiInputBase-adornedEnd,
+    body.login-page .MuiOutlinedInput-root:hover {
+      background-color: #ffffff !important;
+      color: #000000 !important;
+    }
+    body.login-page .MuiOutlinedInput-notchedOutline {
+      border-color: #e5e7eb !important;
+    }
+    body.login-page .MuiOutlinedInput-root:hover .MuiOutlinedInput-notchedOutline {
+      border-color: #cbd5e1 !important;
+    }
+    body.login-page .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline {
+      border-color: #10b981 !important;
+    }
+    /* Chrome/Safari autofill */
+    body.login-page input:-webkit-autofill,
+    body.login-page input:-webkit-autofill:hover,
+    body.login-page input:-webkit-autofill:focus {
+      -webkit-text-fill-color: #000000 !important;
+      transition: background-color 9999s ease-out 0s !important;
+      box-shadow: 0 0 0px 1000px #ffffff inset !important;
+    }
+    /* Firefox autofill */
+    body.login-page input:-moz-ui-invalid,
+    body.login-page input:-moz-ui-valid {
+      background-color: #ffffff !important;
+      color: #000000 !important;
+    }
+  </style>
+
+  <script>
+    // Compatibilidade para libs que dependem de SharedArrayBuffer
+    if (!crossOriginIsolated) { /* eslint-disable-next-line */ SharedArrayBuffer = ArrayBuffer; }
+  </script>
+</head>
+
+<body class="h-full antialiased" style="background-color: var(--bg-color); color: var(--text-body);">
+  <!-- Splash Screen -->
+  <div id="splash" class="fixed inset-0 grid place-items-center p-4">
+    <div class="splash-card rounded-2xl p-8 w-full max-w-md text-center">
+
+      <div class="flex justify-center mb-5">
+        <div class="ring-loader"></div>
+      </div>
+
+      <h1 id="loading-title" class="text-xl font-bold" style="color: var(--text-title);">Carregando</h1>
+      <p id="loading-text" class="text-sm mt-1">Isso pode levar alguns segundos, por favor aguarde.</p>
+
+      <div class="progress-track mt-6">
+        <div id="progress" class="progress-bar"></div>
+      </div>
+
+      <div class="mt-3 flex items-center justify-end text-xs">
+        <span id="progress-label" class="font-medium" style="color: var(--text-title);">0%</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Root da sua aplicação React -->
+  <div id="root"></div>
+  <noscript id="noscript-msg" class="block px-6 py-4 text-sm">Você precisa habilitar o JavaScript para executar este app.</noscript>
+
+  <script>
+    // Setup inicial (mantido do seu código original)
+    (function setupBrand(){
+      window.setSplashBrand = function (hex) {
+        try { document.documentElement.style.setProperty('--brand', hex); } catch(e){}
+      };
+      try {
+        document.getElementById('year').textContent = new Date().getFullYear();
+      } catch(e) {}
+      window.setAppVersion = v => {
+        try {
+          const el = document.getElementById('app-version');
+          if (el) el.textContent = v || '4.1.0';
+        } catch(e) {}
+      };
+      window.setAppVersion();
+    })();
+
+    // Controle do progresso (mantido do seu código original)
+    (function bootProgress(){
+      let p = 0;
+      const bar = document.getElementById('progress');
+      const label = document.getElementById('progress-label');
+      const splash = document.getElementById('splash');
+
+      const timer = setInterval(() => {
+        if (p < 55) p += 9;
+        else if (p < 80) p += 3;
+        else if (p < 98) p += Math.max(0.6, (99 - p) / 18);
+
+        if (bar) bar.style.width = p + '%';
+        if (label) label.textContent = Math.min(100, Math.round(p)) + '%';
+      }, 700);
+
+      // Garante que a função está sempre disponível
+      window.finishProgress = function() {
+        try {
+          p = 100;
+          if (bar) bar.style.width = '100%';
+          if (label) label.textContent = '100%';
+          clearInterval(timer);
+          setTimeout(() => {
+            if (splash) splash.classList.add('splash-hide');
+          }, 250);
+          setTimeout(() => {
+            if (splash && splash.parentNode) splash.remove();
+          }, 650);
+        } catch(e) {
+          console.warn('Erro ao finalizar progress:', e);
+        }
+      };
+    })();
+  </script>
+</body>
+</html>

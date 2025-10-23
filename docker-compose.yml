@@ -1,0 +1,106 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: chatia_postgres
+    restart: always
+    environment:
+      POSTGRES_DB: ${DB_NAME:-chatia}
+      POSTGRES_USER: ${DB_USER:-chatia}
+      POSTGRES_PASSWORD: ${DB_PASS:-chatia123}
+      POSTGRES_HOST_AUTH_METHOD: trust
+    ports:
+      - "${DB_PORT:-5432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - chatia_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-chatia}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: chatia_redis
+    restart: always
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD:-redis123}
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - chatia_network
+    healthcheck:
+      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: chatia_backend
+    restart: always
+    ports:
+      - "3000:3000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    env_file:
+      - ./backend/.env
+    volumes:
+      - ./backend/public:/app/public
+      - ./backend/uploads:/app/uploads
+    networks:
+      - chatia_network
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        REACT_APP_BACKEND_URL: ${REACT_APP_BACKEND_URL:-http://localhost:3000}
+        REACT_APP_NAME_SYSTEM: ${REACT_APP_NAME_SYSTEM:-ChatIA}
+        REACT_APP_COMPANY_NAME: ${REACT_APP_COMPANY_NAME:-Your Company}
+        REACT_APP_NUMBER_SUPPORT: ${REACT_APP_NUMBER_SUPPORT:-}
+        REACT_APP_HOURS_CLOSE_TICKETS_AUTO: ${REACT_APP_HOURS_CLOSE_TICKETS_AUTO:-9999}
+        REACT_APP_PRIMARY_COLOR: ${REACT_APP_PRIMARY_COLOR:-#6B46C1}
+        REACT_APP_PRIMARY_DARK: ${REACT_APP_PRIMARY_DARK:-#4C1D95}
+        REACT_APP_FACEBOOK_APP_ID: ${REACT_APP_FACEBOOK_APP_ID:-}
+        REACT_APP_REQUIRE_BUSINESS_MANAGEMENT: ${REACT_APP_REQUIRE_BUSINESS_MANAGEMENT:-FALSE}
+    container_name: chatia_frontend
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    depends_on:
+      - backend
+    networks:
+      - chatia_network
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:80"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+
+networks:
+  chatia_network:
+    driver: bridge
